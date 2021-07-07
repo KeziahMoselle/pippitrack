@@ -1,0 +1,19 @@
+{
+  "name": "osu-tracking",
+  "version": "1.0.0",
+  "description": "Tracking osu! top plays",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "pm2 start ecosystem.config.js --env development",
+    "start": "pm2 start ecosystem.config.js --env production"
+  },
+  "dependencies": {
+    "cron": "^1.8.2",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "pm2": "^5.1.0"
+  },
+  "devDependencies": {},
+  "author": "KeziahMoselle",
+  "license": "MIT"
+}
