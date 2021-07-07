@@ -5,6 +5,9 @@ module.exports = {
     {
       name   : 'osu-tracking',
       script : './src/index.js',
+      watch: ['src'],
+      ignore_watch: ['node_modules'],
+      watch_delay: 1000,
       out_file: './log.txt',
       error_file: './error.txt',
       env: {
