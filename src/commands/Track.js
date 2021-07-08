@@ -4,6 +4,9 @@ const supabase = require('../libs/supabase')
 
 class TrackCommand {
   name = 'track'
+  arguments = ['username']
+  description = '~~Track top plays of a player~~'
+  category = 'osu'
 
   /**
    * @param {module:discord.js.Message} message

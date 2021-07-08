@@ -4,6 +4,9 @@ const axios = require('axios').default
 
 class PeakCommand {
   name = 'peak'
+  arguments = ['username']
+  description = 'Display peak rank and peak accuracy of a player'
+  category = 'osu'
 
   PEAK_ENDPOINT = `https://osutrack-api.ameo.dev/peak`
 

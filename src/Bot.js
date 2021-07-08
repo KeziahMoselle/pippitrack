@@ -51,7 +51,23 @@ class Bot {
    */
   addCommand = (command) => {
     if (!command.run) {
-      throw new Error(`"${command.name}" does not have a function "run"`)
+      console.error(`"${command.name}" does not have a function named "run"`)
+    }
+
+    if (!command.name) {
+      console.error(`"${command.name}" does not have a property named "name"`)
+    }
+
+    if (!command.arguments) {
+      console.error(`"${command.name}" does not have a property named "arguments"`)
+    }
+
+    if (!command.description) {
+      console.error(`"${command.name}" does not have a property named "description"`)
+    }
+
+    if (!command.category) {
+      console.error(`"${command.name}" does not have a property named "category"`)
     }
 
     this.commands.push(command)
