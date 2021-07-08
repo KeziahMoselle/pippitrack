@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js')
-const osu = require('../libs/osu')
+const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 
 class TrackCommand {
@@ -23,8 +23,8 @@ class TrackCommand {
       })
 
       const { data: userFound } = await supabase
-        .from('users')
-        .select('user_id').eq('user_id', user.id)
+        .from('tracked_users')
+        .select('osu_id').eq('osu_id', user.id)
 
       // If we find a result there is already a player tracked.
       if (userFound.length > 0) {
@@ -38,15 +38,15 @@ class TrackCommand {
 
       // Track the user
       const { error } = await supabase
-        .from('users')
+        .from('tracked_users')
         .insert([{
-          user_id: user.id,
-          username: user.name
+          osu_id: user.id,
+          osu_username: user.name
         }])
 
       if (error) {
         console.error(error)
-        message.reply('Sorry, there was an error.')
+        return message.reply('Sorry, there was an error.')
       }
 
       const embed = new MessageEmbed()

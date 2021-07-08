@@ -5,4 +5,7 @@ const osuApi = new osu.Api(process.env.OSU_API_KEY, {
 	parseNumeric: false
 });
 
-module.exports = osuApi
+
+module.exports = {
+	osu: osuApi,
+}

@@ -1,5 +1,5 @@
 const { MessageEmbed, User } = require('discord.js')
-const osu = require('../libs/osu')
+const { osu } = require('../libs/osu')
 const axios = require('axios').default
 
 class PeakCommand {

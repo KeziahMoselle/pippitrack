@@ -6,7 +6,8 @@ const client = require('./libs/client')
 const {
   Track,
   Peak,
-  Help
+  Help,
+  Link
 } = require('./commands')
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
@@ -14,5 +15,6 @@ const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 bot
   .addCommand(new Track())
   .addCommand(new Peak())
+  .addCommand(new Link())
   .addCommand(new Help(bot.commands))
   .run()
