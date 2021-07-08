@@ -13,9 +13,27 @@ class TrackCommand {
    * @param {string[]} args
    * @memberof TrackCommand
    */
-   async run (message, args) {
+  async run (message, args) {
     // Allow username with whitespaces
     const username = args.join(' ')
+
+    console.log(message.mentions)
+    if (message.mentions) {
+      const firstMention = message.mentions.users.first()
+
+      console.log(firstMention)
+
+      const { data: savedUsername } = await supabase
+        .from('users')
+        .select('osu_id').eq('discord_id', message.member.id).single()
+
+      if (savedUsername) {
+        type = 'id'
+        osu_id = savedUsername.osu_id
+      } else {
+        message.reply(``)
+      }
+    }
 
     try {
       const user = await osu.getUser({

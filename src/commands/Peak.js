@@ -1,4 +1,5 @@
 const { MessageEmbed, User } = require('discord.js')
+const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
 const axios = require('axios').default
 
@@ -17,11 +18,33 @@ class PeakCommand {
    */
    async run (message, args) {
     // Allow username with whitespaces
-    const username = args.join(' ')
+    let username = args.join(' ')
+    let type = 'string'
+    let osu_id = null
+
+    // If no argument is provided, try to get the osu_id from our database
+    // Else use the displayName of Discord
+    if (!username) {
+      const { data: savedUsername } = await supabase
+        .from('users')
+        .select('osu_id').eq('discord_id', message.member.id).single()
+
+      console.log(savedUsername)
+
+      if (savedUsername) {
+        type = 'id'
+        osu_id = savedUsername.osu_id
+      }
+
+      if (!savedUsername) {
+        username = message.member.displayName
+      }
+    }
 
     try {
       const user = await osu.getUser({
-        u: username
+        u: username ? username : osu_id,
+        type,
       })
 
       const response = await axios.get(this.PEAK_ENDPOINT, {
