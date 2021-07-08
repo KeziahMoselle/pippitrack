@@ -1,8 +1,14 @@
-const CronJob = require('cron').CronJob
+// Setup Discord
+const Bot = require('./Bot.js')
 const client = require('./libs/client')
 
-client.once('ready', async () => {
-  console.log(`${client.user.username} is ready !`)
-})
+// Commands
+const {
+  Track
+} = require('./commands')
 
-client.login(process.env.DISCORD_BOT_TOKEN)
+const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
+
+bot
+  .addCommand(new Track())
+  .run()

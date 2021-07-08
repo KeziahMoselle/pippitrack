@@ -8,9 +8,11 @@
     "start": "pm2 start ecosystem.config.js --env production"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^1.18.0",
     "cron": "^1.8.2",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
+    "node-osu": "^2.2.1",
     "pm2": "^5.1.0"
   },
   "devDependencies": {},

@@ -12,6 +12,9 @@ module.exports = {
       error_file: './error.txt',
       env: {
         DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN,
+        OSU_API_KEY: process.env.OSU_API_KEY,
+        SUPABASE_URL: process.env.SUPABASE_URL,
+        SUPABASE_KEY: process.env.SUPABASE_KEY,
       },
       env_development: {
         NODE_ENV: 'development',
