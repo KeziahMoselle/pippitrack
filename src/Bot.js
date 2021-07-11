@@ -14,7 +14,7 @@ class Bot {
       console.log('Connected to Discord.')
       this.client.user.setPresence({
         activity: {
-          name: '!track <username>'
+          name: '!help'
         }
       })
     })

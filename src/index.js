@@ -2,6 +2,9 @@
 const Bot = require('./Bot.js')
 const client = require('./libs/client')
 
+// Services
+const ordr = require('./services/ordr')
+
 // Commands
 const {
   Track,
@@ -20,3 +23,6 @@ bot
   .addCommand(new Update())
   .addCommand(new Help(bot.commands))
   .run()
+
+// Run services
+ordr().start()
