@@ -1,6 +1,7 @@
 const { MessageEmbed, User } = require('discord.js')
 const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
+const getUser = require('../utils/getUser')
 const axios = require('axios').default
 
 class PeakCommand {
@@ -17,36 +18,10 @@ class PeakCommand {
    * @memberof PeakCommand
    */
    async run (message, args) {
-    // Allow username with whitespaces
-    let username = args.join(' ')
-    let type = 'string'
-    let osu_id = null
-
-    // If no argument is provided, try to get the osu_id from our database
-    // Else use the displayName of Discord
-    if (!username) {
-      const { data: savedUsername } = await supabase
-        .from('users')
-        .select('osu_id').eq('discord_id', message.member.id).single()
-
-      console.log(savedUsername)
-
-      if (savedUsername) {
-        type = 'id'
-        osu_id = savedUsername.osu_id
-      }
-
-      if (!savedUsername) {
-        username = message.member.displayName
-      }
-    }
+    const user = await getUser({ message, args })
+    console.log(user)
 
     try {
-      const user = await osu.getUser({
-        u: username ? username : osu_id,
-        type,
-      })
-
       const response = await axios.get(this.PEAK_ENDPOINT, {
         params: {
           user: user.id,
@@ -70,10 +45,10 @@ class PeakCommand {
       return message.channel.send(embed)
     } catch {
       const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${username}`)
+        .setTitle(`Player not found : ${args.join(' ')}`)
         .setDescription(`
-          https://osu.ppy.sh/users/${username}
-          https://ameobea.me/osutrack/user/${username}`)
+          https://osu.ppy.sh/users/${args.join(' ')}
+          https://ameobea.me/osutrack/user/${args.join(' ')}`)
         .setThumbnail('https://a.ppy.sh/')
 
       return message.channel.send(embed)

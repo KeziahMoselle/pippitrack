@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
+const getUser = require('../utils/getUser')
 
 class TrackCommand {
   name = 'track'
@@ -14,32 +15,9 @@ class TrackCommand {
    * @memberof TrackCommand
    */
   async run (message, args) {
-    // Allow username with whitespaces
-    const username = args.join(' ')
-
-    console.log(message.mentions)
-    if (message.mentions) {
-      const firstMention = message.mentions.users.first()
-
-      console.log(firstMention)
-
-      const { data: savedUsername } = await supabase
-        .from('users')
-        .select('osu_id').eq('discord_id', message.member.id).single()
-
-      if (savedUsername) {
-        type = 'id'
-        osu_id = savedUsername.osu_id
-      } else {
-        message.reply(``)
-      }
-    }
+    const user = await getUser({ message, args })
 
     try {
-      const user = await osu.getUser({
-        u: username
-      })
-
       const { data: userFound } = await supabase
         .from('tracked_users')
         .select('osu_id').eq('osu_id', user.id)
@@ -77,7 +55,7 @@ class TrackCommand {
       message.channel.send(embed)
     } catch {
       const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${username}`)
+        .setTitle(`Player not found : ${args.join(' ')}`)
         .setThumbnail('https://a.ppy.sh/')
 
       return message.channel.send(embed)
