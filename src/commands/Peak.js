@@ -19,7 +19,6 @@ class PeakCommand {
    */
    async run (message, args) {
     const user = await getUser({ message, args })
-    console.log(user)
 
     try {
       const response = await axios.get(this.PEAK_ENDPOINT, {
