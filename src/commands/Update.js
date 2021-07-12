@@ -34,16 +34,18 @@ class UpdateCommand {
       }
 
       const pp_rank = difference.pp_rank > 0 ? `-${difference.pp_rank}` : `${difference.pp_rank}`.replace('-', '+')
+
+      const pp_rank_number = Number(`${difference.pp_rank}`.replace('-', ''))
       let pp_rank_diff
 
       // The player is losing ranks
-      if (difference.pp_rank > 0) {
-        pp_rank_diff = Number(user.pp.rank) + Number(difference.pp_rank)
+      if (pp_rank_number > 0) {
+        pp_rank_diff = Number(user.pp.rank) - Number(difference.pp_rank)
       }
 
       // The player is gaining ranks
-      if (difference.pp_rank < 0) {
-        pp_rank_diff = Number(user.pp.rank) - Number(`${difference.pp_rank}`.replace('-', ''))
+      if (pp_rank_number < 0) {
+        pp_rank_diff = Number(user.pp.rank) + pp_rank_number
       }
 
       const pp_raw = Number.parseFloat(difference.pp_raw).toPrecision(4)
@@ -58,12 +60,12 @@ class UpdateCommand {
         .addField('Playcount', `+${difference.playcount}`, true)
 
       if (pp_rank_diff) {
-        embed.addField('Previous Rank', pp_rank_diff, true)
-        embed.addField('Current rank', user.pp.rank, true)
+        embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
+        embed.addField('Current rank', `#${user.pp.rank}`, true)
       }
 
       if (pp_raw >= 1) {
-        embed.addField('PP', `${pp_raw}`, true)
+        embed.addField('PP', `+${pp_raw}`, true)
       }
 
       if (accuracy >= 0.01) {
@@ -81,7 +83,7 @@ class UpdateCommand {
       return message.channel.send(embed)
     } catch (error) {
       console.error(error)
-      return message.reply('Sorry, there was an error.')
+      return message.reply(`Sorry, there was an error.\n\`\`\`${error.response.data}\`\`\``)
     }
   }
 }
