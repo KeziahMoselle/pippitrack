@@ -1,9 +1,8 @@
-const client = require('../../libs/client')
 const supabase = require('../../libs/supabase')
 const ordr = require('../../libs/ordr')
 const { osu } = require('../../libs/osu')
 
-function listenForRenders() {
+function listenForRenders(client) {
   console.log('Service started : ordr')
 
   ordr.on('render_done', async (data) => {

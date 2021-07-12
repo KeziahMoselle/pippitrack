@@ -11,12 +11,9 @@ class Bot {
     this.apiKey = apiKey
 
     this.client.once('ready', async () => {
-      console.log('Connected to Discord.')
-      this.client.user.setPresence({
-        activity: {
-          name: '!help'
-        }
-      })
+      if (this.onReady && typeof this.onReady === 'function') {
+        this.onReady.call(this, this.client)
+      }
     })
 
     this.client.on('message', this.onMessage)

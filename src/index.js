@@ -16,6 +16,19 @@ const {
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
+bot.onReady = (client) => {
+  console.log('Connected to Discord.')
+
+  client.user.setPresence({
+    activity: {
+      name: '!help'
+    }
+  })
+
+  // Run services
+  ordr(client).start()
+}
+
 bot
   .addCommand(new Track())
   .addCommand(new Peak())
@@ -23,6 +36,3 @@ bot
   .addCommand(new Update())
   .addCommand(new Help(bot.commands))
   .run()
-
-// Run services
-ordr().start()
