@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "pm2 start ecosystem.config.js --env development --watch && pm2 log osu-tracking",
-    "start": "pm2 start ecosystem.config.js --env production",
+    "start": "node src/index.js",
+    "start:pm2": "pm2 start ecosystem.config.js --env production",
     "stop": "pm2 stop osu-tracking"
   },
   "dependencies": {
@@ -17,6 +18,9 @@
     "node-osu": "^2.2.1",
     "ordr.js": "^1.0.0",
     "pm2": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=14.8.0"
   },
   "devDependencies": {},
   "author": "KeziahMoselle",

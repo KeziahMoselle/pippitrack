@@ -44,10 +44,6 @@ class UpdateCommand {
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
 
-      if (pp_rank_diff) {
-        embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
-        embed.addField('Current rank', `#${user.pp.rank}`, true)
-      }
 
       // The player is losing ranks
       if (pp_rank_number > 0) {
@@ -63,6 +59,11 @@ class UpdateCommand {
         embed
           .addField('Rank gained', `+${pp_rank_number}`, true)
           .setColor(2064687)
+      }
+
+      if (pp_rank_diff) {
+        embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
+        embed.addField('Current rank', `#${user.pp.rank}`, true)
       }
 
       embed.addField('Playcount', `+${difference.playcount}`, true)
