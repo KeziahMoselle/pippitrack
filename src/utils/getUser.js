@@ -12,8 +12,11 @@ const { osu } = require('../libs/osu')
 async function getUser({ message, args }) {
   try {
     // Allow username with whitespaces
-    let usernameArg = args.join(' ')
-    if (args.length > 0) {
+    let usernameArg = args
+      .join(' ')
+      .replace(/"/g, '')
+
+    if (usernameArg) {
       return osu.getUser({
         u: usernameArg,
         type: 'string'

@@ -21,9 +21,7 @@ class UpdateCommand {
     const user = await getUser({ message, args })
 
     try {
-      const response = await axios.post(this.UPDATE_ENDPOINT(user.id))
-
-      const difference = response.data
+      const { data: difference } = await axios.post(this.UPDATE_ENDPOINT(user.id))
 
       const embed = new MessageEmbed()
         .setTitle(`Changes since last update for ${user.name}`)
