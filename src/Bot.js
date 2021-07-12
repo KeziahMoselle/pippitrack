@@ -80,7 +80,7 @@ class Bot {
    * @param {Message} message
    * @memberof Bot
    */
-  runCommand = (message) => {
+  runCommand = async (message) => {
     const content = message.content.toLowerCase()
     const parts = content.split(' ')
     const args = parts.slice(1)
@@ -89,7 +89,9 @@ class Bot {
 
     if (!command) return false
 
-    command.run(message, args)
+    message.channel.startTyping()
+    await command.run(message, args)
+    message.channel.stopTyping()
   }
 
   /**

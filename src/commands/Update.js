@@ -43,7 +43,7 @@ class UpdateCommand {
       return message.channel.send(embed)
     } catch (error) {
       console.error(error)
-      message.reply('Sorry, there was an error.')
+      return message.reply('Sorry, there was an error.')
     }
   }
 }

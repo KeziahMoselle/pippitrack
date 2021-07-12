@@ -85,7 +85,7 @@ class Help {
     }
 
     // Send all commands help
-    message.channel.send(this.defaultEmbed)
+    return message.channel.send(this.defaultEmbed)
   }
 }
 
