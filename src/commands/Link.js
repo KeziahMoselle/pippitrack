@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
+const getUser = require('../utils/getUser')
 
 class LinkCommand {
   name = 'link'
@@ -14,17 +15,8 @@ class LinkCommand {
    * @memberof LinkCommand
    */
    async run (message, args) {
-    // Allow username with whitespaces
-    let username = args.join(' ')
-
-    if (!username) {
-      username = message.member.displayName
-    }
-
-    try {
-      const user = await osu.getUser({
-        u: username
-      })
+     try {
+      const user = await getUser({ message, args })
 
       const embed = new MessageEmbed()
         .setTitle(`${message.member.displayName} has been set to ${user.name}`)

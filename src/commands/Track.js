@@ -6,7 +6,7 @@ const getUser = require('../utils/getUser')
 class TrackCommand {
   name = 'track'
   arguments = ['username']
-  description = '~~Track top plays of a player~~'
+  description = 'Allows you to track top plays and replays. Also enable daily updates of your profile.'
   category = 'osu'
 
   /**

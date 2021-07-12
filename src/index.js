@@ -31,8 +31,8 @@ bot.onReady = (client) => {
 
 bot
   .addCommand(new Track())
+  .addCommand(new Update())
   .addCommand(new Peak())
   .addCommand(new Link())
-  .addCommand(new Update())
   .addCommand(new Help(bot.commands))
   .run()

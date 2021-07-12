@@ -7,7 +7,7 @@ const axios = require('axios').default
 class UpdateCommand {
   name = 'u'
   arguments = ['username']
-  description = 'Update osu!track profile.'
+  description = "See how much pp, rank, etc. you've gained since your last update"
   category = 'osu'
 
   UPDATE_ENDPOINT = (id) => `https://osutrack-api.ameo.dev/update?user=${id}&mode=0`
