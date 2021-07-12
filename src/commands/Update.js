@@ -33,20 +33,8 @@ class UpdateCommand {
         return message.channel.send(embed)
       }
 
-      const pp_rank = difference.pp_rank > 0 ? `-${difference.pp_rank}` : `${difference.pp_rank}`.replace('-', '+')
-
       const pp_rank_number = Number(`${difference.pp_rank}`.replace('-', ''))
       let pp_rank_diff
-
-      // The player is losing ranks
-      if (pp_rank_number > 0) {
-        pp_rank_diff = Number(user.pp.rank) - Number(difference.pp_rank)
-      }
-
-      // The player is gaining ranks
-      if (pp_rank_number < 0) {
-        pp_rank_diff = Number(user.pp.rank) + pp_rank_number
-      }
 
       const pp_raw = Number.parseFloat(difference.pp_raw).toPrecision(4)
       const accuracy = Number.parseFloat(difference.accuracy).toPrecision(4)
@@ -55,14 +43,29 @@ class UpdateCommand {
         .setTitle(`Changes since last update for ${user.name}`)
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
-        .setColor(11279474)
-        .addField('Rank gained', `${pp_rank}`, true)
-        .addField('Playcount', `+${difference.playcount}`, true)
 
       if (pp_rank_diff) {
         embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
         embed.addField('Current rank', `#${user.pp.rank}`, true)
       }
+
+      // The player is losing ranks
+      if (pp_rank_number > 0) {
+        pp_rank_diff = Number(user.pp.rank) - Number(difference.pp_rank)
+        embed
+          .addField('Rank lost', `-${pp_rank_number}`, true)
+          .setColor(14504273)
+      }
+
+      // The player is gaining ranks
+      if (pp_rank_number < 0) {
+        pp_rank_diff = Number(user.pp.rank) + pp_rank_number
+        embed
+          .addField('Rank gained', `+${pp_rank_number}`, true)
+          .setColor(2064687)
+      }
+
+      embed.addField('Playcount', `+${difference.playcount}`, true)
 
       if (pp_raw >= 1) {
         embed.addField('PP', `+${pp_raw}`, true)
@@ -74,8 +77,8 @@ class UpdateCommand {
 
       if (difference.newhs.length > 0) {
         const newHighscores = difference.newhs.reduce((list, highscore) => {
-          return list + `:${highscore.rank}: **+${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
-        }, 'New highscores :\n')
+          return list + `:${highscore.rank}: **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
+        }, '**New top plays :**\n')
 
         embed.setDescription(newHighscores)
       }
