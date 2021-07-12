@@ -26,19 +26,22 @@ class UpdateCommand {
       const difference = response.data
 
       const embed = new MessageEmbed()
-        .setTitle(`Update : ${user.name}`)
+        .setTitle(`Changes since last update for ${user.name}`)
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .addField('Playcount', `+${difference.playcount}`, true)
         .addField('Rank', `${difference.pp_rank}`, true)
         .addField('PP', `${difference.pp_raw}`, true)
         .addField('Accuracy', `${difference.accuracy}`, true)
+        .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
         .setColor(11279474)
 
-      const newHighscores = difference.newhs.reduce((list, highscore) => {
-        return list + `**+${highscore.pp}** - ${highscore.rank} (#${highscore.ranking})\n`
-      }, 'New highscores :\n')
+      if (difference.newhs.length > 0) {
+        const newHighscores = difference.newhs.reduce((list, highscore) => {
+          return list + `**+${highscore.pp}** - ${highscore.rank} (#${highscore.ranking})\n`
+        }, 'New highscores :\n')
 
-      embed.setDescription(newHighscores)
+        embed.setDescription(newHighscores)
+      }
 
       return message.channel.send(embed)
     } catch (error) {

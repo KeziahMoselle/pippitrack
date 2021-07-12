@@ -38,7 +38,7 @@ class PeakCommand {
         .addField('Max rank', `#${rank}`, true)
         .addField('Best accuracy', `${bestAccuracy}%`, true)
         .setFooter('These data may be incorrect if the profile has not yet been tracked on https://ameobea.me/osutrack/')
-        .setURL(`https://ameobea.me/osutrack/user/${user.name}`)
+        .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
         .setColor(11279474)
 
       return message.channel.send(embed)

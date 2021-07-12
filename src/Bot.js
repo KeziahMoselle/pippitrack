@@ -89,9 +89,14 @@ class Bot {
 
     if (!command) return false
 
-    message.channel.startTyping()
-    await command.run(message, args)
-    message.channel.stopTyping()
+    try {
+      message.channel.startTyping()
+      await command.run(message, args)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      message.channel.stopTyping()
+    }
   }
 
   /**
