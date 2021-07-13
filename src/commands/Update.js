@@ -54,9 +54,9 @@ class UpdateCommand {
 
       // The player is gaining ranks
       if (pp_rank_number < 0) {
-        pp_rank_diff = Number(user.pp.rank) + pp_rank_number
+        pp_rank_diff = Number(user.pp.rank) - pp_rank_number
         embed
-          .addField('Rank gained', `+${pp_rank_number}`, true)
+          .addField('Rank gained', `+${pp_rank_number.toString().replace('-', '')}`, true)
           .setColor(2064687)
       }
 
