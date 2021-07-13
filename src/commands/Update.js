@@ -2,6 +2,7 @@ const { MessageEmbed, User } = require('discord.js')
 const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
 const getUser = require('../utils/getUser')
+const getEmoji = require('../utils/getEmoji')
 const axios = require('axios').default
 
 class UpdateCommand {
@@ -85,15 +86,15 @@ class UpdateCommand {
         return message.channel.send(embed)
       }
 
-      if (pp_rank_diff) {
-        embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
-        embed.addField('Current rank', `#${user.pp.rank}`, true)
-      }
-
       embed.addField('Playcount', `+${difference.playcount}`, true)
 
       if (pp_raw >= 1) {
-        embed.addField('PP', `+${pp_raw}`, true)
+        embed.addField('PP', `+${pp_raw}pp`, true)
+      }
+
+      if (pp_rank_diff) {
+        embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
+        embed.addField('Current rank', `#${user.pp.rank}`, true)
       }
 
       if (accuracy >= 0.01) {
@@ -102,7 +103,7 @@ class UpdateCommand {
 
       if (difference.newhs.length > 0) {
         const newHighscores = difference.newhs.reduce((list, highscore) => {
-          return list + `:rank_${highscore.rank.toLowerCase()}: **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
+          return list + `${getEmoji(highscore.rank.toLowerCase())} **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
         }, '**New top plays :**\n')
 
         embed.setDescription(newHighscores)
