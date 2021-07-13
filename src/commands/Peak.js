@@ -10,7 +10,7 @@ class PeakCommand {
   description = 'Display peak rank and accuracy of a player'
   category = 'osu'
 
-  PEAK_ENDPOINT = `https://osutrack-api.ameo.dev/peak`
+  PEAK_ENDPOINT = (id) => `https://osutrack-api.ameo.dev/peak?user=${id}&mode=0`
 
   /**
    * @param {module:discord.js.Message} message
@@ -20,12 +20,7 @@ class PeakCommand {
     const user = await getUser({ message, args })
 
     try {
-      const response = await axios.get(this.PEAK_ENDPOINT, {
-        params: {
-          user: user.id,
-          mode: 0
-        }
-      })
+      const response = await axios.get(this.PEAK_ENDPOINT(user.id))
 
       const peak = response.data[0]
       const rank = peak.best_global_rank
