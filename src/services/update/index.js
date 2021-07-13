@@ -13,7 +13,7 @@ function update(client) {
   })
 
   async function massUpdatePlayers() {
-    const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('862370264313233439')
+    const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('828737685421293578')
 
     try {
       // Get all tracked players
