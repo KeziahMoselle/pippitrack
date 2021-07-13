@@ -32,7 +32,7 @@ class UpdateCommand {
         return message.channel.send(embed)
       }
 
-      const pp_rank_number = Number(`${difference.pp_rank}`.replace('-', ''))
+      const pp_rank_number = Number(difference.pp_rank)
       let pp_rank_diff
 
       const pp_raw = Number.parseFloat(difference.pp_raw).toPrecision(4)
