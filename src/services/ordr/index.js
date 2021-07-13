@@ -10,25 +10,18 @@ function listenForRenders(client) {
       const render = await ordr.renders({ renderID: data.render_done })
       const replay = render.renders[0]
 
-      console.log('ordr service : replayUsername', replay.replayUsername)
-
-      const user = await osu.getUser({
-        u: replay.replayUsername
-      })
-
-      console.log('ordr service : osu user', user.name, user.id)
 
       const { data: isUserTracked } = await supabase
-        .from('tracked_users')
-        .select('*')
-        .eq('osu_id', user.id)
-        .single()
+      .from('tracked_users')
+      .select('*')
+      .eq('osu_username', replay.replayUsername)
+      .single()
 
       if (!isUserTracked) return
 
-      const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('862370264313233439')
+      const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('864626246263767080')
 
-      channel.send(`New replay from **${user.name}** !\n${replay.videoUrl}`)
+      channel.send(`New replay from **${isUserTracked.osu_username}** !\n${replay.videoUrl}`)
     } catch (error) {
       console.error(error)
     }
