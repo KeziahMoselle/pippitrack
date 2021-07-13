@@ -6,6 +6,7 @@ const { getUpdate } = require('../../api')
 const cronTime = '0 0 0 * * *'
 
 function update(client) {
+  console.log('Service started : update players every day')
 
   const job = new CronJob({
     cronTime,
