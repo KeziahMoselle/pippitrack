@@ -77,7 +77,7 @@ class UpdateCommand {
 
       if (difference.newhs.length > 0) {
         const newHighscores = difference.newhs.reduce((list, highscore) => {
-          return list + `:${highscore.rank}: **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
+          return list + `:rank_${highscore.rank.toLowerCase()}: **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
         }, '**New top plays :**\n')
 
         embed.setDescription(newHighscores)
