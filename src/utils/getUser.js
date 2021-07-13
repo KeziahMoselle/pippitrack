@@ -9,21 +9,34 @@ const { osu } = require('../libs/osu')
  * @param {Object} { message, args }
  * @return {*}
  */
-async function getUser({ message, args }) {
-  try {
-    // Allow username with whitespaces
-    let usernameArg = args
-      .join(' ')
-      .replace(/"/g, '')
+async function getUser({ message, args, id }) {
+  if (args?.length > 0) {
+    try {
+      // Allow username with whitespaces
+      let usernameArg = args
+        .join(' ')
+        .replace(/"/g, '')
 
-    if (usernameArg) {
-      return osu.getUser({
-        u: usernameArg,
-        type: 'string'
-      })
+      if (usernameArg) {
+        return osu.getUser({
+          u: usernameArg,
+          type: 'string'
+        })
+      }
+    } catch (error) {
+      console.error(error)
     }
-  } catch (error) {
-    console.error(error)
+  }
+
+  if (id) {
+    try {
+      return osu.getUser({
+        u: id,
+        type: 'id'
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   try {

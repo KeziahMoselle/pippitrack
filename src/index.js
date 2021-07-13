@@ -6,6 +6,7 @@ const client = require('./libs/client')
 
 // Services
 const ordr = require('./services/ordr')
+const update = require('./services/update')
 
 // Commands
 const {
@@ -30,6 +31,7 @@ bot.onReady = (client) => {
 
   // Run services
   ordr(client).start()
+  update(client).start()
 }
 
 bot
