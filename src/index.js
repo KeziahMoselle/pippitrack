@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 // Setup Discord
 const Bot = require('./Bot.js')
 const client = require('./libs/client')
