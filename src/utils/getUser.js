@@ -22,7 +22,11 @@ async function getUser({ message, args }) {
         type: 'string'
       })
     }
+  } catch (error) {
+    console.error(error)
+  }
 
+  try {
     // If no argument is provided, try to get the osu_id from our database
     const { data: savedUsername } = await supabase
       .from('users')
@@ -46,7 +50,6 @@ async function getUser({ message, args }) {
     }
   } catch (error) {
     console.error(error)
-    return
   }
 }
 

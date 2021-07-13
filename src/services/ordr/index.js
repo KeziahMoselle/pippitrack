@@ -10,25 +10,19 @@ function listenForRenders(client) {
       const render = await ordr.renders({ renderID: data.render_done })
       const replay = render.renders[0]
 
-      console.log('replay')
-      console.table(replay)
+      console.log('ordr service : replayUsername', replay.replayUsername)
 
       const user = await osu.getUser({
         u: replay.replayUsername
       })
 
-      console.log('user')
-      console.table(user)
-
+      console.log('ordr service : osu user', user.name, user.id)
 
       const { data: isUserTracked } = await supabase
         .from('tracked_users')
         .select('*')
         .eq('osu_id', user.id)
         .single()
-
-      console.log('isUserTracked')
-      console.table(isUserTracked)
 
       if (!isUserTracked) return
 

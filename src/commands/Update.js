@@ -10,7 +10,7 @@ class UpdateCommand {
   description = "See how much pp, rank, etc. you've gained since your last update"
   category = 'osu'
 
-  UPDATE_ENDPOINT = (id) => `https://osutrack-api.ameo.dev/update?user=${id}&mode=0`
+  UPDATE_ENDPOINT = (username) => `https://ameobea.me/osutrack/api/get_changes.php?mode=0&user=${username}`
 
   /**
    * @param {module:discord.js.Message} message
@@ -19,12 +19,31 @@ class UpdateCommand {
    async run (message, args) {
     const user = await getUser({ message, args })
 
+    const embed = new MessageEmbed()
+
     try {
-      const { data: difference } = await axios.post(this.UPDATE_ENDPOINT(user.id))
+      const { data: difference } = await axios.post(this.UPDATE_ENDPOINT(user.name))
+
+      const { data } = await supabase
+        .from('updates_timestamp')
+        .select('updated_at')
+        .eq('osu_id', user.id)
+        .single()
+
+      if (data?.updated_at) {
+        embed
+          .setFooter(`Last updated`)
+          .setTimestamp(data.updated_at)
+      } else {
+        embed
+          .setFooter(`First update !`)
+          .setTimestamp()
+      }
+
 
       // This player hasn't been tracked
       if (difference.first) {
-        const embed = new MessageEmbed()
+        embed
           .setTitle(`${user.name} is now tracked on osu!track`)
           .setDescription('Play a bit and update again to see difference in stats since the last update.')
           .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
@@ -32,17 +51,16 @@ class UpdateCommand {
         return message.channel.send(embed)
       }
 
+      embed
+        .setTitle(`Changes since last update for ${user.name}`)
+        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
+
       const pp_rank_number = Number(difference.pp_rank)
       let pp_rank_diff
 
       const pp_raw = Number.parseFloat(difference.pp_raw).toPrecision(4)
       const accuracy = Number.parseFloat(difference.accuracy).toPrecision(4)
-
-      const embed = new MessageEmbed()
-        .setTitle(`Changes since last update for ${user.name}`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
-        .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
-
 
       // The player is losing ranks
       if (pp_rank_number > 0) {
@@ -58,6 +76,13 @@ class UpdateCommand {
         embed
           .addField('Rank gained', `+${pp_rank_number.toString().replace('-', '')}`, true)
           .setColor(2064687)
+      }
+
+      if (difference.playcount === 0 && !pp_rank_diff) {
+        embed
+          .setDescription(`No changes since the last update.\nTry getting some pp`)
+
+        return message.channel.send(embed)
       }
 
       if (pp_rank_diff) {
@@ -86,7 +111,18 @@ class UpdateCommand {
       return message.channel.send(embed)
     } catch (error) {
       console.error(error)
-      return message.reply(`Sorry, there was an error.\n\`\`\`${error.response.data}\`\`\``)
+      return message.reply(`Sorry, there was an error.`)
+    } finally {
+      const { error } = await supabase
+        .from('updates_timestamp')
+        .upsert({
+          osu_id: user.id,
+          updated_at: new Date()
+        })
+
+      if (error) {
+        console.error(error)
+      }
     }
   }
 }
