@@ -15,7 +15,6 @@ class UpdateCommand {
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
-   * @memberof UpdateCommand
    */
    async run (message, args) {
     const user = await getUser({ message, args })

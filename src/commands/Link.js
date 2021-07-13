@@ -12,7 +12,6 @@ class LinkCommand {
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
-   * @memberof LinkCommand
    */
    async run (message, args) {
      try {

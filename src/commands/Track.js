@@ -12,7 +12,6 @@ class TrackCommand {
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
-   * @memberof TrackCommand
    */
   async run (message, args) {
     const user = await getUser({ message, args })

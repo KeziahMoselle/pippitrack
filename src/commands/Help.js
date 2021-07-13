@@ -55,7 +55,6 @@ class Help {
    *
    * @param {string[]} commandArguments
    * @returns {string}
-   * @memberof Help
    */
   getArgumentsList(commandArguments) {
     return commandArguments
@@ -68,7 +67,6 @@ class Help {
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
-   * @memberof QuickCommand
    */
   async run (message, args) {
     const [firstArg] = args

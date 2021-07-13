@@ -15,7 +15,6 @@ class PeakCommand {
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
-   * @memberof PeakCommand
    */
    async run (message, args) {
     const user = await getUser({ message, args })

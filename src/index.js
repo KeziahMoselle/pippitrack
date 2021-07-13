@@ -11,7 +11,8 @@ const {
   Peak,
   Help,
   Link,
-  Update
+  Update,
+  Ping
 } = require('./commands')
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
@@ -34,5 +35,6 @@ bot
   .addCommand(new Update())
   .addCommand(new Peak())
   .addCommand(new Link())
+  .addCommand(new Ping(bot.client))
   .addCommand(new Help(bot.commands))
   .run()
