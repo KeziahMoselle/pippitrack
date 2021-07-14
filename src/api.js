@@ -4,12 +4,14 @@ const supabase = require('./libs/supabase')
 const getUser = require('./utils/getUser')
 const getEmoji = require('./utils/getEmoji')
 
+const UPDATE_ENDPOINT = (username) => `https://ameobea.me/osutrack/api/get_changes.php?mode=0&user=${username}`
+
 async function getUpdate (osuUser, id) {
   const user = osuUser || await getUser({ id })
   const embed = new MessageEmbed()
 
   try {
-    const { data: difference } = await axios.post(this.UPDATE_ENDPOINT(user.name))
+    const { data: difference } = await axios.post(UPDATE_ENDPOINT(user.name))
 
     const { data } = await supabase
       .from('updates_timestamp')
