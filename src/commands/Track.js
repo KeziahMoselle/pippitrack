@@ -1,6 +1,5 @@
 const { MessageEmbed } = require('discord.js')
 const { MessageButton } = require('discord-buttons')
-const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 const getUser = require('../utils/getUser')
 const notFoundEmbed = require('../utils/notFoundEmbed')

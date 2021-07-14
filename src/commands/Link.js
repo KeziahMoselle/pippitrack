@@ -1,5 +1,4 @@
 const { MessageEmbed } = require('discord.js')
-const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 const getUser = require('../utils/getUser')
 const notFoundEmbed = require('../utils/notFoundEmbed')
@@ -14,8 +13,8 @@ class LinkCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-   async run (message, args) {
-     try {
+  async run (message, args) {
+    try {
       const user = await getUser({ message, args })
 
       if (!user || user.length === 0) {
@@ -36,15 +35,15 @@ class LinkCommand {
 
       // If the Discord ID is present, update instead of insert
       if (isDiscordUserPresent.length > 0) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('users')
           .update({ osu_id: user.id })
           .eq('discord_id', message.author.id)
 
-          if (error) {
-            console.error(error)
-            return message.reply('Sorry, there was an error.')
-          }
+        if (error) {
+          console.error(error)
+          return message.reply('Sorry, there was an error.')
+        }
 
         return message.channel.send(embed)
       }
@@ -65,7 +64,7 @@ class LinkCommand {
       message.channel.send(embed)
     } catch {
       const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${username}`)
+        .setTitle('Player not found')
         .setThumbnail('https://a.ppy.sh/')
 
       return message.channel.send(embed)

@@ -23,33 +23,32 @@ class Help {
   /**
    * Set the default embed for all commands
    */
-  setDefaultEmbed(commands) {
+  setDefaultEmbed (commands) {
     this.defaultEmbed
-      .setTitle(`osu!track's commands`)
+      .setTitle('osu!track\'s commands')
 
     let description = commands.reduce((desc, command) => {
-      return desc += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
+      desc += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
+      return desc
     }, '')
 
-    description += `\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)`
+    description += '\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)'
 
     this.defaultEmbed
       .setDescription(description)
       .setFooter(`For more details on a specific command: ${PREFIX}help <command>`)
   }
 
-
   /**
    * Set a help command for a specific command
    */
-  setCommandEmbed(command) {
+  setCommandEmbed (command) {
     const commandEmbed = new MessageEmbed()
       .setTitle(`Help for command : ${command.name}`)
       .setDescription(command.description)
 
     this.commandsEmbed.set(command.name, commandEmbed)
   }
-
 
   /**
    * Take an array of arguments and returns a string
@@ -58,10 +57,13 @@ class Help {
    * @param {string[]} commandArguments
    * @returns {string}
    */
-  getArgumentsList(commandArguments) {
+  getArgumentsList (commandArguments) {
     return commandArguments
       .reduce(
-        (allArguments, argument) => allArguments += `<${argument}> `,
+        (allArguments, argument) => {
+          allArguments += `<${argument}> `
+          return allArguments
+        },
         ''
       )
   }

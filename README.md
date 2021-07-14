@@ -5,6 +5,9 @@
 
 osu!track is a bot focused on the rythm game osu! It tracks things and do things.
 
+[![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
+
+
 ## Bot documentation
 
 ### Commands

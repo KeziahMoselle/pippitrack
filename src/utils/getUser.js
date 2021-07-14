@@ -1,7 +1,5 @@
-const { MessageFlags } = require('discord.js')
 const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
-
 
 /**
  * Get osu! user data
@@ -9,10 +7,10 @@ const { osu } = require('../libs/osu')
  * @param {Object} { message, args }
  * @return {*}
  */
-async function getUser({ message, args, id }) {
+async function getUser ({ message, args, id }) {
   if (args?.length > 0) {
     // Allow username with whitespaces
-    let usernameArg = args
+    const usernameArg = args
       .join(' ')
       .replace(/"/g, '')
 

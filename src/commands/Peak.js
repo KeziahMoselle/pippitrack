@@ -1,7 +1,5 @@
-const { MessageEmbed, User } = require('discord.js')
+const { MessageEmbed } = require('discord.js')
 const axios = require('axios').default
-const supabase = require('../libs/supabase')
-const { osu } = require('../libs/osu')
 const getUser = require('../utils/getUser')
 const notFoundEmbed = require('../utils/notFoundEmbed')
 
@@ -17,7 +15,7 @@ class PeakCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-   async run (message, args) {
+  async run (message, args) {
     const user = await getUser({ message, args })
 
     if (!user || user.length === 0) {

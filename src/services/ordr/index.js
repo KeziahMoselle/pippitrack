@@ -1,8 +1,7 @@
 const supabase = require('../../libs/supabase')
 const ordr = require('../../libs/ordr')
-const { osu } = require('../../libs/osu')
 
-function listenForRenders(client) {
+function listenForRenders (client) {
   console.log('Service started : ordr')
 
   ordr.on('render_done', async (data) => {
@@ -10,12 +9,11 @@ function listenForRenders(client) {
       const render = await ordr.renders({ renderID: data.render_done })
       const replay = render.renders[0]
 
-
       const { data: isUserTracked } = await supabase
-      .from('tracked_users')
-      .select('*')
-      .eq('osu_username', replay.replayUsername)
-      .single()
+        .from('tracked_users')
+        .select('*')
+        .eq('osu_username', replay.replayUsername)
+        .single()
 
       if (!isUserTracked) return
 

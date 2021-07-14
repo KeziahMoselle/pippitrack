@@ -16,7 +16,7 @@ class Bot {
 
     this.client.once('ready', async () => {
       if (this.onReady && typeof this.onReady === 'function') {
-        this.onReady.call(this, this.client)
+        this.onReady(this.client)
       }
     })
 
@@ -68,7 +68,7 @@ class Bot {
             const untrackBtn = new MessageButton()
               .setStyle('red')
               .setLabel('Untrack')
-              .setID(`untrack_disabled`)
+              .setID('untrack_disabled')
               .setDisabled()
 
             await button.message.edit(embed, untrackBtn)

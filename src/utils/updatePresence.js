@@ -1,17 +1,16 @@
 const supabase = require('../libs/supabase')
 
-
 const presences = [
   getCountOfTrackedUsers,
   'OwO',
   'Bouf <3',
-  'UwU',
+  'UwU'
 ]
 
 let presenceId = 0
 const maxPresence = presences.length - 1
 
-async function updatePresence(client) {
+async function updatePresence (client) {
   let result
 
   if (typeof presences[presenceId] === 'function') {
@@ -34,7 +33,7 @@ async function updatePresence(client) {
   })
 }
 
-async function getCountOfTrackedUsers() {
+async function getCountOfTrackedUsers () {
   const { count } = await supabase
     .from('tracked_users')
     .select('*', { count: 'exact' })

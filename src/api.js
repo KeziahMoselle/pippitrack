@@ -1,14 +1,11 @@
 const { MessageEmbed } = require('discord.js')
 const axios = require('axios').default
 const supabase = require('./libs/supabase')
-const { osu } = require('./libs/osu')
 const getUser = require('./utils/getUser')
 const getEmoji = require('./utils/getEmoji')
 
-UPDATE_ENDPOINT = (username) => `https://ameobea.me/osutrack/api/get_changes.php?mode=0&user=${username}`
-
-async function getUpdate(osuUser, id) {
-  let user = osuUser || await getUser({ id })
+async function getUpdate (osuUser, id) {
+  const user = osuUser || await getUser({ id })
   const embed = new MessageEmbed()
 
   try {
@@ -22,11 +19,11 @@ async function getUpdate(osuUser, id) {
 
     if (data?.updated_at) {
       embed
-        .setFooter(`Last updated`)
+        .setFooter('Last updated')
         .setTimestamp(data.updated_at)
     } else {
       embed
-        .setFooter(`First update !`)
+        .setFooter('First update !')
         .setTimestamp()
     }
 
@@ -45,43 +42,43 @@ async function getUpdate(osuUser, id) {
       .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
       .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
 
-    const pp_rank_number = Number(difference.pp_rank)
-    let pp_rank_diff
+    const ppRankNumber = Number(difference.pp_rank)
+    let ppRankDiff
 
-    const pp_raw = Number.parseFloat(difference.pp_raw).toPrecision(4)
+    const ppRaw = Number.parseFloat(difference.pp_raw).toPrecision(4)
     const accuracy = Number.parseFloat(difference.accuracy).toPrecision(4)
 
     // The player is losing ranks
-    if (pp_rank_number > 0) {
-      pp_rank_diff = Number(user.pp.rank) - Number(difference.pp_rank)
+    if (ppRankNumber > 0) {
+      ppRankDiff = Number(user.pp.rank) - Number(difference.pp_rank)
       embed
-        .addField('Rank lost', `-${pp_rank_number}`, true)
+        .addField('Rank lost', `-${ppRankNumber}`, true)
         .setColor(14504273)
     }
 
     // The player is gaining ranks
-    if (pp_rank_number < 0) {
-      pp_rank_diff = Number(user.pp.rank) - pp_rank_number
+    if (ppRankNumber < 0) {
+      ppRankDiff = Number(user.pp.rank) - ppRankNumber
       embed
-        .addField('Rank gained', `+${pp_rank_number.toString().replace('-', '')}`, true)
+        .addField('Rank gained', `+${ppRankNumber.toString().replace('-', '')}`, true)
         .setColor(2064687)
     }
 
-    if (difference.playcount === 0 && !pp_rank_diff) {
+    if (difference.playcount === 0 && !ppRankDiff) {
       embed
-        .setDescription(`No changes since the last update.\nTry getting some pp`)
+        .setDescription('No changes since the last update.\nTry getting some pp')
 
       return embed
     }
 
     embed.addField('Playcount', `+${difference.playcount}`, true)
 
-    if (pp_raw >= 1) {
-      embed.addField('PP', `+${pp_raw}pp`, true)
+    if (ppRaw >= 1) {
+      embed.addField('PP', `+${ppRaw}pp`, true)
     }
 
-    if (pp_rank_diff) {
-      embed.addField('Previous Rank', `#${pp_rank_diff}`, true)
+    if (ppRankDiff) {
+      embed.addField('Previous Rank', `#${ppRankDiff}`, true)
       embed.addField('Current rank', `#${user.pp.rank}`, true)
     }
 
@@ -99,6 +96,7 @@ async function getUpdate(osuUser, id) {
 
     return embed
   } catch (error) {
+    console.error(error)
     throw error
   } finally {
     const { error } = await supabase
@@ -115,5 +113,5 @@ async function getUpdate(osuUser, id) {
 }
 
 module.exports = {
-  getUpdate,
+  getUpdate
 }

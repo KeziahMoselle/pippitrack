@@ -6,12 +6,12 @@ const RANK_EMOJIS = {
   a: '<:rank_a:864503471612362843>',
   c: '<:rank_c:864628617740025877>',
   b: '<:rank_b:864628978605096990>',
-  f: '<:rank_f:864629121354432563>',
+  f: '<:rank_f:864629121354432563>'
 }
 
-function getEmoji(rank) {
+function getEmoji (rank) {
   if (RANK_EMOJIS[rank]) {
-    return RANK_EMOJIS[rank];
+    return RANK_EMOJIS[rank]
   }
 }
 

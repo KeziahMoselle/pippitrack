@@ -3,18 +3,18 @@ const supabase = require('../../libs/supabase')
 const { getUpdate } = require('../../api')
 
 // Test cron time : '*/30 * * * * *' (every 30 seconds)
-const cronTime = '0 0 0 * * *'  // Every day at midnight
+const cronTime = '0 0 0 * * *' // Every day at midnight
 
-function update(client) {
+function update (client) {
   console.log('Service started : update players every day')
 
   const job = new CronJob({
     cronTime,
     onTick: massUpdatePlayers,
-    timeZone: 'Europe/Paris',
+    timeZone: 'Europe/Paris'
   })
 
-  async function massUpdatePlayers() {
+  async function massUpdatePlayers () {
     const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('828737685421293578')
 
     try {
