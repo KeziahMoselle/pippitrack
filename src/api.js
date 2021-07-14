@@ -89,7 +89,9 @@ async function getUpdate (osuUser, id) {
     }
 
     if (difference.newhs.length > 0) {
-      const newHighscores = difference.newhs.reduce((list, highscore) => {
+      const newhs = difference.newhs.splice(0, 10)
+
+      const newHighscores = newhs.reduce((list, highscore) => {
         return list + `${getEmoji(highscore.rank.toLowerCase())} **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
       }, '**New top plays :**\n')
 
