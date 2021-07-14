@@ -3,6 +3,7 @@ require('dotenv').config()
 // Setup Discord
 const Bot = require('./Bot.js')
 const client = require('./libs/client')
+const updatePresence = require('./utils/updatePresence')
 
 // Services
 const ordr = require('./services/ordr')
@@ -20,14 +21,13 @@ const {
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
+const EVERY_FIVE_MINUTES = 5 * 60 * 1000
+
 bot.onReady = (client) => {
   console.log('Connected to Discord.')
 
-  client.user.setPresence({
-    activity: {
-      name: '!help'
-    }
-  })
+  updatePresence(client)
+  setInterval(() => updatePresence(client), EVERY_FIVE_MINUTES);
 
   // Run services
   ordr(client).start()
