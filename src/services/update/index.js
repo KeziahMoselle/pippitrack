@@ -1,6 +1,7 @@
 const { CronJob } = require('cron')
 const supabase = require('../../libs/supabase')
 const { getUpdate } = require('../../api')
+const wait = require('../../utils/wait')
 
 // Test cron time : '*/30 * * * * *' (every 30 seconds)
 const cronTime = '0 0 0 * * *' // Every day at midnight
@@ -32,6 +33,7 @@ function update (client) {
       console.log(embeds)
 
       for (const embed of embeds) {
+        await wait(500)
         await channel.send(embed)
       }
 
