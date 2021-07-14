@@ -1,4 +1,5 @@
 const { MessageEmbed } = require('discord.js')
+const { MessageButton } = require('discord-buttons')
 const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 const getUser = require('../utils/getUser')
@@ -24,11 +25,16 @@ class TrackCommand {
       // If we find a result there is already a player tracked.
       if (userFound.length > 0) {
         const embed = new MessageEmbed()
-        .setTitle('Player already tracked')
-        .setDescription(`**${user.name}** is already being tracked.`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+          .setTitle('Player already tracked')
+          .setDescription(`**${user.name}** is already being tracked.`)
+          .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
 
-        return message.channel.send(embed)
+        const untrackBtn = new MessageButton()
+          .setStyle('red')
+          .setLabel('Untrack')
+          .setID(`untrack_${message.author.id}_${user.id}`)
+
+        return message.channel.send(embed, untrackBtn)
       }
 
       // Track the user

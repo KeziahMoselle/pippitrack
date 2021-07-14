@@ -1,3 +1,7 @@
+const untrackUser = require('./utils/untrackUser')
+const { MessageEmbed } = require('discord.js')
+const { MessageButton } = require('discord-buttons')
+
 class Bot {
   apiKey = '' // Discord API Key
   client = null // The Discord Client
@@ -17,6 +21,8 @@ class Bot {
     })
 
     this.client.on('message', this.onMessage)
+
+    this.client.on('clickButton', this.onClickButton)
   }
 
   /**
@@ -37,6 +43,44 @@ class Bot {
     if (!message.content.startsWith(this.prefix)) return
 
     this.runCommand(message)
+  }
+
+  /**
+   * Listen for clicks on buttons
+   *
+   * @memberof Bot
+   */
+  onClickButton = async (button) => {
+    try {
+      const [btnId, userId, osuId] = button.id.split('_')
+
+      if (btnId === 'untrack') {
+        if (button.clicker.id === userId) {
+          const { data, error } = await untrackUser(osuId)
+          if (error) {
+            await button.reply.send('Sorry, there was an error.', true)
+          } else if (data.length === 0) {
+            await button.reply.send('You have already been untracked.', true)
+          } else {
+            const embed = new MessageEmbed()
+              .setTitle('You have been untracked')
+
+            const untrackBtn = new MessageButton()
+              .setStyle('red')
+              .setLabel('Untrack')
+              .setID(`untrack_disabled`)
+              .setDisabled()
+
+            await button.message.edit(embed, untrackBtn)
+          }
+        } else {
+          await button.reply.send('You cannot untrack another player.', true)
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      await button.reply.send('Sorry, there was an error.', true)
+    }
   }
 
   /**
