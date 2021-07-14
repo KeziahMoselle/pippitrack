@@ -1,11 +1,11 @@
 ![cover](.github/cover.jpg)
 
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/KeziahMoselle/osu-track/lint/main?label=lint&style=flat-square)
+
 
 # osu!track bot
 
 osu!track is a bot focused on the rythm game osu! It tracks things and do things.
-
-[![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
 
 
 ## Bot documentation
@@ -87,9 +87,14 @@ Services needs to export a function that triggers the service (running a cron jo
 The `Bot.js` file is used for the internal logic of the bot.
 We'll add listeners to the bot's events and handle the commands.
 
+<p align="center">
+  <img alt="JavaScript Style Guide" src="https://cdn.rawgit.com/standard/standard/master/badge.svg">
+</p>
+
 ## Credits
 
-- [https://ameobea.me/osutrack/](https://ameobea.me/osutrack/) is a project by [@ameobea](https://ameobea.me/)
+- [https://ameobea.me/osutrack/](https://ameobea.me/osutrack/) is a project by [ameobea](https://ameobea.me/)
+- [o!rdr](https://ordr.issou.best/) o!rdr is a free online tool to make renders of osu! replays using [Danser](https://github.com/Wieku/danser-go). Made by [MasterIo](https://github.com/MasterIO02/)
 - [Bouf](https://osu.ppy.sh/users/4431069) for the edit of Koigokoro avatar
 
 ## License
