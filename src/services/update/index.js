@@ -3,7 +3,7 @@ const supabase = require('../../libs/supabase')
 const { getUpdate } = require('../../api')
 
 // Test cron time : '*/30 * * * * *' (every 30 seconds)
-const cronTime = '0 0 0 * * *'
+const cronTime = '0 0 0 * * *'  // Every day at midnight
 
 function update(client) {
   console.log('Service started : update players every day')

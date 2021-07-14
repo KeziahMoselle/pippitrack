@@ -1,7 +1,7 @@
 {
-  "name": "osu-tracking",
-  "version": "1.0.0",
-  "description": "Tracking osu! top plays",
+  "name": "osu-track",
+  "version": "0.4.0",
+  "description": "Track osu! top plays and do other things",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
@@ -18,14 +18,17 @@
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "node-osu": "^2.2.1",
-    "ordr.js": "^1.1.0",
-    "pm2": "^5.1.0"
+    "ordr.js": "^1.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   },
   "engines": {
     "node": ">=14.8.0"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.12"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KeziahMoselle/osu-track"
   },
   "author": "KeziahMoselle",
   "license": "MIT"
