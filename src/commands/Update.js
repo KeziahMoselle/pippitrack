@@ -4,6 +4,7 @@ const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
 const getUser = require('../utils/getUser')
 const getEmoji = require('../utils/getEmoji')
+const notFoundEmbed = require('../utils/notFoundEmbed')
 const { getUpdate } = require('../api')
 
 
@@ -19,6 +20,10 @@ class UpdateCommand {
    */
    async run (message, args) {
     const user = await getUser({ message, args })
+
+    if (!user || user.length === 0) {
+      return message.channel.send(notFoundEmbed)
+    }
 
     try {
       const embed = await getUpdate(user)

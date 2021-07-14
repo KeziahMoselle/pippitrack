@@ -27,13 +27,15 @@ class Help {
     this.defaultEmbed
       .setTitle(`osu!track's commands`)
 
-    const description = commands.reduce((desc, command) => {
+    let description = commands.reduce((desc, command) => {
       return desc += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
     }, '')
 
+    description += `\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)`
+
     this.defaultEmbed
       .setDescription(description)
-      .setFooter(`For more details on a specific command : ${PREFIX}help <command>`)
+      .setFooter(`For more details on a specific command: ${PREFIX}help <command>`)
   }
 
 

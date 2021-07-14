@@ -11,58 +11,44 @@ const { osu } = require('../libs/osu')
  */
 async function getUser({ message, args, id }) {
   if (args?.length > 0) {
-    try {
-      // Allow username with whitespaces
-      let usernameArg = args
-        .join(' ')
-        .replace(/"/g, '')
+    // Allow username with whitespaces
+    let usernameArg = args
+      .join(' ')
+      .replace(/"/g, '')
 
-      if (usernameArg) {
-        return osu.getUser({
-          u: usernameArg,
-          type: 'string'
-        })
-      }
-    } catch (error) {
-      console.error(error)
-    }
+    return osu.getUser({
+      u: usernameArg,
+      type: 'string'
+    })
   }
 
   if (id) {
-    try {
-      return osu.getUser({
-        u: id,
-        type: 'id'
-      })
-    } catch (error) {
-      console.error(error)
-    }
+    return osu.getUser({
+      u: id,
+      type: 'id'
+    })
   }
 
-  try {
-    // If no argument is provided, try to get the osu_id from our database
-    const { data: savedUsername } = await supabase
-      .from('users')
-      .select('osu_id')
-      .eq('discord_id', message.member.id)
-      .single()
+  // If no argument is provided, try to get the osu_id from our database
+  const { data: savedUsername } = await supabase
+    .from('users')
+    .select('osu_id')
+    .eq('discord_id', message.member.id)
+    .single()
 
-    if (savedUsername) {
-      return osu.getUser({
-        u: savedUsername.osu_id,
-        type: 'id'
-      })
-    }
+  if (savedUsername) {
+    return osu.getUser({
+      u: savedUsername.osu_id,
+      type: 'id'
+    })
+  }
 
-    // Else use the displayName of Discord
-    if (!savedUsername) {
-      return osu.getUser({
-        u: message.member.displayName,
-        type: 'string'
-      })
-    }
-  } catch (error) {
-    console.error(error)
+  // Else use the displayName of Discord
+  if (!savedUsername) {
+    return osu.getUser({
+      u: message.member.displayName,
+      type: 'string'
+    })
   }
 }
 

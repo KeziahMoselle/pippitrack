@@ -1,8 +1,9 @@
 const { MessageEmbed, User } = require('discord.js')
+const axios = require('axios').default
 const supabase = require('../libs/supabase')
 const { osu } = require('../libs/osu')
 const getUser = require('../utils/getUser')
-const axios = require('axios').default
+const notFoundEmbed = require('../utils/notFoundEmbed')
 
 class PeakCommand {
   name = 'peak'
@@ -18,6 +19,10 @@ class PeakCommand {
    */
    async run (message, args) {
     const user = await getUser({ message, args })
+
+    if (!user || user.length === 0) {
+      return message.channel.send(notFoundEmbed)
+    }
 
     try {
       const response = await axios.get(this.PEAK_ENDPOINT(user.id))

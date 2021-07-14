@@ -2,6 +2,7 @@ const { MessageEmbed } = require('discord.js')
 const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 const getUser = require('../utils/getUser')
+const notFoundEmbed = require('../utils/notFoundEmbed')
 
 class LinkCommand {
   name = 'link'
@@ -16,6 +17,10 @@ class LinkCommand {
    async run (message, args) {
      try {
       const user = await getUser({ message, args })
+
+      if (!user || user.length === 0) {
+        return message.channel.send(notFoundEmbed)
+      }
 
       const embed = new MessageEmbed()
         .setTitle(`${message.member.displayName} has been set to ${user.name}`)

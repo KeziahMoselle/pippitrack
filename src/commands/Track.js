@@ -3,6 +3,7 @@ const { MessageButton } = require('discord-buttons')
 const { osu } = require('../libs/osu')
 const supabase = require('../libs/supabase')
 const getUser = require('../utils/getUser')
+const notFoundEmbed = require('../utils/notFoundEmbed')
 
 class TrackCommand {
   name = 'track'
@@ -16,6 +17,10 @@ class TrackCommand {
    */
   async run (message, args) {
     const user = await getUser({ message, args })
+
+    if (!user || user.length === 0) {
+      return message.channel.send(notFoundEmbed)
+    }
 
     try {
       const { data: userFound } = await supabase
