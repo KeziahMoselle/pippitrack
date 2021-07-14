@@ -29,6 +29,8 @@ function update (client) {
       const updatesPlayersBy5 = trackedPlayers.map(player => getUpdate(null, player.osu_id))
       const embeds = await Promise.all(updatesPlayersBy5)
 
+      console.log(embeds)
+
       for (const embed of embeds) {
         await channel.send(embed)
       }
