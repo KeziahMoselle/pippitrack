@@ -1,3 +1,5 @@
+![cover](.github/cover.jpg)
+
 
 # osu!track bot
 
@@ -81,6 +83,11 @@ Services needs to export a function that triggers the service (running a cron jo
 
 The `Bot.js` file is used for the internal logic of the bot.
 We'll add listeners to the bot's events and handle the commands.
+
+## Credits
+
+- [https://ameobea.me/osutrack/](https://ameobea.me/osutrack/) is a project by [@ameobea](https://ameobea.me/)
+- [Bouf](https://osu.ppy.sh/users/4431069) for the edit of Koigokoro avatar
 
 ## License
 [MIT](./LICENSE)
