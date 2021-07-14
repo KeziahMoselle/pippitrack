@@ -10,7 +10,8 @@ function update(client) {
 
   const job = new CronJob({
     cronTime,
-    onTick: massUpdatePlayers
+    onTick: massUpdatePlayers,
+    timeZone: 'Europe/Paris',
   })
 
   async function massUpdatePlayers() {
