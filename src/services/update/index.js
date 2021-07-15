@@ -1,10 +1,11 @@
 const { CronJob } = require('cron')
 const supabase = require('../../libs/supabase')
-const { getUpdate } = require('../../api')
-const wait = require('../../utils/wait')
+// const { getUpdate } = require('../../api')
+// const wait = require('../../utils/wait')
+const getTrackChannel = require('../../utils/getTrackChannel')
 
 // Test cron time : '*/30 * * * * *' (every 30 seconds)
-const cronTime = '0 0 0 * * *' // Every day at midnight
+const cronTime = '*/30 * * * * *' // Every day at midnight
 
 function update (client) {
   console.log('Service started : update players every day')
@@ -16,8 +17,6 @@ function update (client) {
   })
 
   async function massUpdatePlayers () {
-    const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('828737685421293578')
-
     try {
       // Get all tracked players
       // @TODO Paginate them if there is too much to fetch
@@ -27,14 +26,9 @@ function update (client) {
 
       console.log(`Update service: ${count} players to update`)
 
-      const updatesPlayersBy5 = trackedPlayers.map(player => getUpdate(null, player.osu_id))
-      const embeds = await Promise.all(updatesPlayersBy5)
-
-      console.log(embeds)
-
-      for (const embed of embeds) {
-        await wait(500)
-        await channel.send(embed)
+      for (const player of trackedPlayers) {
+        const channel = await getTrackChannel(player.guild_id, client)
+        console.log(channel)
       }
 
       return true

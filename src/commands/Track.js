@@ -24,10 +24,13 @@ class TrackCommand {
     try {
       const { data: userFound } = await supabase
         .from('tracked_users')
-        .select('osu_id').eq('osu_id', user.id)
+        .select('*')
+        .eq('osu_id', user.id)
+        .eq('guild_id', message.guild.id)
+        .single()
 
       // If we find a result there is already a player tracked.
-      if (userFound.length > 0) {
+      if (userFound && message.guild.id === userFound.guild_id) {
         const embed = new MessageEmbed()
           .setTitle('Player already tracked')
           .setDescription(`**${user.name}** is already being tracked.`)
@@ -36,21 +39,36 @@ class TrackCommand {
         const untrackBtn = new MessageButton()
           .setStyle('red')
           .setLabel('Untrack')
-          .setID(`untrack_${message.author.id}_${user.id}`)
+          .setID(`untrack_${message.author.id}_${userFound.id}`)
 
-        return message.channel.send(embed, untrackBtn)
+        const IN_ONE_MINUTE = 60 * 1000
+
+        const sentMessage = await message.channel.send(embed, untrackBtn)
+
+        setTimeout(() => {
+          sentMessage.edit(embed, untrackBtn.setDisabled())
+        }, IN_ONE_MINUTE)
+        return
       }
 
       // Track the user
       const { error } = await supabase
         .from('tracked_users')
-        .insert([{
+        .upsert({
+          id: userFound?.id,
           osu_id: user.id,
-          osu_username: user.name
-        }])
+          osu_username: user.name,
+          guild_id: message.guild.id
+        })
+        .eq('guild_id', message.guild.id)
 
       if (error) {
-        console.error(error)
+        if (error.code === '23503') { // Constraint key doesn't exist
+          const embed = new MessageEmbed()
+            .setTitle('You need to set a tracking channel first')
+            .setDescription('Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.')
+          return message.channel.send(embed)
+        }
         return message.reply('Sorry, there was an error.')
       }
 
@@ -62,7 +80,8 @@ class TrackCommand {
         .setColor(11279474)
 
       message.channel.send(embed)
-    } catch {
+    } catch (error) {
+      console.error(error)
       const embed = new MessageEmbed()
         .setTitle(`Player not found : ${args.join(' ')}`)
         .setThumbnail('https://a.ppy.sh/')

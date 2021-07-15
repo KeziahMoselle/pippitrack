@@ -1,10 +1,10 @@
 const supabase = require('../libs/supabase')
 
-function untrackUser (osuId) {
+function untrackUser (id) {
   return supabase
     .from('tracked_users')
     .delete()
-    .eq('osu_id', osuId)
+    .eq('id', id)
 }
 
 module.exports = untrackUser
