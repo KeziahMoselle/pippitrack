@@ -49,7 +49,6 @@ class OsuApiv2 {
       }
     })
 
-
     return data
   }
 }
