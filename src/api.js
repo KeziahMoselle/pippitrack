@@ -96,7 +96,7 @@ async function getUpdate (osuUser, id) {
       }, '**New top plays :**\n')
 
       if (difference.newhs.length > 0) {
-        newHighscores += `\n${difference.newhs.length} more new top plays omitted.`
+        newHighscores += `${difference.newhs.length} more new top plays omitted.`
       }
 
       embed.setDescription(newHighscores)
