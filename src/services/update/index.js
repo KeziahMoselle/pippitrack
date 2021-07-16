@@ -1,7 +1,6 @@
 const { CronJob } = require('cron')
 const supabase = require('../../libs/supabase')
 const { getUpdate } = require('../../api')
-const wait = require('../../utils/wait')
 const getTrackChannel = require('../../utils/getTrackChannel')
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
