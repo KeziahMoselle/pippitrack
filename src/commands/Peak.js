@@ -1,7 +1,9 @@
 const { MessageEmbed } = require('discord.js')
 const axios = require('axios').default
+const { osuApiV2 } = require('../libs/osu')
 const getUser = require('../utils/getUser')
 const notFoundEmbed = require('../utils/notFoundEmbed')
+const getRankAchievements = require('../utils/getRankAchievements')
 
 class PeakCommand {
   name = 'peak'
@@ -23,7 +25,12 @@ class PeakCommand {
     }
 
     try {
-      const response = await axios.get(this.PEAK_ENDPOINT(user.id))
+      const [response, medals] = await Promise.all([
+        axios.get(this.PEAK_ENDPOINT(user.id)),
+        osuApiV2.getUserAchievements({ id: user.id })
+      ])
+
+      const { medalsUrl } = getRankAchievements(medals)
 
       const peak = response.data[0]
       const rank = peak.best_global_rank
@@ -37,6 +44,10 @@ class PeakCommand {
         .setFooter('These data may be incorrect if the profile has not yet been tracked on https://ameobea.me/osutrack/')
         .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
         .setColor(11279474)
+
+      if (medalsUrl) {
+        embed.attachFiles([medalsUrl])
+      }
 
       return message.channel.send(embed)
     } catch {

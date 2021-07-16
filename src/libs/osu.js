@@ -37,23 +37,34 @@ class OsuApiv2 {
   async fetch (endpoint) {
     // Check if the token is expired
     if ((this.tokenExpire && new Date() > this.tokenExpire) || !this.tokenExpire) {
-      console.log('osu! API v2 access_token is expired or need to be created')
+      console.log('osu! API v2 access_token is expired or needs to be created')
       await this.getToken()
     }
 
-    const { data } = await axios.get(`${this.base}${endpoint}`, {
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
+    try {
+      const { data } = await axios.get(`${this.base}${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
 
-    return data
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async getUserAchievements ({ id, username }) {
+    const user = await this.fetch(`users/${id || username}/osu`)
+    return user.user_achievements
   }
 }
 
+const osuApiV2 = new OsuApiv2(process.env.OSU_CLIENT_ID, process.env.OSU_CLIENT_SECRET)
+
 module.exports = {
   osu: osuApi,
-  OsuApiv2
+  osuApiV2
 }
