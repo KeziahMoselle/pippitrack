@@ -52,11 +52,12 @@ class Bot {
    */
   onClickButton = async (button) => {
     try {
-      const [btnId, userId, osuId] = button.id.split('_')
+      const [btnId, userId, id] = button.id.split('_')
 
       if (btnId === 'untrack') {
         if (button.clicker.id === userId) {
-          const { data, error } = await untrackUser(osuId)
+          await button.reply.defer()
+          const { data, error } = await untrackUser(id)
           if (error) {
             await button.reply.send('Sorry, there was an error.', true)
           } else if (data.length === 0) {
