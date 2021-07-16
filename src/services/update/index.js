@@ -1,7 +1,6 @@
 const { CronJob } = require('cron')
-const supabase = require('../../libs/supabase')
 const { getUpdate } = require('../../api')
-const getTrackChannel = require('../../utils/getTrackChannel')
+const getTrackedPlayers = require('../../utils/getTrackedPlayers')
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
 
@@ -18,48 +17,17 @@ function update (client) {
 
   async function massUpdatePlayers () {
     try {
-      // Get all tracked players
-      // @TODO Paginate them if there is too much to fetch
-      const { data: trackedPlayers, count } = await supabase
-        .from('tracked_users')
-        .select('*', { count: 'exact' })
-
+      const { uniqueTrackedPlayers, count } = await getTrackedPlayers(client)
       console.log(`Update service: ${count} players to update`)
-
-      // Merge same osu_id in the same object so we don't iterate over them 2 times
-      // It allows us to do only one request for the update, then send the embed to multiple channels if needed
-      const uniqueTrackedPlayers = {}
-
-      for (const player of trackedPlayers) {
-        // Add the player to the unique list
-        if (!uniqueTrackedPlayers[player.osu_id]) {
-          uniqueTrackedPlayers[player.osu_id] = {
-            id: player.id,
-            osu_id: player.osu_id,
-            osu_username: player.osu_username
-          }
-
-          // Create the guilds array, so we can add multiple guilds to one player
-          uniqueTrackedPlayers[player.osu_id].guilds = [player.guild_id]
-        } else {
-          // We found a duplicate of the player, add the other guild to the array
-          uniqueTrackedPlayers[player.osu_id].guilds.push(player.guild_id)
-        }
-      }
 
       // Update all the players
       for (const id in uniqueTrackedPlayers) {
         const player = uniqueTrackedPlayers[id]
 
-        const channelsFetches = player.guilds.map(guildId => getTrackChannel(guildId, client))
-
         try {
-          const [embed, channels] = await Promise.all([
-            getUpdate(null, player.osu_id),
-            Promise.all(channelsFetches)
-          ])
+          const embed = await getUpdate(null, player.osu_id)
 
-          for (const channel of channels) {
+          for (const channel of player.trackChannels) {
             channel.send(embed)
           }
         } catch (error) {
@@ -68,6 +36,7 @@ function update (client) {
         }
       }
     } catch (error) {
+      console.error('update')
       console.error(error)
     }
   }

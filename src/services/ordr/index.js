@@ -1,5 +1,6 @@
 const supabase = require('../../libs/supabase')
 const ordr = require('../../libs/ordr')
+const getTrackChannels = require('../../utils/getTrackChannels')
 
 function listenForRenders (client) {
   console.log('Service started : ordr')
@@ -11,15 +12,20 @@ function listenForRenders (client) {
 
       const { data: isUserTracked } = await supabase
         .from('tracked_users')
-        .select('*')
+        .select('guild_id')
         .eq('osu_username', replay.replayUsername)
-        .single()
 
-      if (!isUserTracked) return
+      if (isUserTracked.length === 0) return
 
-      const channel = (await client.guilds.fetch('826567787107057665')).channels.cache.get('864626246263767080')
+      for (const user of isUserTracked) {
+        const { replayChannel } = await getTrackChannels(user.guild_id, client)
 
-      channel.send(`New replay from **${isUserTracked.osu_username}** !\n${replay.videoUrl}`)
+        if (!replayChannel) {
+          return
+        }
+
+        replayChannel.send(`New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`)
+      }
     } catch (error) {
       console.error(error)
     }
