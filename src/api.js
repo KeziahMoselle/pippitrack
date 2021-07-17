@@ -93,10 +93,10 @@ async function getUpdate (osuUser, id) {
 
       let newHighscores = newhs.reduce((list, highscore) => {
         return list + `${getEmoji(highscore.rank.toLowerCase())} **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
-      }, '**New top plays :**\n')
+      }, `**New top play${newhs.length > 1 ? 's' : ''} :**\n`)
 
       if (difference.newhs.length > 0) {
-        newHighscores += `${difference.newhs.length} more new top plays omitted.`
+        newHighscores += `${difference.newhs.length} more new top plays omitted. See them on [the osu! website](https://osu.ppy.sh/users/${user.id})`
       }
 
       embed.setDescription(newHighscores)
