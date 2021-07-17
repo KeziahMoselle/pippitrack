@@ -57,7 +57,7 @@ class OsuApiv2 {
   }
 
   async getUserAchievements ({ id, username }) {
-    const user = await this.fetch(`users/${id || username}/osu`)
+    const user = await this.fetch(`users/${id || username}`)
     return user.user_achievements
   }
 }
