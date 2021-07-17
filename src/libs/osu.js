@@ -31,7 +31,7 @@ class OsuApiv2 {
     })
 
     this.token = data.access_token
-    this.tokenExpire = new Date(data.expires_in * 1000)
+    this.tokenExpire = new Date(Date.now() + (data.expires_in * 1000))
   }
 
   async fetch (endpoint) {
@@ -52,7 +52,7 @@ class OsuApiv2 {
 
       return data
     } catch (error) {
-      console.error(error)
+      console.error(endpoint, error)
     }
   }
 
