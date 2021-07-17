@@ -1,6 +1,8 @@
 const untrackUser = require('./utils/untrackUser')
 const { MessageEmbed } = require('discord.js')
 const { MessageButton } = require('discord-buttons')
+const supabase = require('./libs/supabase')
+const getTrackChannels = require('./utils/getTrackChannels')
 
 class Bot {
   apiKey = '' // Discord API Key
@@ -52,12 +54,20 @@ class Bot {
    */
   onClickButton = async (button) => {
     try {
-      const [btnId, userId, id] = button.id.split('_')
+      const [btnId] = button.id.split('_')
 
       if (btnId === 'untrack') {
+        const [, userId, id] = button.id.split('_')
+
+        // Check if the author has the permission to untrack the user
+        if (!button.clicker.member.hasPermission('ADMINISTRATOR')) {
+          return button.reply.send('You need to be an Administrator to untrack players.', true)
+        }
+
         if (button.clicker.id === userId) {
           await button.reply.defer()
           const { data, error } = await untrackUser(id)
+
           if (error) {
             await button.reply.send('Sorry, there was an error.', true)
           } else if (data.length === 0) {
@@ -77,6 +87,33 @@ class Bot {
         } else {
           await button.reply.send('You cannot untrack another player.', true)
         }
+      }
+
+      if (btnId === 'track') {
+        const [, id, userDiscordId, guildId] = button.id.split('_')
+
+        await button.reply.defer()
+
+        const { error } = await supabase
+          .from('tracked_users')
+          .update({ is_approved: true })
+          .eq('id', id)
+          .single()
+
+        if (error) {
+          return button.reply.send('Sorry, there was an error.', true)
+        }
+
+        const approvedBtn = new MessageButton()
+          .setStyle('blurple')
+          .setLabel('Approved')
+          .setID('track_approved')
+          .setDisabled()
+
+        button.message.edit(button.message.embeds[0], approvedBtn)
+
+        const { trackChannel } = await getTrackChannels(guildId, this.client)
+        trackChannel.send(`<@${userDiscordId}> is now tracked.`)
       }
     } catch (error) {
       console.error(error)

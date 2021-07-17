@@ -12,6 +12,7 @@ async function getTrackedPlayers (client) {
   const { data: trackedPlayers, count } = await supabase
     .from('tracked_users')
     .select('*', { count: 'exact' })
+    .eq('is_approved', true)
 
   // Merge same osu_id in the same object so we don't iterate over them 2 times
   // It allows us to do only one request for the update, then send the embed to multiple channels if needed

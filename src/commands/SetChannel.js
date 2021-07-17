@@ -31,8 +31,13 @@ class SetChannelCommand {
     if (type === 'replay') {
       channelToAdd.replay_channel = message.channel.id
     }
+
+    if (type === 'admin') {
+      channelToAdd.admin_channel = message.channel.id
+    }
+
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('guilds')
         .upsert({
           guild_id: message.guild.id,
@@ -40,7 +45,9 @@ class SetChannelCommand {
         })
         .eq('guild_id', message.guild.id)
 
-      console.log(data, error)
+      if (error) {
+        message.reply('Sorry, there was an error')
+      }
 
       const embed = new MessageEmbed()
         .setDescription(`Successfully set the ${type} channel on ${message.channel}`)

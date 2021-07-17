@@ -14,6 +14,7 @@ function listenForRenders (client) {
         .from('tracked_users')
         .select('guild_id')
         .eq('osu_username', replay.replayUsername)
+        .eq('is_approved', true)
 
       if (isUserTracked.length === 0) return
 
