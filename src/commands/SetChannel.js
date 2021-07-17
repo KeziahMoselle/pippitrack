@@ -4,7 +4,7 @@ const supabase = require('../libs/supabase')
 class SetChannelCommand {
   name = 'set'
   arguments = ['type']
-  description = 'Set tracking channels'
+  description = 'Set channels for tracking performance, replays and administration'
   category = 'osu'
 
   /**
@@ -15,7 +15,15 @@ class SetChannelCommand {
     const [type] = args
 
     if (!type) {
-      return message.reply('You need to specify a type of channel to set.\nEither `track` or `replay`.')
+      const embed = new MessageEmbed()
+        .setDescription(
+          'Type `!set track` in your tracking channel to enable auto update and top plays tracking.\n' +
+          'Type `!set replay` in your replay channel to enable replay posting from o!rdr.\n' +
+          'Type `!set admin` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)'
+        )
+        .setColor(5814783)
+
+      return message.channel.send(embed)
     }
 
     if (!message.member.hasPermission('ADMINISTRATOR')) {
