@@ -17,6 +17,7 @@ function update (client) {
 
   async function massUpdatePlayers () {
     try {
+      console.time('massUpdatePlayers')
       const { uniqueTrackedPlayers, count } = await getTrackedPlayers(client)
       console.log(`Update service: ${count} players to update`)
 
@@ -38,6 +39,8 @@ function update (client) {
     } catch (error) {
       console.error('update')
       console.error(error)
+    } finally {
+      console.timeEnd('massUpdatePlayers')
     }
   }
 

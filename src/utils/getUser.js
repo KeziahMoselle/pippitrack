@@ -8,7 +8,7 @@ const { osu } = require('../libs/osu')
  * @return {*}
  */
 async function getUser ({ message, args, id }) {
-  if (message.mentions.users.size > 0) {
+  if (message?.mentions?.users?.size > 0) {
     const id = message.mentions.users.first().id
     const { data: dbUser } = await supabase
       .from('users')
