@@ -8,6 +8,24 @@ const { osu } = require('../libs/osu')
  * @return {*}
  */
 async function getUser ({ message, args, id }) {
+  if (message.mentions.users.size > 0) {
+    const id = message.mentions.users.first().id
+    const { data: dbUser } = await supabase
+      .from('users')
+      .select('osu_id')
+      .eq('discord_id', id)
+      .single()
+
+    if (!dbUser) {
+      return
+    }
+
+    return osu.getUser({
+      u: dbUser.osu_id,
+      type: 'id'
+    })
+  }
+
   if (args?.length > 0) {
     // Allow username with whitespaces
     const usernameArg = args
