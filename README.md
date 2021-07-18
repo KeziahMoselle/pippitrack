@@ -2,16 +2,13 @@
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/KeziahMoselle/osu-track/lint/main?label=lint&style=flat-square)
 
-
 # osu!track bot
 
 osu!track is a bot focused on the rythm game osu! It tracks things and do things.
 
-
 ## Bot documentation
 
 ### Commands
-
 
 `!help <?command>` - Displays a list of commands
 
@@ -55,10 +52,10 @@ To run the bot in development mode run :
 npm run dev
 ```
 
-To  run the bot in production mode run :
+To run the bot in production mode run :
 
 ```bash
-npm run start
+npm run build && npm run start
 ```
 
 ## Directory structure
@@ -74,7 +71,7 @@ class Command {
   description = 'Description of the command' // Used for the !help command
   category = 'general'
 
-  async run (message, args) {}
+  async run(message, args) {}
 }
 ```
 
@@ -87,20 +84,19 @@ Services needs to export a function that triggers the service (running a cron jo
 The `Bot.js` file is used for the internal logic of the bot.
 We'll add listeners to the bot's events and handle the commands.
 
-<p align="center">
-  <img alt="JavaScript Style Guide" src="https://cdn.rawgit.com/standard/standard/master/badge.svg">
-</p>
-
 ## Credits
 
 ### Services
+
 - [https://ameobea.me/osutrack/](https://ameobea.me/osutrack/) osutrack is a statistics tracker for the game osu!. It stores user information in a database and creates graphs and displays statistics showing how that users' stats changed over time.. A project by [ameobea](https://ameobea.me/)
 - [o!rdr](https://ordr.issou.best/) o!rdr is a free online tool to make renders of osu! replays using [Danser](https://github.com/Wieku/danser-go). Made by [MasterIO](https://github.com/MasterIO02/)
 - [https://lemmmy.pw/osusig/](https://lemmmy.pw/osusig/) for the `!osu` profile image. Created by [Lemmmy](https://osu.ppy.sh/users/4656511)
 
 ### Art
+
 - [AKARA](https://akara.fr/) Thank you for the art ! (Badges cover of the `!peak` command)
 - [Bouf](https://osu.ppy.sh/users/4431069) for the edit of Koigokoro avatar
 
 ## License
+
 [MIT](./LICENSE)
