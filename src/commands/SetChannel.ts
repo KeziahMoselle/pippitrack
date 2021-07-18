@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 
@@ -10,7 +11,9 @@ interface ChannelToAddInterface {
 export default class SetChannelCommand {
   name = 'set'
   arguments = ['type']
-  description = 'Set channels for tracking performance, replays and administration'
+  description =
+    'Set channels for tracking performance, replays and administration'
+
   category = 'osu'
 
   /**
@@ -24,8 +27,8 @@ export default class SetChannelCommand {
       const embed = new MessageEmbed()
         .setDescription(
           'Type `!set track` in your tracking channel to enable auto update and top plays tracking.\n' +
-          'Type `!set replay` in your replay channel to enable replay posting from o!rdr.\n' +
-          'Type `!set admin` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)'
+            'Type `!set replay` in your replay channel to enable replay posting from o!rdr.\n' +
+            'Type `!set admin` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)'
         )
         .setColor(5814783)
 
@@ -33,7 +36,9 @@ export default class SetChannelCommand {
     }
 
     if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply('You need to be an Administrator to use this command.')
+      return message.reply(
+        'You need to be an Administrator to use this command.'
+      )
     }
 
     const channelToAdd: ChannelToAddInterface = {}
@@ -64,7 +69,9 @@ export default class SetChannelCommand {
       }
 
       const embed = new MessageEmbed()
-        .setDescription(`Successfully set the ${type} channel on ${message.channel}`)
+        .setDescription(
+          `Successfully set the ${type} channel on ${message.channel}`
+        )
         .setColor(11279474)
 
       message.channel.send(embed)

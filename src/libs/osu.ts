@@ -1,4 +1,4 @@
-import { default as axios } from 'axios'
+import axios from 'axios'
 import osuClient from 'node-osu'
 
 export const osu = new osuClient.Api(process.env.OSU_API_KEY, {
@@ -30,12 +30,15 @@ class OsuApiv2 {
     })
 
     this.token = data.access_token
-    this.tokenExpire = new Date(Date.now() + (data.expires_in * 1000))
+    this.tokenExpire = new Date(Date.now() + data.expires_in * 1000)
   }
 
   async fetch (endpoint, params = {}) {
     // Check if the token is expired
-    if ((this.tokenExpire && new Date() > this.tokenExpire) || !this.tokenExpire) {
+    if (
+      (this.tokenExpire && new Date() > this.tokenExpire) ||
+      !this.tokenExpire
+    ) {
       console.log('osu! API v2 access_token is expired or needs to be created')
       await this.getToken()
     }
@@ -62,7 +65,13 @@ class OsuApiv2 {
     }
   }
 
-  async getUserAchievements ({ id, username }: { id?: number, username?: string }) {
+  async getUserAchievements ({
+    id,
+    username
+  }: {
+    id?: number
+    username?: string
+  }) {
     const user = await this.fetch(`users/${id || username}`)
     return user.user_achievements
   }
@@ -76,7 +85,11 @@ class OsuApiv2 {
     return scores
   }
 
-  getBeatmapsetCoverImage = (beatmapsetId) => `https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg`
+  getBeatmapsetCoverImage = (beatmapsetId) =>
+    `https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg`
 }
 
-export const osuApiV2 = new OsuApiv2(process.env.OSU_CLIENT_ID, process.env.OSU_CLIENT_SECRET)
+export const osuApiV2 = new OsuApiv2(
+  process.env.OSU_CLIENT_ID,
+  process.env.OSU_CLIENT_SECRET
+)

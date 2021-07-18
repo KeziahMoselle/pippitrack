@@ -45,15 +45,24 @@ export default class TracklistCommand {
 
     // Check if the author has the permission to run this command
     if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply('You need to be an Administrator to use this command.')
+      return message.reply(
+        'You need to be an Administrator to use this command.'
+      )
     }
 
     try {
-      const { data: trackedUsers, error } = await this.fetchPage(page, message.guild.id)
+      const { data: trackedUsers, error } = await this.fetchPage(
+        page,
+        message.guild.id
+      )
       const totalCount = await this.getTotalCount(message.guild.id)
 
       if (error) {
-        console.error('Error at fetching tracklist page', error, message.guild.id)
+        console.error(
+          'Error at fetching tracklist page',
+          error,
+          message.guild.id
+        )
         return message.reply(`Error while fetching page ${page}`)
       }
 
@@ -67,7 +76,12 @@ export default class TracklistCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`List of tracked users in ${message.guild.name}`)
-        .setFooter(`${totalCount} tracked users | Page ${page}/${this.roundUp(totalCount / 25, 0)}`)
+        .setFooter(
+          `${totalCount} tracked users | Page ${page}/${this.roundUp(
+            totalCount / 25,
+            0
+          )}`
+        )
         .setColor(11279474)
 
       const description = trackedUsers.reduce((description, user) => {
@@ -81,7 +95,9 @@ export default class TracklistCommand {
     } catch (error) {
       console.error(error)
 
-      return message.reply('An error occurred while trying to fetch the list of tracked users.')
+      return message.reply(
+        'An error occurred while trying to fetch the list of tracked users.'
+      )
     }
   }
 }

@@ -1,6 +1,6 @@
 import supabase from '../libs/supabase'
 
-const presences: Function[] = [
+const presences: { (): string | Promise<string> }[] = [
   getCountOfTrackedUsers,
   () => 'OwO',
   () => 'Bouf <3',
