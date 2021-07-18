@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
-    "prestart": "tsc",
     "lint": "standard",
     "fix": "standard --fix"
+    "build": "tsc",
   },
   "dependencies": {
     "@supabase/supabase-js": "^1.18.1",
