@@ -22,15 +22,17 @@ class Help {
 
   /**
    * Set the default embed for all commands
+   *
+   * @param {Set} commands
    */
   setDefaultEmbed (commands) {
     this.defaultEmbed
       .setTitle('osu!track\'s commands')
 
-    let description = commands.reduce((desc, command) => {
-      desc += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
-      return desc
-    }, '')
+    let description = ''
+    commands.forEach(command => {
+      description += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
+    })
 
     description += '\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)'
 

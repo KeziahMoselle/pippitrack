@@ -1,8 +1,5 @@
-const untrackUser = require('./utils/untrackUser')
-const { MessageEmbed } = require('discord.js')
-const { MessageButton } = require('discord-buttons')
-const supabase = require('./libs/supabase')
-const getTrackChannels = require('./utils/getTrackChannels')
+const handleTrackBtn = require('./buttons/handleTrackBtn')
+const handleUntrackBtn = require('./buttons/handleUntrackBtn')
 
 class Bot {
   apiKey = '' // Discord API Key
@@ -10,7 +7,7 @@ class Bot {
 
   prefix = '!'
 
-  commands = []
+  commands = new Map()
 
   constructor (client, apiKey) {
     this.client = client
@@ -22,8 +19,8 @@ class Bot {
       }
     })
 
+    // Add listeners here
     this.client.on('message', this.onMessage)
-
     this.client.on('clickButton', this.onClickButton)
   }
 
@@ -53,65 +50,18 @@ class Bot {
    * @memberof Bot
    */
   onClickButton = async (button) => {
+    const [btnId] = button.id.split('_')
+
     try {
-      const [btnId] = button.id.split('_')
-
       if (btnId === 'untrack') {
-        const [, id] = button.id.split('_')
-
-        // Check if the author has the permission to untrack the user
-        if (!button.clicker.member.hasPermission('ADMINISTRATOR')) {
-          return button.reply.send('You need to be an Administrator to untrack players.', true)
-        }
-
-        await button.reply.defer()
-
-        const { data: untrackedUser, error } = await untrackUser(id)
-
-        if (error) {
-          return await button.reply.send('Sorry, there was an error.', true)
-        }
-
-        const embed = new MessageEmbed()
-          .setTitle(`${untrackedUser.osu_username} has been untracked`)
-
-        const untrackBtn = new MessageButton()
-          .setStyle('grey')
-          .setLabel('Untracked')
-          .setID('untrack_disabled')
-          .setDisabled()
-
-        await button.message.edit(embed, untrackBtn)
+        return handleUntrackBtn(button)
       }
 
       if (btnId === 'track') {
-        const [, id, userDiscordId, guildId] = button.id.split('_')
-
-        await button.reply.defer()
-
-        const { error } = await supabase
-          .from('tracked_users')
-          .update({ is_approved: true })
-          .eq('id', id)
-          .single()
-
-        if (error) {
-          return button.reply.send('Sorry, there was an error.', true)
-        }
-
-        const approvedBtn = new MessageButton()
-          .setStyle('blurple')
-          .setLabel('Approved')
-          .setID('track_approved')
-          .setDisabled()
-
-        button.message.edit(button.message.embeds[0], approvedBtn)
-
-        const { trackChannel } = await getTrackChannels(guildId, this.client)
-        trackChannel.send(`<@${userDiscordId}> is now tracked.`)
+        return handleTrackBtn(button, this.client)
       }
     } catch (error) {
-      console.error(error)
+      console.error('onClickButton', error)
       await button.reply.send('Sorry, there was an error.', true)
     }
   }
@@ -125,7 +75,7 @@ class Bot {
    */
   addCommand = (command) => {
     if (!command.run) {
-      console.error(`"${command.name}" does not have a function named "run"`)
+      console.error(`"${command.name}" does not have a method named "run"`)
     }
 
     if (!command.name) {
@@ -144,7 +94,7 @@ class Bot {
       console.error(`"${command.name}" does not have a property named "category"`)
     }
 
-    this.commands.push(command)
+    this.commands.set(command.name, command)
     return this
   }
 
@@ -159,7 +109,7 @@ class Bot {
     const parts = content.split(' ')
     const args = parts.slice(1)
     const commandName = (parts[0].replace(this.prefix, '')).toLowerCase()
-    const command = this.commands.find(c => c.name === commandName)
+    const command = this.commands.get(commandName)
 
     if (!command) return false
 
