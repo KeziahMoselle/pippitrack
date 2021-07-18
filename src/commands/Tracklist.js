@@ -43,9 +43,9 @@ class TracklistCommand {
   async run (message, args) {
     const [page = 1] = args
 
-    // Check if the author has the permission to untrack the user
+    // Check if the author has the permission to run this command
     if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply('You need to be an Administrator to untrack players.')
+      return message.reply('You need to be an Administrator to use this command.')
     }
 
     try {
