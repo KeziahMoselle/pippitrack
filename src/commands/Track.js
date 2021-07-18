@@ -70,7 +70,7 @@ class TrackCommand {
       const trackChannel = message.guild.channels.cache.get(guild.track_channel)
       const replayChannel = message.guild.channels.cache.get(guild.replay_channel)
 
-      if (guild.admin_channel && (trackChannel || replayChannel)) {
+      if (guild.admin_channel && (trackChannel || replayChannel) && !message.member.hasPermission('ADMINISTRATOR')) {
         const adminChannel = message.guild.channels.cache.get(guild.admin_channel)
 
         const { data: userPendingApproval } = await supabase
@@ -97,17 +97,6 @@ class TrackCommand {
           })
           .eq('guild_id', message.guild.id)
           .single()
-
-        if (error) {
-          if (error.code === '23503') { // Constraint key doesn't exist
-            const embed = new MessageEmbed()
-              .setTitle('You need to set a tracking channel first')
-              .setDescription('Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.')
-            return message.channel.send(embed)
-          }
-          console.error(error)
-          return message.reply('Sorry, there was an error.')
-        }
 
         const embed = new MessageEmbed()
           .setTitle(`${user.name} requested to be tracked on this server.`)
