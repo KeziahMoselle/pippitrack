@@ -4,11 +4,9 @@
   "description": "Track osu! top plays and do other things",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "dev:pm2": "pm2 start ecosystem.config.js --env development --watch && pm2 log osu-tracking",
-    "start": "node src/index.js",
-    "start:pm2": "pm2 start ecosystem.config.js --env production",
-    "stop": "pm2 stop osu-tracking",
+    "dev": "nodemon src/index.ts",
+    "start": "node dist/index.js",
+    "prestart": "tsc",
     "lint": "standard",
     "fix": "standard --fix"
   },
@@ -25,7 +23,9 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "nodemon": "^2.0.12",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
   },
   "standard": {
     "parser": "babel-eslint"
