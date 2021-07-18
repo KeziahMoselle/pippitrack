@@ -19,10 +19,13 @@ function update (client) {
     try {
       console.time('massUpdatePlayers')
       const { uniqueTrackedPlayers, count } = await getTrackedPlayers(client)
+
+      let i = 0
       console.log(`Update service: ${count} players to update`)
 
       // Update all the players
       for (const id in uniqueTrackedPlayers) {
+        i++
         const player = uniqueTrackedPlayers[id]
 
         try {
@@ -30,6 +33,7 @@ function update (client) {
 
           for (const channel of player.trackChannels) {
             channel.send(embed)
+            console.info(`${player.osu_username} in #${channel.name} (${i}/${count})`)
           }
         } catch (error) {
           console.error('update', player)

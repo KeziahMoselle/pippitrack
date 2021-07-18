@@ -9,9 +9,9 @@ const getTrackChannels = require('./getTrackChannels')
  */
 async function getTrackedPlayers (client) {
   // @TODO Paginate them if there is too much to fetch
-  const { data: trackedPlayers, count } = await supabase
+  const { data: trackedPlayers } = await supabase
     .from('tracked_users')
-    .select('*', { count: 'exact' })
+    .select('*')
     .eq('is_approved', true)
 
   // Merge same osu_id in the same object so we don't iterate over them 2 times
@@ -38,6 +38,8 @@ async function getTrackedPlayers (client) {
       uniqueTrackedPlayers[player.osu_id].replayChannels.push(replayChannel)
     }
   }
+
+  const count = Object.keys(uniqueTrackedPlayers).length
 
   return {
     uniqueTrackedPlayers,
