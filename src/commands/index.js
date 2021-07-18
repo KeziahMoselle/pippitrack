@@ -8,6 +8,7 @@ const SetChannel = require('./SetChannel')
 const Osu = require('./Osu')
 const RecentScore = require('./RecentScore')
 const Untrack = require('./Untrack')
+const Tracklist = require('./Tracklist')
 
 module.exports = {
   Track,
@@ -19,5 +20,6 @@ module.exports = {
   SetChannel,
   Osu,
   RecentScore,
-  Untrack
+  Untrack,
+  Tracklist
 }
