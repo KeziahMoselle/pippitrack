@@ -1,7 +1,7 @@
 const getUser = require('../utils/getUser')
 const notFoundEmbed = require('../utils/notFoundEmbed')
 
-class PeakCommand {
+class OsuProfileCommand {
   name = 'osu'
   arguments = ['username']
   description = 'Display your osu! profile (via osusig)'
@@ -24,4 +24,4 @@ class PeakCommand {
   }
 }
 
-module.exports = PeakCommand
+module.exports = OsuProfileCommand

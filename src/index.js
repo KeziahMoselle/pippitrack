@@ -18,7 +18,8 @@ const {
   Update,
   Ping,
   SetChannel,
-  Osu
+  Osu,
+  RecentScore
 } = require('./commands')
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
@@ -40,6 +41,7 @@ bot
   .addCommand(new Link())
   .addCommand(new Track())
   .addCommand(new Update())
+  .addCommand(new RecentScore())
   .addCommand(new Osu())
   .addCommand(new Peak())
   .addCommand(new SetChannel())

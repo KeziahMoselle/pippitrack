@@ -10,8 +10,10 @@ const RANK_EMOJIS = {
 }
 
 function getEmoji (rank) {
-  if (RANK_EMOJIS[rank]) {
-    return RANK_EMOJIS[rank]
+  const rankLetter = rank.toLowerCase()
+
+  if (RANK_EMOJIS[rankLetter]) {
+    return RANK_EMOJIS[rankLetter]
   }
 }
 

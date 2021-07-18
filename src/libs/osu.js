@@ -8,7 +8,6 @@ const osuApi = new osu.Api(process.env.OSU_API_KEY, {
 })
 
 class OsuApiv2 {
-  name = 'Bancho'
   base = 'https://osu.ppy.sh/api/v2/'
   userUrlBase = 'https://osu.ppy.sh/users/'
   avatarUrl = 'http://s.ppy.sh/a/'
@@ -34,15 +33,22 @@ class OsuApiv2 {
     this.tokenExpire = new Date(Date.now() + (data.expires_in * 1000))
   }
 
-  async fetch (endpoint) {
+  async fetch (endpoint, params = {}) {
     // Check if the token is expired
     if ((this.tokenExpire && new Date() > this.tokenExpire) || !this.tokenExpire) {
       console.log('osu! API v2 access_token is expired or needs to be created')
       await this.getToken()
     }
 
+    const url = new URL(`${this.base}${endpoint}`)
+
+    for (const key in params) {
+      const value = params[key]
+      url.searchParams.append(key, value)
+    }
+
     try {
-      const { data } = await axios.get(`${this.base}${endpoint}`, {
+      const { data } = await axios.get(url.href, {
         headers: {
           Authorization: `Bearer ${this.token}`,
           Accept: 'application/json',
@@ -52,7 +58,7 @@ class OsuApiv2 {
 
       return data
     } catch (error) {
-      console.error(endpoint, error)
+      console.error(url, error)
     }
   }
 
@@ -60,6 +66,17 @@ class OsuApiv2 {
     const user = await this.fetch(`users/${id || username}`)
     return user.user_achievements
   }
+
+  async getUserRecentScores ({ id, includeFails = '1', limit = 1 }) {
+    const scores = await this.fetch(`users/${id}/scores/recent`, {
+      include_fails: includeFails,
+      limit
+    })
+
+    return scores
+  }
+
+  getBeatmapsetCoverImage = (beatmapsetId) => `https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg`
 }
 
 const osuApiV2 = new OsuApiv2(process.env.OSU_CLIENT_ID, process.env.OSU_CLIENT_SECRET)

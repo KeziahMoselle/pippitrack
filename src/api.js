@@ -92,7 +92,7 @@ async function getUpdate (osuUser, id) {
       const newhs = difference.newhs.splice(0, 10)
 
       let newHighscores = newhs.reduce((list, highscore) => {
-        return list + `${getEmoji(highscore.rank.toLowerCase())} **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
+        return list + `${getEmoji(highscore.rank)} **${Math.round(highscore.pp)}pp** (Personal best #${highscore.ranking + 1})\n`
       }, `**New top play${newhs.length > 1 ? 's' : ''} :**\n`)
 
       if (difference.newhs.length > 0) {
