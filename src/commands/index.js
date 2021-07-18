@@ -7,6 +7,7 @@ const Ping = require('./Ping')
 const SetChannel = require('./SetChannel')
 const Osu = require('./Osu')
 const RecentScore = require('./RecentScore')
+const Untrack = require('./Untrack')
 
 module.exports = {
   Track,
@@ -17,5 +18,6 @@ module.exports = {
   Ping,
   SetChannel,
   Osu,
-  RecentScore
+  RecentScore,
+  Untrack
 }

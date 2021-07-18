@@ -57,36 +57,31 @@ class Bot {
       const [btnId] = button.id.split('_')
 
       if (btnId === 'untrack') {
-        const [, userId, id] = button.id.split('_')
+        const [, id] = button.id.split('_')
 
         // Check if the author has the permission to untrack the user
         if (!button.clicker.member.hasPermission('ADMINISTRATOR')) {
           return button.reply.send('You need to be an Administrator to untrack players.', true)
         }
 
-        if (button.clicker.id === userId) {
-          await button.reply.defer()
-          const { data, error } = await untrackUser(id)
+        await button.reply.defer()
 
-          if (error) {
-            await button.reply.send('Sorry, there was an error.', true)
-          } else if (data.length === 0) {
-            await button.reply.send('You have already been untracked.', true)
-          } else {
-            const embed = new MessageEmbed()
-              .setTitle('You have been untracked')
+        const { data: untrackedUser, error } = await untrackUser(id)
 
-            const untrackBtn = new MessageButton()
-              .setStyle('red')
-              .setLabel('Untrack')
-              .setID('untrack_disabled')
-              .setDisabled()
-
-            await button.message.edit(embed, untrackBtn)
-          }
-        } else {
-          await button.reply.send('You cannot untrack another player.', true)
+        if (error) {
+          return await button.reply.send('Sorry, there was an error.', true)
         }
+
+        const embed = new MessageEmbed()
+          .setTitle(`${untrackedUser.osu_username} has been untracked`)
+
+        const untrackBtn = new MessageButton()
+          .setStyle('grey')
+          .setLabel('Untracked')
+          .setID('untrack_disabled')
+          .setDisabled()
+
+        await button.message.edit(embed, untrackBtn)
       }
 
       if (btnId === 'track') {

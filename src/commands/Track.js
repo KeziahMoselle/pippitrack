@@ -40,7 +40,7 @@ class TrackCommand {
         const untrackBtn = new MessageButton()
           .setStyle('red')
           .setLabel('Untrack')
-          .setID(`untrack_${message.author.id}_${userFound.id}`)
+          .setID(`untrack_${userFound.id}`)
 
         const IN_ONE_MINUTE = 60 * 1000
 
