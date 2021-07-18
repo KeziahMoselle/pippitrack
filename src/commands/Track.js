@@ -42,14 +42,7 @@ class TrackCommand {
           .setLabel('Untrack')
           .setID(`untrack_${userFound.id}`)
 
-        const IN_ONE_MINUTE = 60 * 1000
-
-        const sentMessage = await message.channel.send(embed, untrackBtn)
-
-        setTimeout(() => {
-          sentMessage.edit(embed, untrackBtn.setDisabled())
-        }, IN_ONE_MINUTE)
-        return
+        return message.channel.send(embed, untrackBtn)
       }
 
       // Check if the guild has set an admin channel.
