@@ -1,6 +1,6 @@
-import { MessageEmbed } from 'discord.js';
-import { MessageButton } from 'discord-buttons';
-import untrackUser from '../utils/untrackUser';
+import { MessageEmbed } from 'discord.js'
+import { MessageButton } from 'discord-buttons'
+import untrackUser from '../utils/untrackUser'
 
 export default async function handleUntrackBtn (button) {
   const [, id] = button.id.split('_')

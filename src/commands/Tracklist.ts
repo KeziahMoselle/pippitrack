@@ -1,5 +1,5 @@
-import { MessageEmbed } from 'discord.js';
-import supabase from '../libs/supabase';
+import { MessageEmbed } from 'discord.js'
+import supabase from '../libs/supabase'
 
 export default class TracklistCommand {
   name = 'tracklist'

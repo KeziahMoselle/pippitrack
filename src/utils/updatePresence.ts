@@ -1,6 +1,6 @@
 import supabase from '../libs/supabase'
 
-const presences: Array<Function> = [
+const presences: Function[] = [
   getCountOfTrackedUsers,
   () => 'OwO',
   () => 'Bouf <3',

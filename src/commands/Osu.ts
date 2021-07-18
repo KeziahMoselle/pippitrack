@@ -1,5 +1,5 @@
-import getUser from '../utils/getUser';
-import notFoundEmbed from '../utils/notFoundEmbed';
+import getUser from '../utils/getUser'
+import notFoundEmbed from '../utils/notFoundEmbed'
 
 export default class OsuProfileCommand {
   name = 'osu'

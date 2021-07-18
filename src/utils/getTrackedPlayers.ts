@@ -1,5 +1,5 @@
-import supabase from '../libs/supabase';
-import getTrackChannels from './getTrackChannels';
+import supabase from '../libs/supabase'
+import getTrackChannels from './getTrackChannels'
 
 /**
  * Get all tracked players
@@ -7,7 +7,7 @@ import getTrackChannels from './getTrackChannels';
  * @param {*} client Discord.js client
  * @return {*}
  */
-export default async function getTrackedPlayers(client) {
+export default async function getTrackedPlayers (client) {
   // @TODO Paginate them if there is too much to fetch
   const { data: trackedPlayers } = await supabase
     .from('tracked_users')
@@ -46,4 +46,3 @@ export default async function getTrackedPlayers(client) {
     count
   }
 }
-

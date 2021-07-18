@@ -1,8 +1,8 @@
-import supabase from '../../libs/supabase';
-import ordr from '../../libs/ordr';
-import getTrackChannels from '../../utils/getTrackChannels';
+import supabase from '../../libs/supabase'
+import ordr from '../../libs/ordr'
+import getTrackChannels from '../../utils/getTrackChannels'
 
-export default function listenForRenders(client) {
+export default function listenForRenders (client) {
   console.log('Service started : ordr')
 
   ordr.on('render_done', async (data) => {

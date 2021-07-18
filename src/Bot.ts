@@ -56,11 +56,11 @@ export default class Bot {
 
     try {
       if (btnId === 'untrack') {
-        return handleUntrackBtn(button)
+        return await handleUntrackBtn(button)
       }
 
       if (btnId === 'track') {
-        return handleTrackBtn(button, this.client)
+        return await handleTrackBtn(button, this.client)
       }
     } catch (error) {
       console.error('onClickButton', error)

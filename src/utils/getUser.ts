@@ -3,9 +3,9 @@ import { osu } from '../libs/osu'
 import { Message } from 'discord.js'
 
 interface GetUserArgs {
-  message?: Message;
-  args?: string[];
-  id?: string;
+  message?: Message
+  args?: string[]
+  id?: string
 }
 
 /**
@@ -24,7 +24,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
       return
     }
 
-    return osu.getUser({
+    return await osu.getUser({
       u: dbUser.osu_id,
       type: 'id'
     })
@@ -36,14 +36,14 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
       .join(' ')
       .replace(/"/g, '')
 
-    return osu.getUser({
+    return await osu.getUser({
       u: usernameArg,
       type: 'string'
     })
   }
 
   if (id) {
-    return osu.getUser({
+    return await osu.getUser({
       u: id,
       type: 'id'
     })
@@ -57,7 +57,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
     .single()
 
   if (savedUsername) {
-    return osu.getUser({
+    return await osu.getUser({
       u: savedUsername.osu_id,
       type: 'id'
     })
@@ -65,7 +65,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
 
   // Else use the displayName of Discord
   if (!savedUsername) {
-    return osu.getUser({
+    return await osu.getUser({
       u: message.member.displayName,
       type: 'string'
     })

@@ -2,9 +2,9 @@ import { MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 
 interface ChannelToAddInterface {
-  track_channel?: number;
-  replay_channel?: number;
-  admin_channel?: number;
+  track_channel?: number
+  replay_channel?: number
+  admin_channel?: number
 }
 
 export default class SetChannelCommand {

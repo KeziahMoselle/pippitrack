@@ -1,6 +1,6 @@
-import { CronJob } from 'cron';
-import { getUpdate } from '../../api';
-import getTrackedPlayers from '../../utils/getTrackedPlayers';
+import { CronJob } from 'cron'
+import { getUpdate } from '../../api'
+import getTrackedPlayers from '../../utils/getTrackedPlayers'
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
 

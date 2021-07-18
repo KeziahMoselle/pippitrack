@@ -1,6 +1,6 @@
-import { MessageButton } from 'discord-buttons';
-import supabase from '../libs/supabase';
-import getTrackChannels from '../utils/getTrackChannels';
+import { MessageButton } from 'discord-buttons'
+import supabase from '../libs/supabase'
+import getTrackChannels from '../utils/getTrackChannels'
 
 export default async function handleTrackBtn (button, client) {
   const [, id, userDiscordId, guildId] = button.id.split('_')

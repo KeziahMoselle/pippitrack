@@ -20,7 +20,7 @@ bot.onReady = (client) => {
   console.log('Connected to Discord.')
 
   updatePresence(client)
-  setInterval(() => updatePresence(client), EVERY_FIVE_MINUTES)
+  setInterval(async () => await updatePresence(client), EVERY_FIVE_MINUTES)
 
   // Run services
   ordr(client).start()
