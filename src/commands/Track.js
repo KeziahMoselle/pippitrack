@@ -86,7 +86,7 @@ class TrackCommand {
         }
 
         // Add the approval request to the database.
-        const { data: approvalRequest, error } = await supabase
+        const { data: approvalRequest } = await supabase
           .from('tracked_users')
           .upsert({
             id: userFound?.id,
