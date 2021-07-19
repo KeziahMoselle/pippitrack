@@ -1,6 +1,5 @@
 import { MessageEmbed } from 'discord.js'
-
-const PREFIX = '!'
+import { prefix } from '../config'
 
 export default class Help {
   name = 'help'
@@ -26,19 +25,23 @@ export default class Help {
    * @param {Set} commands
    */
   setDefaultEmbed (commands) {
-    this.defaultEmbed
-      .setTitle('osu!track\'s commands')
+    this.defaultEmbed.setTitle("osu!track's commands")
 
     let description = ''
-    commands.forEach(command => {
-      description += `**${command.description}**\n\`${PREFIX}${command.name} ${this.getArgumentsList(command.arguments)}\`\n\n`
+    commands.forEach((command) => {
+      description += `**${command.description}**\n\`${prefix}${
+        command.name
+      } ${this.getArgumentsList(command.arguments)}\`\n\n`
     })
 
-    description += '\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)'
+    description +=
+      '\nSupport : [GitHub](https://github.com/KeziahMoselle/osu-track)'
 
     this.defaultEmbed
       .setDescription(description)
-      .setFooter(`For more details on a specific command: ${PREFIX}help <command>`)
+      .setFooter(
+        `For more details on a specific command: ${prefix}help <command>`
+      )
   }
 
   /**
@@ -60,14 +63,10 @@ export default class Help {
    * @returns {string}
    */
   getArgumentsList (commandArguments) {
-    return commandArguments
-      .reduce(
-        (allArguments, argument) => {
-          allArguments += `<${argument}> `
-          return allArguments
-        },
-        ''
-      )
+    return commandArguments.reduce((allArguments, argument) => {
+      allArguments += `<${argument}> `
+      return allArguments
+    }, '')
   }
 
   /**

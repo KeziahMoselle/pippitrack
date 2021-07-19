@@ -1,23 +1,24 @@
+import { Client, Message } from 'discord.js'
 import handleTrackBtn from './buttons/handleTrackBtn'
 import handleUntrackBtn from './buttons/handleUntrackBtn'
+import { prefix } from './config'
 
 export default class Bot {
   apiKey = '' // Discord API Key
   client = null // The Discord Client
 
-  prefix = '!'
-
   commands = new Map()
 
   onReady = null
 
-  constructor (client, apiKey) {
+  constructor (client: Client, apiKey: string) {
     this.client = client
     this.apiKey = apiKey
 
     this.client.once('ready', async () => {
       if (this.onReady && typeof this.onReady === 'function') {
         this.onReady(this.client)
+        console.log(`Using ${process.env.NODE_ENV} prefix : ${prefix}`)
       }
     })
 
@@ -32,7 +33,7 @@ export default class Bot {
    * @param {module:discord.js.Message} message
    * @memberof Bot
    */
-  onMessage = (message) => {
+  onMessage = (message: Message): void => {
     if (
       message.author.bot ||
       message.channel.type === 'dm' ||
@@ -41,7 +42,7 @@ export default class Bot {
       return
     }
 
-    if (!message.content.startsWith(this.prefix)) return
+    if (!message.content.startsWith(prefix)) return
 
     this.runCommand(message)
   }
@@ -51,7 +52,7 @@ export default class Bot {
    *
    * @memberof Bot
    */
-  onClickButton = async (button) => {
+  onClickButton = async (button): Promise<void> => {
     const [btnId] = button.id.split('_')
 
     try {
@@ -75,7 +76,7 @@ export default class Bot {
    * @returns
    * @memberof Bot
    */
-  addCommand = (command) => {
+  addCommand = (command): this => {
     if (!command.run) {
       console.error(`"${command.name}" does not have a method named "run"`)
     }
@@ -85,15 +86,21 @@ export default class Bot {
     }
 
     if (!command.arguments) {
-      console.error(`"${command.name}" does not have a property named "arguments"`)
+      console.error(
+        `"${command.name}" does not have a property named "arguments"`
+      )
     }
 
     if (!command.description) {
-      console.error(`"${command.name}" does not have a property named "description"`)
+      console.error(
+        `"${command.name}" does not have a property named "description"`
+      )
     }
 
     if (!command.category) {
-      console.error(`"${command.name}" does not have a property named "category"`)
+      console.error(
+        `"${command.name}" does not have a property named "category"`
+      )
     }
 
     this.commands.set(command.name, command)
@@ -106,14 +113,14 @@ export default class Bot {
    * @param {Message} message
    * @memberof Bot
    */
-  runCommand = async (message) => {
+  runCommand = async (message: Message): Promise<void> => {
     const content = message.content.toLowerCase()
     const parts = content.split(' ')
     const args = parts.slice(1)
-    const commandName = (parts[0].replace(this.prefix, '')).toLowerCase()
+    const commandName = parts[0].replace(prefix, '').toLowerCase()
     const command = this.commands.get(commandName)
 
-    if (!command) return false
+    if (!command) return
 
     try {
       message.channel.startTyping()
@@ -130,7 +137,7 @@ export default class Bot {
    *
    * @memberof Bot
    */
-  run = async () => {
+  run = async (): Promise<void> => {
     console.log('Connecting to Discord...')
     await this.client.login(this.apiKey)
   }
