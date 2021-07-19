@@ -31,9 +31,13 @@ export default class TrackCommand {
         .eq('guild_id', message.guild.id)
 
       if (count >= maxTrackedUsersInGuild) {
-        const embed = new MessageEmbed().setDescription(
-          `You reached the limit of tracked users ! ${count}/${maxTrackedUsersInGuild}`
-        )
+        const embed = new MessageEmbed()
+          .setTitle(
+            `You reached the limit of tracked users ! (${count}/${maxTrackedUsersInGuild})`
+          )
+          .setDescription(
+            'You can untrack users by typing `!untrack <username>`\nYou can see a list of tracked users by typing `!tracklist <?page>`'
+          )
         return message.channel.send(embed)
       }
 
