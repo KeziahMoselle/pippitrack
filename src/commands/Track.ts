@@ -1,20 +1,23 @@
-import { MessageEmbed } from 'discord.js'
+import { MessageEmbed, Message, TextChannel } from 'discord.js'
 import { MessageButton } from 'discord-buttons'
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
+import { maxTrackedUsersInGuild } from '../config'
 
 export default class TrackCommand {
   name = 'track'
   arguments = ['username']
-  description = 'Allows you to track top plays and replays. Also enable daily updates of your profile.'
+  description =
+    'Allows you to track top plays and replays. Also enable daily updates of your profile.'
+
   category = 'osu'
 
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message | Message[]> {
     const user = await getUser({ message, args })
 
     if (!user) {
@@ -22,6 +25,18 @@ export default class TrackCommand {
     }
 
     try {
+      const { count } = await supabase
+        .from('tracked_users')
+        .select('*', { count: 'exact' })
+        .eq('guild_id', message.guild.id)
+
+      if (count >= maxTrackedUsersInGuild) {
+        const embed = new MessageEmbed().setDescription(
+          `You reached the limit of tracked users ! ${count}/${maxTrackedUsersInGuild}`
+        )
+        return message.channel.send(embed)
+      }
+
       const { data: userFound } = await supabase
         .from('tracked_users')
         .select('*')
@@ -56,15 +71,25 @@ export default class TrackCommand {
       if (!guild) {
         const embed = new MessageEmbed()
           .setTitle('You need to set a tracking channel first')
-          .setDescription('Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.')
+          .setDescription(
+            'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
+          )
         return message.channel.send(embed)
       }
 
       const trackChannel = message.guild.channels.cache.get(guild.track_channel)
-      const replayChannel = message.guild.channels.cache.get(guild.replay_channel)
+      const replayChannel = message.guild.channels.cache.get(
+        guild.replay_channel
+      )
 
-      if (guild.admin_channel && (trackChannel || replayChannel) && !message.member.hasPermission('ADMINISTRATOR')) {
-        const adminChannel = message.guild.channels.cache.get(guild.admin_channel)
+      if (
+        guild.admin_channel &&
+        (trackChannel || replayChannel) &&
+        !message.member.hasPermission('ADMINISTRATOR')
+      ) {
+        const adminChannel: TextChannel = message.guild.channels.cache.get(
+          guild.admin_channel
+        ) as TextChannel
 
         const { data: userPendingApproval } = await supabase
           .from('tracked_users')
@@ -75,7 +100,9 @@ export default class TrackCommand {
           .single()
 
         if (userPendingApproval) {
-          return message.reply('You already have a pending approval for this server.')
+          return message.reply(
+            'You already have a pending approval for this server.'
+          )
         }
 
         // Add the approval request to the database.
@@ -93,8 +120,19 @@ export default class TrackCommand {
 
         const embed = new MessageEmbed()
           .setTitle(`${user.name} requested to be tracked on this server.`)
-          .setAuthor(message.member.nickname ? message.member.nickname : message.member.displayName, message.author.displayAvatarURL())
-          .setDescription(`If you want this player to be tracked${trackChannel ? ' on' + trackChannel.toString() : ''} ${replayChannel ? 'and ' + replayChannel.toString() : ''}\nclick on the button below !`)
+          .setAuthor(
+            message.member.nickname
+              ? message.member.nickname
+              : message.member.displayName,
+            message.author.displayAvatarURL()
+          )
+          .setDescription(
+            `If you want this player to be tracked${
+              trackChannel ? ' on' + trackChannel.toString() : ''
+            } ${
+              replayChannel ? 'and ' + replayChannel.toString() : ''
+            }\nclick on the button below !`
+          )
           .addField('Discord Tag', message.member, true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)
           .addField('osu! rank', `#${user.pp.rank}`, true)
@@ -104,11 +142,15 @@ export default class TrackCommand {
         const trackBtn = new MessageButton()
           .setStyle('green')
           .setLabel('Accept')
-          .setID(`track_${approvalRequest.id}_${message.member.id}_${message.guild.id}`)
+          .setID(
+            `track_${approvalRequest.id}_${message.member.id}_${message.guild.id}`
+          )
 
         await adminChannel.send(embed, trackBtn)
 
-        message.reply('Your request has been successfully sent to the administrators.')
+        message.reply(
+          'Your request has been successfully sent to the administrators.'
+        )
 
         return
       }
@@ -126,10 +168,13 @@ export default class TrackCommand {
         .eq('guild_id', message.guild.id)
 
       if (error) {
-        if (error.code === '23503') { // Constraint key doesn't exist
+        if (error.code === '23503') {
+          // Constraint key doesn't exist
           const embed = new MessageEmbed()
             .setTitle('You need to set a tracking channel first')
-            .setDescription('Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.')
+            .setDescription(
+              'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
+            )
           return message.channel.send(embed)
         }
         return message.reply('Sorry, there was an error.')
@@ -137,7 +182,9 @@ export default class TrackCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`Now tracking : ${user.name}`)
-        .setDescription(`in channels : ${trackChannel || ''} ${replayChannel || ''}`)
+        .setDescription(
+          `in channels : ${trackChannel || ''} ${replayChannel || ''}`
+        )
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .addField('Rank', `#${user.pp.rank}`, true)
         .addField('mode', 'osu!', true)

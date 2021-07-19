@@ -1,5 +1,6 @@
-import { MessageEmbed } from 'discord.js'
+import { MessageEmbed, Message } from 'discord.js'
 import supabase from '../libs/supabase'
+import { maxTrackedUsersInGuild } from '../config'
 
 export default class TracklistCommand {
   name = 'tracklist'
@@ -7,7 +8,7 @@ export default class TracklistCommand {
   description = 'Display the list of tracked users in the server.'
   category = 'osu'
 
-  fetchPage (page, guildId) {
+  fetchPage (page: number, guildId: string) {
     let startIndex = 0
     let endIndex = 24
 
@@ -23,7 +24,7 @@ export default class TracklistCommand {
       .range(startIndex, endIndex)
   }
 
-  async getTotalCount (guildId) {
+  async getTotalCount (guildId: string): Promise<number> {
     const { count } = await supabase
       .from('tracked_users')
       .select('id', { count: 'exact' })
@@ -31,7 +32,7 @@ export default class TracklistCommand {
     return count
   }
 
-  roundUp (num, precision) {
+  roundUp (num: number, precision: number): number {
     precision = Math.pow(10, precision)
     return Math.ceil(num * precision) / precision
   }
@@ -40,7 +41,7 @@ export default class TracklistCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message | Message[]> {
     const [page = 1] = args
 
     // Check if the author has the permission to run this command
@@ -52,7 +53,7 @@ export default class TracklistCommand {
 
     try {
       const { data: trackedUsers, error } = await this.fetchPage(
-        page,
+        Number(page),
         message.guild.id
       )
       const totalCount = await this.getTotalCount(message.guild.id)
@@ -77,7 +78,7 @@ export default class TracklistCommand {
       const embed = new MessageEmbed()
         .setTitle(`List of tracked users in ${message.guild.name}`)
         .setFooter(
-          `${totalCount} tracked users | Page ${page}/${this.roundUp(
+          `${totalCount} tracked users (max: ${maxTrackedUsersInGuild}) | Page ${page}/${this.roundUp(
             totalCount / 25,
             0
           )}`
