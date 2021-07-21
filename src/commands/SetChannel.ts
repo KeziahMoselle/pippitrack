@@ -10,7 +10,7 @@ interface ChannelToAddInterface {
 
 export default class SetChannelCommand {
   name = 'set'
-  arguments = ['type']
+  arguments = ['type', 'channel']
   description =
     'Set channels for tracking performance, replays and administration'
 
@@ -43,16 +43,23 @@ export default class SetChannelCommand {
 
     const channelToAdd: ChannelToAddInterface = {}
 
+    let channelToTrack = message.channel
+
+    console.log(message.mentions.channels)
+    if (message?.mentions?.channels.size > 0) {
+      channelToTrack = message.mentions.channels.first()
+    }
+
     if (type === 'track') {
-      channelToAdd.track_channel = message.channel.id
+      channelToAdd.track_channel = channelToTrack.id
     }
 
     if (type === 'replay') {
-      channelToAdd.replay_channel = message.channel.id
+      channelToAdd.replay_channel = channelToTrack.id
     }
 
     if (type === 'admin') {
-      channelToAdd.admin_channel = message.channel.id
+      channelToAdd.admin_channel = channelToTrack.id
     }
 
     try {
@@ -70,7 +77,7 @@ export default class SetChannelCommand {
 
       const embed = new MessageEmbed()
         .setDescription(
-          `Successfully set the ${type} channel on ${message.channel.toString()}`
+          `Successfully set the ${type} channel on ${channelToTrack.toString()}`
         )
         .setColor(11279474)
 
