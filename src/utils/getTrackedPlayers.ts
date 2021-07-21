@@ -3,7 +3,12 @@ import mem from 'p-memoize'
 import { Client } from 'discord.js'
 import supabase from '../libs/supabase'
 import getTrackChannelsFunc from './getTrackChannels'
-const getTrackChannels = mem(getTrackChannelsFunc)
+
+const TEN_MINUTES = 10 * 60 * 1000
+
+const getTrackChannels = mem(getTrackChannelsFunc, {
+  maxAge: TEN_MINUTES
+})
 
 /**
  * Get all tracked players
