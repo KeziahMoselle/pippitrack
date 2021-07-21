@@ -45,7 +45,6 @@ export default class SetChannelCommand {
 
     let channelToTrack = message.channel
 
-    console.log(message.mentions.channels)
     if (message?.mentions?.channels.size > 0) {
       channelToTrack = message.mentions.channels.first()
     }
