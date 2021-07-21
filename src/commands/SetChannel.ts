@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
-import { MessageEmbed } from 'discord.js'
+import { MessageEmbed, Message } from 'discord.js'
 import supabase from '../libs/supabase'
 
 interface ChannelToAddInterface {
-  track_channel?: number
-  replay_channel?: number
-  admin_channel?: number
+  track_channel?: string
+  replay_channel?: string
+  admin_channel?: string
 }
 
 export default class SetChannelCommand {
@@ -20,7 +20,7 @@ export default class SetChannelCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]) {
     const [type] = args
 
     if (!type) {
@@ -70,7 +70,7 @@ export default class SetChannelCommand {
 
       const embed = new MessageEmbed()
         .setDescription(
-          `Successfully set the ${type} channel on ${message.channel}`
+          `Successfully set the ${type} channel on ${message.channel.toString()}`
         )
         .setColor(11279474)
 

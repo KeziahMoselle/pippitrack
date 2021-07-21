@@ -186,9 +186,6 @@ export default class TrackCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`Now tracking : ${user.name}`)
-        .setDescription(
-          `in channels : ${trackChannel || ''} ${replayChannel || ''}`
-        )
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .addField('Rank', `#${user.pp.rank}`, true)
         .addField('mode', 'osu!', true)
