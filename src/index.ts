@@ -10,7 +10,19 @@ import ordr from './services/ordr'
 import update from './services/update'
 
 // Commands
-import { Track, Peak, Help, Link, Update, Ping, SetChannel, Osu, RecentScore, Untrack, Tracklist } from './commands'
+import {
+  Track,
+  Peak,
+  Help,
+  Link,
+  Update,
+  Ping,
+  SetChannel,
+  Osu,
+  RecentScore,
+  Untrack,
+  Tracklist
+} from './commands'
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
@@ -40,3 +52,7 @@ bot
   .addCommand(new Ping(bot.client))
   .addCommand(new Help(bot.commands))
   .run()
+
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled rejection:', error)
+})

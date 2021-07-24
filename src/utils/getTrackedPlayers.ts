@@ -1,14 +1,7 @@
 /* eslint-disable camelcase */
-import mem from 'p-memoize'
 import { Client } from 'discord.js'
 import supabase from '../libs/supabase'
-import getTrackChannelsFunc from './getTrackChannels'
-
-const TEN_MINUTES = 10 * 60 * 1000
-
-const getTrackChannels = mem(getTrackChannelsFunc, {
-  maxAge: TEN_MINUTES
-})
+import getTrackChannels from './getTrackChannels'
 
 /**
  * Get all tracked players
@@ -38,20 +31,28 @@ export default async function getTrackedPlayers (client: Client) {
       }
 
       // Create the channels array, so we can add multiple guilds to one player
-      const { trackChannel, replayChannel } = await getTrackChannels(
-        player.guild_id,
-        client
-      )
-      uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
-      uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
+      try {
+        const { trackChannel, replayChannel } = await getTrackChannels(
+          player.guild_id,
+          client
+        )
+        uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
+        uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
+      } catch (error) {
+        console.error('getTrackedPlayers', error)
+      }
     } else {
       // We found a duplicate of the player, add the other guild to the array
-      const { trackChannel, replayChannel } = await getTrackChannels(
-        player.guild_id,
-        client
-      )
-      uniqueTrackedPlayers[player.osu_id].trackChannels.push(trackChannel)
-      uniqueTrackedPlayers[player.osu_id].replayChannels.push(replayChannel)
+      try {
+        const { trackChannel, replayChannel } = await getTrackChannels(
+          player.guild_id,
+          client
+        )
+        uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
+        uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
+      } catch (error) {
+        console.error('getTrackedPlayers', error)
+      }
     }
   }
   console.timeEnd('getTrackedPlayers')

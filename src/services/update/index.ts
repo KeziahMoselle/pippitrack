@@ -4,13 +4,11 @@ import getTrackedPlayers from '../../utils/getTrackedPlayers'
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
 
-const cronTime = EVERY_DAY_AT_MIDNIGHT
-
 export default function update (client) {
   console.log('Service started : update players every day')
 
   const job = new CronJob({
-    cronTime,
+    cronTime: EVERY_DAY_AT_MIDNIGHT,
     onTick: massUpdatePlayers,
     timeZone: 'Europe/Paris'
   })
@@ -31,9 +29,19 @@ export default function update (client) {
         try {
           const embed = await getUpdate(null, player.osu_id)
 
+          if (!player.trackChannels) {
+            console.log(
+              `No track channel found: ${player.osu_username} (${player.osu_id})`
+            )
+
+            continue
+          }
+
           for (const channel of player.trackChannels) {
             channel.send(embed)
-            console.info(`${player.osu_username} in #${channel.name} (${i}/${count})`)
+            console.info(
+              `${player.osu_username} in #${channel.name} (${i}/${count})`
+            )
           }
         } catch (error) {
           console.error('update', player)
@@ -41,8 +49,7 @@ export default function update (client) {
         }
       }
     } catch (error) {
-      console.error('update')
-      console.error(error)
+      console.error('massUpdatePlayers error :', error)
     } finally {
       console.timeEnd('massUpdatePlayers')
     }
