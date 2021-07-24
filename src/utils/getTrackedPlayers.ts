@@ -32,28 +32,20 @@ export default async function getTrackedPlayers (client: Client) {
       }
 
       // Create the channels array, so we can add multiple guilds to one player
-      try {
-        const { trackChannel, replayChannel } = await getTrackChannels(
-          player.guild_id,
-          client
-        )
-        uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
-        uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
-      } catch (error) {
-        console.error('getTrackedPlayers', error)
-      }
+      const { trackChannel, replayChannel } = await getTrackChannels(
+        player.guild_id,
+        client
+      )
+      uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
+      uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
     } else {
       // We found a duplicate of the player, add the other guild to the array
-      try {
-        const { trackChannel, replayChannel } = await getTrackChannels(
-          player.guild_id,
-          client
-        )
-        uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
-        uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
-      } catch (error) {
-        console.error('getTrackedPlayers', error)
-      }
+      const { trackChannel, replayChannel } = await getTrackChannels(
+        player.guild_id,
+        client
+      )
+      uniqueTrackedPlayers[player.osu_id].trackChannels.push(trackChannel)
+      uniqueTrackedPlayers[player.osu_id].replayChannels.push(replayChannel)
     }
   }
   console.timeEnd('getTrackedPlayers')
