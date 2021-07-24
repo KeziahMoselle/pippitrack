@@ -31,6 +31,10 @@ const EVERY_FIVE_MINUTES = 5 * 60 * 1000
 bot.onReady = (client) => {
   console.log('Connected to Discord.')
 
+  if (process.env.NODE_ENV !== 'production') {
+    return
+  }
+
   updatePresence(client)
   setInterval(async () => await updatePresence(client), EVERY_FIVE_MINUTES)
 

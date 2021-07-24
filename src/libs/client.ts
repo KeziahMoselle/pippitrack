@@ -2,7 +2,7 @@ import { Client, Intents } from 'discord.js'
 import disbut from 'discord-buttons'
 
 // Declare intents
-const intents = new Intents(['GUILDS'])
+const intents = new Intents(['GUILDS', 'GUILD_MESSAGES'])
 
 const client = new Client({
   ws: { intents }
