@@ -49,6 +49,10 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
     })
   }
 
+  if (!message.member) {
+    return
+  }
+
   // If no argument is provided, try to get the osu_id from our database
   const { data: savedUsername } = await supabase
     .from('users')

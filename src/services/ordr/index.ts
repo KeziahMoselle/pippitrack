@@ -8,6 +8,11 @@ export default function listenForRenders (client) {
   ordr.on('render_done', async (data) => {
     try {
       const render = await ordr.renders({ renderID: data.render_done })
+
+      if (!render && render.renders.length === 0) {
+        return console.log(`ID: ${data.render_done} | Render empty ${render}`)
+      }
+
       const replay = render.renders[0]
 
       const { data: isUserTracked } = await supabase
@@ -18,6 +23,9 @@ export default function listenForRenders (client) {
 
       if (isUserTracked.length === 0) return
 
+      console.log(replay)
+      console.log(isUserTracked)
+
       for (const user of isUserTracked) {
         const { replayChannel } = await getTrackChannels(user.guild_id, client)
 
@@ -25,10 +33,12 @@ export default function listenForRenders (client) {
           return
         }
 
-        replayChannel.send(`New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`)
+        replayChannel.send(
+          `New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`
+        )
       }
     } catch (error) {
-      console.error(error)
+      console.error('ordr service error : ', error)
     }
   })
 
