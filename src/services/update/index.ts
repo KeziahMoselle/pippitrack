@@ -16,8 +16,7 @@ export default function update (client) {
   const job = new CronJob({
     cronTime: EVERY_DAY_AT_MIDNIGHT,
     onTick: massUpdatePlayers,
-    timeZone: 'Europe/Paris',
-    runOnInit: true
+    timeZone: 'Europe/Paris'
   })
 
   async function massUpdatePlayers () {
