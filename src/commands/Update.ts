@@ -5,7 +5,9 @@ import { getUpdate } from '../api'
 export default class UpdateCommand {
   name = 'u'
   arguments = ['username']
-  description = "See how much pp, rank, etc. you've gained since your last update"
+  description =
+    "See how much pp, rank, etc. you've gained since your last update"
+
   category = 'osu'
 
   /**
@@ -20,7 +22,7 @@ export default class UpdateCommand {
     }
 
     try {
-      const embed = await getUpdate(user)
+      const { embed } = await getUpdate(user)
 
       return message.channel.send(embed)
     } catch (error) {

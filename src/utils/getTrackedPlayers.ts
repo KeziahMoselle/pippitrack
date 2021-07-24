@@ -25,6 +25,7 @@ export default async function getTrackedPlayers (client: Client) {
     // Add the player to the unique list
     if (!uniqueTrackedPlayers[player.osu_id]) {
       uniqueTrackedPlayers[player.osu_id] = {
+        guild_id: player.guild_id,
         id: player.id,
         osu_id: player.osu_id,
         osu_username: player.osu_username

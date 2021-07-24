@@ -38,7 +38,10 @@ export async function getUpdate (osuUser?: User, id?: string) {
           `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
         )
 
-      return embed
+      return {
+        status: 'first',
+        embed
+      }
     }
 
     embed
@@ -79,7 +82,10 @@ export async function getUpdate (osuUser?: User, id?: string) {
         'No changes since the last update.\nTry getting some pp'
       )
 
-      return embed
+      return {
+        status: 'no_change',
+        embed
+      }
     }
 
     embed.addField('Playcount', `+${difference.playcount}`, true)
@@ -116,7 +122,10 @@ export async function getUpdate (osuUser?: User, id?: string) {
       embed.setDescription(newHighscores)
     }
 
-    return embed
+    return {
+      status: 'update',
+      embed
+    }
   } catch (error) {
     console.error(error)
     throw error
