@@ -1,16 +1,22 @@
+import { Client } from 'discord.js'
 import supabase from '../libs/supabase'
 
-const presences: { (): string | Promise<string> }[] = [
+interface Presences {
+  (): Promise<string> | string
+}
+
+const presences: Presences[] = [
   getCountOfTrackedUsers,
   () => 'OwO',
   () => 'Bouf <3',
-  () => 'UwU'
+  () => 'UwU',
+  () => '>w<'
 ]
 
 let presenceId = 0
 const maxPresence = presences.length - 1
 
-export default async function updatePresence (client) {
+export default async function updatePresence (client: Client): Promise<void> {
   const result = await presences[presenceId]()
 
   presenceId = presenceId + 1

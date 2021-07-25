@@ -1,16 +1,17 @@
 import { CronJob } from 'cron'
-import { getUpdate } from '../../api'
+import osuTrack from '../../libs/osutrack'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
 import wait from '../../utils/wait'
 import {
   maxUsersUpdatedSimultaneously,
   maxRequestsBeforeSleep
 } from '../../config'
+import { Client } from 'discord.js'
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
 const TEN_SECONDS = 10 * 1000
 
-export default function update (client) {
+export default function update (client: Client): CronJob {
   console.log('Service started : update players every day')
 
   const job = new CronJob({
@@ -76,7 +77,7 @@ export default function update (client) {
 }
 
 async function updatePlayer (player) {
-  const { status, embed } = await getUpdate(null, player.osu_id)
+  const { status, embed } = await osuTrack.update(null, player.osu_id)
 
   return {
     player,

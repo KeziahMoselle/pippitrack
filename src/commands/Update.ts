@@ -1,6 +1,6 @@
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
-import { getUpdate } from '../api'
+import osuTrack from '../libs/osutrack'
 
 export default class UpdateCommand {
   name = 'u'
@@ -22,7 +22,7 @@ export default class UpdateCommand {
     }
 
     try {
-      const { embed } = await getUpdate(user)
+      const { embed } = await osuTrack.update(user)
 
       return message.channel.send(embed)
     } catch (error) {
