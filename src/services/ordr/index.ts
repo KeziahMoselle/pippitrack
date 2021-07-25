@@ -23,9 +23,6 @@ export default function listenForRenders (client) {
 
       if (isUserTracked.length === 0) return
 
-      console.log(replay)
-      console.log(isUserTracked)
-
       for (const user of isUserTracked) {
         const { replayChannel } = await getTrackChannels(user.guild_id, client)
 

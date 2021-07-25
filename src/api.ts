@@ -99,8 +99,8 @@ export async function getUpdate (osuUser?: User, id?: string) {
       embed.addField('Current rank', `#${user.pp.rank}`, true)
     }
 
-    if (accuracy >= 0.01) {
-      embed.addField('Accuracy', `${accuracy}`, true)
+    if (accuracy >= 0.01 || accuracy <= 0.01) {
+      embed.addField('Accuracy', `${accuracy.toFixed(2)}`, true)
     }
 
     if (difference.newhs.length > 0) {
