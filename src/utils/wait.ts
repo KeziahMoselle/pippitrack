@@ -1,3 +1,3 @@
-export default async function wait (ms) {
-  return await new Promise((resolve) => setTimeout(resolve, ms))
+export default async function wait (ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

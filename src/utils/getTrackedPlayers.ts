@@ -1,7 +1,31 @@
 /* eslint-disable camelcase */
-import { Client } from 'discord.js'
+import { Client, TextChannel } from 'discord.js'
 import supabase from '../libs/supabase'
 import getTrackChannels from './getTrackChannels'
+
+interface TrackedPlayer {
+  [key: string]: {
+    guild_id: string
+    id: number
+    osu_id: string
+    osu_username: string
+    trackChannels?: TextChannel[]
+    replayChannels?: TextChannel[]
+  }
+}
+
+interface DBUser {
+  osu_id: string
+  id: number
+  osu_username: string
+  guild_id: string
+  is_approved: boolean
+}
+
+interface GetTrackedPlayersData {
+  uniqueTrackedPlayers: TrackedPlayer
+  count: number
+}
 
 /**
  * Get all tracked players
@@ -9,16 +33,18 @@ import getTrackChannels from './getTrackChannels'
  * @param {*} client Discord.js client
  * @return {*}
  */
-export default async function getTrackedPlayers (client: Client) {
+export default async function getTrackedPlayers (
+  client: Client
+): Promise<GetTrackedPlayersData> {
   // @TODO Paginate them if there is too much to fetch
   const { data: trackedPlayers } = await supabase
-    .from('tracked_users')
+    .from<DBUser>('tracked_users')
     .select('*')
     .eq('is_approved', true)
 
   // Merge same osu_id in the same object so we don't iterate over them 2 times
   // It allows us to do only one request for the update, then send the embed to multiple channels if needed
-  const uniqueTrackedPlayers = {}
+  const uniqueTrackedPlayers: TrackedPlayer = {}
 
   console.time('getTrackedPlayers')
   for (const player of trackedPlayers) {

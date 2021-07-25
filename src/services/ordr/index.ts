@@ -1,8 +1,13 @@
 import supabase from '../../libs/supabase'
 import ordr from '../../libs/ordr'
 import getTrackChannels from '../../utils/getTrackChannels'
+import { Client } from 'discord.js'
 
-export default function listenForRenders (client) {
+interface TempOrdrInterface {
+  start: () => void
+}
+
+export default function listenForRenders (client: Client): TempOrdrInterface {
   console.log('Service started : ordr')
 
   ordr.on('render_done', async (data) => {

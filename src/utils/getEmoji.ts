@@ -9,7 +9,9 @@ const RANK_EMOJIS = {
   f: '<:rank_f:864629121354432563>'
 }
 
-export default function getEmoji (rank) {
+type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f'
+
+export default function getEmoji (rank: Rank): string {
   const rankLetter = rank.toLowerCase()
 
   if (RANK_EMOJIS[rankLetter]) {

@@ -1,6 +1,7 @@
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import osuTrack from '../libs/osutrack'
+import { Message } from 'discord.js'
 
 export default class UpdateCommand {
   name = 'u'
@@ -14,7 +15,7 @@ export default class UpdateCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message> {
     const user = await getUser({ message, args })
 
     if (!user) {

@@ -1,6 +1,7 @@
 import supabase from '../libs/supabase'
 import { osu } from '../libs/osu'
 import { Message } from 'discord.js'
+import { User } from 'node-osu'
 
 interface GetUserArgs {
   message?: Message
@@ -11,7 +12,11 @@ interface GetUserArgs {
 /**
  * Get osu! user data
  */
-export default async function getUser ({ message, args, id }: GetUserArgs) {
+export default async function getUser ({
+  message,
+  args,
+  id
+}: GetUserArgs): Promise<User> {
   if (message?.mentions?.users?.size > 0) {
     const id = message.mentions.users.first().id
     const { data: dbUser } = await supabase
@@ -24,7 +29,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
       return
     }
 
-    return await osu.getUser({
+    return osu.getUser({
       u: dbUser.osu_id,
       type: 'id'
     })
@@ -32,18 +37,16 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
 
   if (args?.length > 0) {
     // Allow username with whitespaces
-    const usernameArg = args
-      .join(' ')
-      .replace(/"/g, '')
+    const usernameArg = args.join(' ').replace(/"/g, '')
 
-    return await osu.getUser({
+    return osu.getUser({
       u: usernameArg,
       type: 'string'
     })
   }
 
   if (id) {
-    return await osu.getUser({
+    return osu.getUser({
       u: id,
       type: 'id'
     })
@@ -61,7 +64,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
     .single()
 
   if (savedUsername) {
-    return await osu.getUser({
+    return osu.getUser({
       u: savedUsername.osu_id,
       type: 'id'
     })
@@ -69,7 +72,7 @@ export default async function getUser ({ message, args, id }: GetUserArgs) {
 
   // Else use the displayName of Discord
   if (!savedUsername) {
-    return await osu.getUser({
+    return osu.getUser({
       u: message.member.displayName,
       type: 'string'
     })
