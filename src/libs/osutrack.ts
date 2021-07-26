@@ -106,10 +106,10 @@ class OsuTrack {
         embed.addField('Current rank', `#${user.pp.rank}`, true)
       }
 
-      if (accuracy >= 0.01 || accuracy <= 0.01) {
+      if (Math.abs(accuracy) >= 0.01) {
         embed.addField(
           'Accuracy',
-          `${accuracy > 0 ? '+' : ''}${accuracy.toFixed(2)}`,
+          `${accuracy > 0 ? '+' : ''}${accuracy.toFixed(2)}%`,
           true
         )
       }
