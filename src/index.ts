@@ -50,7 +50,7 @@ bot
   .addCommand(new RecentScore())
   .addCommand(new Osu())
   .addCommand(new Peak())
-  .addCommand(new SetChannel())
+  .addCommand(new SetChannel(bot.prefixes))
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
   .addCommand(new Ping(bot.client))

@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import { MessageEmbed, Message } from 'discord.js'
+import { defaultPrefix } from '../config'
 import supabase from '../libs/supabase'
 
 interface ChannelToAddInterface {
@@ -15,24 +16,30 @@ export default class SetChannelCommand {
     'Configure channels for tracking top plays, replays and administration, also allows you to change the bot prefix'
 
   category = 'general'
+  prefixes = null
 
   CHANNEL_OPTIONS = ['track', 'replay', 'admin']
+
+  constructor (prefixes) {
+    this.prefixes = prefixes
+  }
 
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
   async run (message: Message, args: string[]) {
+    const prefix = this.prefixes.get(message.guild.id) || defaultPrefix
     const [option] = args
 
     // If the option is not valid, send a help message
     if (!option) {
       const embed = new MessageEmbed()
         .setDescription(
-          'Type `!set track` in your tracking channel to enable auto update and top plays tracking.\n' +
-            'Type `!set replay` in your replay channel to enable replay posting from o!rdr.\n' +
-            'Type `!set admin` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)\n' +
-            'Type `!set prefix <prefix>` to set a new prefix for this server.'
+          `Type \`${prefix}set track\` in your tracking channel to enable auto update and top plays tracking.\n` +
+            `Type \`${prefix}set replay\` in your replay channel to enable replay posting from o!rdr.\n` +
+            `Type \`${prefix}set admin\` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)\n` +
+            `Type \`${prefix}set prefix <prefix>\` to set a new prefix for this server.`
         )
         .setColor(5814783)
 
@@ -111,6 +118,8 @@ export default class SetChannelCommand {
       const embed = new MessageEmbed()
         .setDescription(`Successfully set the **${option}** to \`${prefix}\``)
         .setColor(11279474)
+
+      this.prefixes.set(message.guild.id, prefix)
 
       return message.channel.send(embed)
     }
