@@ -23,11 +23,25 @@ export default class RecentScoreCommand {
 
     const [score] = await osuApiV2.getUserRecentScores({ id: user.id })
 
-    const embed = new MessageEmbed()
-      .setTitle(`${user.name}'s recent score`)
-      .setDescription(`${getEmoji(score.rank)} | ${score.beatmapset.artist} - ${score.beatmapset.title} [${score.beatmap.version}]`)
-      .addField('mods', `+${score.mods.join('')}`, true)
-      .setThumbnail(osuApiV2.getBeatmapsetCoverImage(score.beatmap.beatmapset_id))
+    if (score) {
+      const embed = new MessageEmbed()
+        .setTitle(`${user.name}'s recent score`)
+        .setDescription(
+          `${getEmoji(score.rank)} | ${score.beatmapset.artist} - ${
+            score.beatmapset.title
+          } [${score.beatmap.version}]`
+        )
+        .addField('mods', `+${score.mods.join('')}`, true)
+        .setThumbnail(
+          osuApiV2.getBeatmapsetCoverImage(score.beatmap.beatmapset_id)
+        )
+
+      return message.channel.send(embed)
+    }
+
+    const embed = new MessageEmbed().setDescription(
+      `No recent score for ${user.name}`
+    )
 
     return message.channel.send(embed)
   }

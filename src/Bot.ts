@@ -126,7 +126,8 @@ export default class Bot {
       message.channel.startTyping()
       await command.run(message, args)
     } catch (error) {
-      console.error(error)
+      console.error('Error catched Bot.js:', JSON.stringify(error))
+      message.channel.send('Sorry there was an error with an external service.')
     } finally {
       message.channel.stopTyping()
     }
