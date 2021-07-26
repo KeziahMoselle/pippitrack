@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from 'discord.js'
 
 export default class Help {
   name = 'help'
+  arguments = []
   description = 'Display a help message'
   category = 'general'
 

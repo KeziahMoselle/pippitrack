@@ -46,6 +46,24 @@ By default users can track themselves (will probably change in the near future) 
 
 Type `!set prefix <new prefix>` to change the bot's prefix.
 
+##### Show a list of tracked users
+
+Type `!tracklist <?page>` to show a list of tracked users.
+
+If you have more than 25 tracked users you can type `!tracklist 2` to show the second page.
+
+![link](.github/tracklist.png)
+
+##### Untrack a user
+
+There is 2 ways to untrack a user :
+
+![link](.github/untrack_1.png)
+
+![link](.github/untrack_2.png)
+
+> Note: You can mention the user to untrack or use the osu! username.
+
 #### For users
 
 Start by linking your Discord account to an osu! username like so :
