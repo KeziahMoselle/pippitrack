@@ -2,39 +2,93 @@
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/KeziahMoselle/osu-track/lint/main?label=lint&style=flat-square)
 
-# osu!track bot
+# PippiTrack
 
-osu!track is a bot focused on the rythm game osu! It tracks things and do things.
+A Discord bot that allows you to track osu! things. It has some useful commands too.
 
-## Bot documentation
+## [Invite PippiTrack to your server](https://discord.com/oauth2/authorize?client_id=862374917206048779&scope=bot&permissions=388160)
 
-### Commands
+Please report any issues by contacting me on Discord (**Keziah#6631**) or by creating an issue on this repository.
 
-`!help <?command>` - Displays a list of commands
+## How to use this bot ?
 
-![help](.github/help.png)
+### Get started
 
-`!peak <?username>` - Display peak rank and accuracy of a player
+#### For administrators
 
-![peak](.github/peak.png)
+After inviting the bot to your server, you need to configure it a bit :
+
+##### Enable tracking
+
+To enable tracking you need to set the channels for each type of tracking.
+
+Type `!set track #channel` if you want to enable auto updates ~~and top plays (WIP)~~
+
+![set channel](.github/set_channel.png)
+
+Type `!set replay #channel` if you want to enable replays tracking.
+
+> Note: if you don't mention a channel it will use the current channel
+
+##### Enable tracking requests
+
+Type `!set admin #channel` to enable tracking requests. #channel must be a **private** channel that only moderators can access otherwise anyone can accept the requests.
+
+By default users can track themselves (will probably change in the near future) so it allows you to control who can be tracked on your server.
+
+![Track Request](.github/track_request.png)
+![Track Approval](.github/track_approval.gif)
+![Track Approved](.github/track_approved.png)
+
+> Note: There is a limit of 100 tracked users per server.
+
+##### Set the bot's prefix
+
+Type `!set prefix <new prefix>` to change the bot's prefix.
+
+#### For users
+
+Start by linking your Discord account to an osu! username like so :
+
+`!link <osu! username>`
+
+![link](.github/link.png)
+
+Once it's done you can use commands without specifying a username. (like `!u`)
+
+### List of commands
 
 `!u <?username>` - Update an osu! profile via [osu!track](https://ameobea.me/osutrack/)
 
 ![update](.github/update.png)
 
-`!link <?username>` - Link your Discord profile to an osu! profile, so you can just type `!u` and `!peak` for example
+`!peak <?username>` - Display peak rank and accuracy of a player
 
-![link](.github/link.png)
+![peak](.github/peak.png)
+
+`!osu <?username>` - Display your profile stats via [osu!sig](https://lemmmy.pw/osusig/)
+
+![osusig](.github/osusig.png)
+
+`!help` - Send a link to this page
 
 ### Tracking
 
-#### Mass update
+#### Top plays
+
+_This feature is currently under development_
+
+#### Updates
 
 Tracked players are queued for an automatic [osu!track](https://ameobea.me/osutrack/) update. (Once a day)
 
 ![mass updates](.github/updates.png)
 
-#### ~~Top plays tracking~~
+#### Replays (o!rdr)
+
+Tracked players that use [o!rdr](https://ordr.issou.best/) will have their replays sent in the replay channel. (if set)
+
+![replays](.github/new_replay.png)
 
 ## Installation
 

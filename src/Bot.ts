@@ -1,13 +1,15 @@
 import { Client, Message } from 'discord.js'
 import handleTrackBtn from './buttons/handleTrackBtn'
 import handleUntrackBtn from './buttons/handleUntrackBtn'
-import { prefix } from './config'
+import getPrefixes from './utils/getPrefixes'
+import { defaultPrefix } from './config'
 
 export default class Bot {
   apiKey = '' // Discord API Key
   client = null // The Discord Client
 
   commands = new Map()
+  prefixes = new Map()
 
   onReady = null
 
@@ -18,7 +20,7 @@ export default class Bot {
     this.client.once('ready', async () => {
       if (this.onReady && typeof this.onReady === 'function') {
         this.onReady(this.client)
-        console.log(`Using ${process.env.NODE_ENV} prefix : ${prefix}`)
+        console.log(`Using ${process.env.NODE_ENV} prefix : ${defaultPrefix}`)
       }
     })
 
@@ -42,9 +44,11 @@ export default class Bot {
       return
     }
 
+    const prefix = this.prefixes.get(message.guild.id) || defaultPrefix
+
     if (!message.content.startsWith(prefix)) return
 
-    this.runCommand(message)
+    this.runCommand(message, prefix)
   }
 
   /**
@@ -113,7 +117,7 @@ export default class Bot {
    * @param {Message} message
    * @memberof Bot
    */
-  runCommand = async (message: Message): Promise<void> => {
+  runCommand = async (message: Message, prefix: string): Promise<void> => {
     const content = message.content.toLowerCase()
     const parts = content.split(' ')
     const args = parts.slice(1)
@@ -126,11 +130,22 @@ export default class Bot {
       message.channel.startTyping()
       await command.run(message, args)
     } catch (error) {
-      console.error('Error catched Bot.js:', JSON.stringify(error))
+      console.error('Error catched Bot.js:', error, JSON.stringify(error))
       message.channel.send('Sorry there was an error with an external service.')
     } finally {
       message.channel.stopTyping()
     }
+  }
+
+  fetchPrefixes = async (): Promise<void> => {
+    console.log('Fetching guilds prefixes...')
+    const guilds = await getPrefixes()
+
+    for (const guild of guilds) {
+      this.prefixes.set(guild.guild_id, guild.prefix)
+    }
+
+    console.log('Fetching guilds prefixes done!')
   }
 
   /**
@@ -139,6 +154,7 @@ export default class Bot {
    * @memberof Bot
    */
   run = async (): Promise<void> => {
+    await this.fetchPrefixes()
     console.log('Connecting to Discord...')
     await this.client.login(this.apiKey)
   }

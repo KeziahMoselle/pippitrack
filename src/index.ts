@@ -54,7 +54,7 @@ bot
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
   .addCommand(new Ping(bot.client))
-  .addCommand(new Help(bot.commands))
+  .addCommand(new Help())
   .run()
 
 process.on('unhandledRejection', (error) => {
