@@ -76,6 +76,10 @@ Once it's done you can use commands without specifying a username. (like `!u`)
 
 ### List of commands
 
+`!track <?username>` - Track a user (top plays, daily updates and replays)
+
+![track](.github/track.png)
+
 `!u <?username>` - Update an osu! profile via [osu!track](https://ameobea.me/osutrack/)
 
 ![update](.github/update.png)
