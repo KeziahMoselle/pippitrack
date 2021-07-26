@@ -26,6 +26,7 @@ export default function listenForRenders (client: Client): TempOrdrInterface {
         .eq('osu_username', replay.replayUsername)
         .eq('is_approved', true)
 
+      console.log('ordr service replayUsername :', replay.replayUsername)
       console.log('ordr service isUserTracked :', isUserTracked)
 
       if (isUserTracked.length === 0) return
