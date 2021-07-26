@@ -26,18 +26,27 @@ export default function listenForRenders (client: Client): TempOrdrInterface {
         .eq('osu_username', replay.replayUsername)
         .eq('is_approved', true)
 
+      console.log('ordr service isUserTracked :', isUserTracked)
+
       if (isUserTracked.length === 0) return
 
       for (const user of isUserTracked) {
-        const { replayChannel } = await getTrackChannels(user.guild_id, client)
+        try {
+          const { replayChannel } = await getTrackChannels(
+            user.guild_id,
+            client
+          )
 
-        if (!replayChannel) {
-          return
+          if (!replayChannel) {
+            return
+          }
+
+          replayChannel.send(
+            `New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`
+          )
+        } catch (error) {
+          console.error('ordr service error fetching channel :', error)
         }
-
-        replayChannel.send(
-          `New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`
-        )
       }
     } catch (error) {
       console.error('ordr service error : ', error)
