@@ -94,7 +94,7 @@ export default class SetChannelCommand {
           )
           .setColor(11279474)
 
-        message.channel.send(embed)
+        return message.channel.send(embed)
       } catch (error) {
         console.error('Set command error:', error)
       }
