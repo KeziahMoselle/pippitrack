@@ -72,7 +72,7 @@ export default class TrackCommand {
         .eq('guild_id', message.guild.id)
         .single()
 
-      if (!guild) {
+      if (!guild || !guild.track_channel) {
         const embed = new MessageEmbed()
           .setTitle('You need to set a tracking channel first')
           .setDescription(
@@ -172,15 +172,7 @@ export default class TrackCommand {
         .eq('guild_id', message.guild.id)
 
       if (error) {
-        if (error.code === '23503') {
-          // Constraint key doesn't exist
-          const embed = new MessageEmbed()
-            .setTitle('You need to set a tracking channel first')
-            .setDescription(
-              'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
-            )
-          return message.channel.send(embed)
-        }
+        console.log(error)
         return message.reply('Sorry, there was an error.')
       }
 
