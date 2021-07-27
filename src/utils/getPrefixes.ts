@@ -1,7 +1,6 @@
 import supabase from '../libs/supabase'
 
 interface Guild {
-  // eslint-disable-next-line camelcase
   guild_id: string
   prefix: string
 }

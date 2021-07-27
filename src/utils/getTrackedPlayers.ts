@@ -1,31 +1,7 @@
-/* eslint-disable camelcase */
-import { Client, TextChannel } from 'discord.js'
+import { Client } from 'discord.js'
 import supabase from '../libs/supabase'
 import getTrackChannels from './getTrackChannels'
-
-interface TrackedPlayer {
-  [key: string]: {
-    guild_id: string
-    id: number
-    osu_id: string
-    osu_username: string
-    trackChannels?: TextChannel[]
-    replayChannels?: TextChannel[]
-  }
-}
-
-interface DBUser {
-  osu_id: string
-  id: number
-  osu_username: string
-  guild_id: string
-  is_approved: boolean
-}
-
-interface GetTrackedPlayersData {
-  uniqueTrackedPlayers: TrackedPlayer
-  count: number
-}
+import { GetTrackedPlayersData, DBUser, TrackedPlayers } from '../types'
 
 /**
  * Get all tracked players
@@ -44,7 +20,7 @@ export default async function getTrackedPlayers (
 
   // Merge same osu_id in the same object so we don't iterate over them 2 times
   // It allows us to do only one request for the update, then send the embed to multiple channels if needed
-  const uniqueTrackedPlayers: TrackedPlayer = {}
+  const uniqueTrackedPlayers: TrackedPlayers = {}
 
   console.time('getTrackedPlayers')
   for (const player of trackedPlayers) {
@@ -58,19 +34,18 @@ export default async function getTrackedPlayers (
       }
 
       // Create the channels array, so we can add multiple guilds to one player
-      const { trackChannel, replayChannel } = await getTrackChannels(
-        player.guild_id,
-        client
-      )
+      const { trackChannel, replayChannel, updatesChannel } =
+        await getTrackChannels(player.guild_id, client)
+
       uniqueTrackedPlayers[player.osu_id].trackChannels = [trackChannel]
+      uniqueTrackedPlayers[player.osu_id].updatesChannels = [updatesChannel]
       uniqueTrackedPlayers[player.osu_id].replayChannels = [replayChannel]
     } else {
       // We found a duplicate of the player, add the other guild to the array
-      const { trackChannel, replayChannel } = await getTrackChannels(
-        player.guild_id,
-        client
-      )
+      const { trackChannel, replayChannel, updatesChannel } =
+        await getTrackChannels(player.guild_id, client)
       uniqueTrackedPlayers[player.osu_id].trackChannels.push(trackChannel)
+      uniqueTrackedPlayers[player.osu_id].updatesChannels.push(updatesChannel)
       uniqueTrackedPlayers[player.osu_id].replayChannels.push(replayChannel)
     }
   }

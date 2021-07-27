@@ -6,7 +6,8 @@ import {
   maxUsersUpdatedSimultaneously,
   maxRequestsBeforeSleep
 } from '../../config'
-import { Client } from 'discord.js'
+import { Client, MessageEmbed } from 'discord.js'
+import { TrackedPlayer } from '../../types'
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
 const TEN_SECONDS = 10 * 1000
@@ -76,7 +77,7 @@ export default function update (client: Client): CronJob {
   return job
 }
 
-async function updatePlayer (player) {
+async function updatePlayer (player: TrackedPlayer) {
   const { status, embed } = await osuTrack.update(null, player.osu_id)
 
   return {
@@ -86,13 +87,20 @@ async function updatePlayer (player) {
   }
 }
 
-function sendEmbeds (updates) {
+function sendEmbeds (
+  updates: {
+    player: TrackedPlayer
+    embed: MessageEmbed
+    status: 'first' | 'no_change' | 'update'
+  }[]
+) {
   for (const update of updates) {
     if (update.status === 'no_change') {
+      console.log(`${update.player.osu_username} has no changes.`)
       continue
     }
 
-    for (const channel of update.player.trackChannels) {
+    for (const channel of update.player.updatesChannels) {
       channel.send(update.embed)
       console.info(`${update.player.osu_username} in #${channel.name}`)
     }

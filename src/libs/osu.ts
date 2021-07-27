@@ -1,5 +1,6 @@
 import axios from 'axios'
 import osuClient from 'node-osu'
+import { Score, Mode } from '../types/osu'
 
 export const osu = new osuClient.Api(process.env.OSU_API_KEY, {
   completeScores: true,
@@ -83,6 +84,20 @@ class OsuApiv2 {
     })
 
     return scores
+  }
+
+  async getUserBestScores ({
+    id,
+    mode = 'osu'
+  }: {
+    id?: string
+    mode?: Mode
+  }): Promise<Score[]> {
+    return this.fetch(`users/${id}/scores/best?=${mode}&limit=100`)
+  }
+
+  getAvatarUrl (id: string) {
+    return (this.avatarUrl += id)
   }
 
   getBeatmapsetCoverImage = (beatmapsetId) =>

@@ -1,10 +1,10 @@
-/* eslint-disable camelcase */
 import { MessageEmbed, Message } from 'discord.js'
 import { defaultPrefix } from '../config'
 import supabase from '../libs/supabase'
 
 interface ChannelToAddInterface {
   track_channel?: string
+  updates_channel?: string
   replay_channel?: string
   admin_channel?: string
 }
@@ -18,7 +18,15 @@ export default class SetChannelCommand {
   category = 'general'
   prefixes = null
 
-  CHANNEL_OPTIONS = ['track', 'replay', 'admin']
+  CHANNEL_OPTIONS = [
+    'track',
+    'tracks',
+    'updates',
+    'update',
+    'replay',
+    'replays',
+    'admin'
+  ]
 
   constructor (prefixes) {
     this.prefixes = prefixes
@@ -36,8 +44,9 @@ export default class SetChannelCommand {
     if (!option) {
       const embed = new MessageEmbed()
         .setDescription(
-          `Type \`${prefix}set track\` in your tracking channel to enable auto update and top plays tracking.\n` +
-            `Type \`${prefix}set replay\` in your replay channel to enable replay posting from o!rdr.\n` +
+          `Type \`${prefix}set track\` in your tracking channel to enable top plays tracking.\n` +
+            `Type \`${prefix}set updates\` in your updates channel to enable daily osu!track updates.\n` +
+            `Type \`${prefix}set replay\` in your replay channel to enable replay reposting from o!rdr.\n` +
             `Type \`${prefix}set admin\` in your administration channel to enable tracking requests from users. (if this is not set users can track themselves)\n` +
             `Type \`${prefix}set prefix <prefix>\` to set a new prefix for this server.`
         )
@@ -63,11 +72,15 @@ export default class SetChannelCommand {
         channelToTrack = message.mentions.channels.first()
       }
 
-      if (option === 'track') {
+      if (option === 'track' || option === 'tracks') {
         channelToAdd.track_channel = channelToTrack.id
       }
 
-      if (option === 'replay') {
+      if (option === 'update' || option === 'updates') {
+        channelToAdd.updates_channel = channelToTrack.id
+      }
+
+      if (option === 'replay' || option === 'replays') {
         channelToAdd.replay_channel = channelToTrack.id
       }
 

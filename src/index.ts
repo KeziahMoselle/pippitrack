@@ -8,6 +8,10 @@ import updatePresence from './utils/updatePresence'
 // Services
 import ordr from './services/ordr'
 import update from './services/update'
+import top from './services/top'
+
+// Subscribers
+import trackedUsers from './subscribers/trackedUsers'
 
 // Commands
 import {
@@ -35,8 +39,9 @@ bot.onReady = (client) => {
   setInterval(async () => await updatePresence(client), EVERY_FIVE_MINUTES)
 
   // Run services
-  ordr(client).start()
+  top(client).start()
   update(client).start()
+  ordr(client).start()
 }
 
 bot
@@ -52,6 +57,9 @@ bot
   .addCommand(new Ping(bot.client))
   .addCommand(new Help())
   .run()
+
+// Run subscribers
+trackedUsers()
 
 process.on('unhandledRejection', (error) => {
   console.error('Unhandled rejection:', error)
