@@ -18,6 +18,16 @@ A Discord bot that allows you to track osu! things. It has some useful commands 
 
 ### Get started
 
+#### For users
+
+Start by linking your Discord account to an osu! username like so :
+
+`!link <osu! username>`
+
+![link](.github/link.png)
+
+Once it's done you can use commands without specifying a username. (like `!u`)
+
 #### For administrators
 
 After inviting the bot to your server, you need to configure it a bit :
@@ -26,9 +36,11 @@ After inviting the bot to your server, you need to configure it a bit :
 
 To enable tracking you need to set the channels for each type of tracking.
 
-Type `!set track #channel` if you want to enable auto updates ~~and top plays (WIP)~~
+Type `!set track #channel` if you want to enable top plays tracking
 
 ![set channel](.github/set_channel.png)
+
+Type `!set update #channel` if you want to enable daily osu!track updates.
 
 Type `!set replay #channel` if you want to enable replays tracking.
 
@@ -68,16 +80,6 @@ There is 2 ways to untrack a user :
 
 > Note: You can mention the user to untrack or use the osu! username.
 
-#### For users
-
-Start by linking your Discord account to an osu! username like so :
-
-`!link <osu! username>`
-
-![link](.github/link.png)
-
-Once it's done you can use commands without specifying a username. (like `!u`)
-
 ### List of commands
 
 `!track <?username>` - Track a user (top plays, daily updates and replays)
@@ -100,9 +102,9 @@ Once it's done you can use commands without specifying a username. (like `!u`)
 
 ### Tracking
 
-#### Top plays
+#### Top plays (Need polish)
 
-_This feature is currently under development_
+![top play tracking](.github/top_play_tracking.png)
 
 #### Updates
 
