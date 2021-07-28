@@ -2,7 +2,6 @@ import { CronJob } from 'cron'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
 import { Client, MessageEmbed } from 'discord.js'
 import getNewTopPlays from './getNewTopPlays'
-import { osuApiV2 } from '../../libs/osu'
 
 const EVERY_30_MINUTES = '*/30 * * * *'
 
