@@ -41,7 +41,10 @@ export default function update (client: Client): CronJob {
           .setTimestamp(new Date(play.created_at))
 
         // Send the embed for each tracked channel linked to this player
+        console.log('player', player)
+
         for (const channel of player.trackChannels) {
+          console.log('channel', channel)
           channel.send(embed)
         }
       }
