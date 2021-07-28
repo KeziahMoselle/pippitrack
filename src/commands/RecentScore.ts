@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import { osuApiV2 } from '../libs/osu'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
@@ -14,7 +14,7 @@ export default class RecentScoreCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message> {
     const user = await getUser({ message, args })
 
     if (!user) {
@@ -32,9 +32,7 @@ export default class RecentScoreCommand {
           } [${score.beatmap.version}]`
         )
         .addField('mods', `+${score.mods.join('')}`, true)
-        .setThumbnail(
-          osuApiV2.getBeatmapsetCoverImage(score.beatmap.beatmapset_id)
-        )
+        .setThumbnail(score.beatmapset.covers.list)
 
       return message.channel.send(embed)
     }

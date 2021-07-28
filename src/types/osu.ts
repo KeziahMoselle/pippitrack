@@ -1,5 +1,7 @@
 export type Mode = 'osu' | 'fruits' | 'mania' | 'taiko'
 
+export type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f'
+
 export interface Score {
   id: number
   user_id: number
@@ -18,7 +20,7 @@ export interface Score {
     count_katu: number
     count_miss: number
   }
-  rank: string
+  rank: Rank
   created_at: string
   best_id: number
   pp: number

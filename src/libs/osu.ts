@@ -77,7 +77,11 @@ class OsuApiv2 {
     return user.user_achievements
   }
 
-  async getUserRecentScores ({ id, includeFails = '1', limit = 1 }) {
+  async getUserRecentScores ({
+    id,
+    includeFails = '1',
+    limit = 1
+  }): Promise<Score[]> {
     const scores = await this.fetch(`users/${id}/scores/recent`, {
       include_fails: includeFails,
       limit
@@ -95,13 +99,6 @@ class OsuApiv2 {
   }): Promise<Score[]> {
     return this.fetch(`users/${id}/scores/best?=${mode}&limit=100`)
   }
-
-  getAvatarUrl (id: string) {
-    return (this.avatarUrl += id)
-  }
-
-  getBeatmapsetCoverImage = (beatmapsetId) =>
-    `https://assets.ppy.sh/beatmaps/${beatmapsetId}/covers/cover.jpg`
 }
 
 export const osuApiV2 = new OsuApiv2(

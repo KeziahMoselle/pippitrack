@@ -15,7 +15,13 @@ export default function update (client: Client): CronJob {
   })
 
   async function diffTopPlays () {
+    console.time('diffTopPlays')
+
     const trackedPlayers = await getTrackedPlayers(client, 'track')
+
+    console.log(
+      `Top plays tracking service: ${trackedPlayers.uniqueTrackedPlayers.length} players to compare.`
+    )
 
     for (const player of trackedPlayers.uniqueTrackedPlayers) {
       // Get the new top plays from a player
@@ -52,6 +58,8 @@ export default function update (client: Client): CronJob {
         }
       }
     }
+
+    console.timeEnd('diffTopPlays')
   }
 
   return job

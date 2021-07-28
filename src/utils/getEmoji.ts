@@ -1,3 +1,5 @@
+import { Rank } from '../types/osu'
+
 const RANK_EMOJIS = {
   xh: '<:rank_ssh:864503329996668968>',
   x: '<:rank_ss:864503330448474142>',
@@ -8,8 +10,6 @@ const RANK_EMOJIS = {
   b: '<:rank_b:864628978605096990>',
   f: '<:rank_f:864629121354432563>'
 }
-
-type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f'
 
 export default function getEmoji (rank: Rank): string {
   const rankLetter = rank.toLowerCase()
