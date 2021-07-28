@@ -16,11 +16,15 @@ export default function update (client: Client): CronJob {
   })
 
   async function diffTopPlays () {
-    const trackedPlayers = await getTrackedPlayers(client)
+    const trackedPlayers = await getTrackedPlayers(client, 'track')
 
-    for (const player of Object.values(trackedPlayers.uniqueTrackedPlayers)) {
+    for (const player of trackedPlayers.uniqueTrackedPlayers) {
       // Get the new top plays from a player
       const newPlays = await getNewTopPlays(player)
+
+      if (newPlays.length === 0) {
+        continue
+      }
 
       // If there is new plays send them to the channel
       for (const play of newPlays) {
@@ -41,10 +45,8 @@ export default function update (client: Client): CronJob {
           .setTimestamp(new Date(play.created_at))
 
         // Send the embed for each tracked channel linked to this player
-        console.log('player', player)
-
+        console.log(player)
         for (const channel of player.trackChannels) {
-          console.log('channel', channel)
           channel.send(embed)
         }
       }

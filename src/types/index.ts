@@ -23,6 +23,6 @@ export interface DBUser {
 }
 
 export interface GetTrackedPlayersData {
-  uniqueTrackedPlayers: TrackedPlayers
+  uniqueTrackedPlayers: TrackedPlayer[]
   count: number
 }

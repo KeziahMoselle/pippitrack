@@ -25,23 +25,24 @@ export default function update (client: Client): CronJob {
     try {
       console.time('massUpdatePlayers')
 
-      const { uniqueTrackedPlayers, count } = await getTrackedPlayers(client)
+      const { uniqueTrackedPlayers, count } = await getTrackedPlayers(
+        client,
+        'updates'
+      )
       console.log(`Update service: ${count} players to update`)
-
-      const trackedPlayers = Object.values(uniqueTrackedPlayers)
 
       let batchNumber = 0
       let updatedPlayers = 0
 
       // Update all the players
-      while (trackedPlayers.length > 0) {
+      while (uniqueTrackedPlayers.length > 0) {
         if (updatedPlayers >= maxRequestsBeforeSleep) {
           // wait to avoid too many requests
           await wait(TEN_SECONDS)
           updatedPlayers = 0
         }
 
-        const batchOfPlayers = trackedPlayers.splice(
+        const batchOfPlayers = uniqueTrackedPlayers.splice(
           0,
           maxUsersUpdatedSimultaneously
         )
