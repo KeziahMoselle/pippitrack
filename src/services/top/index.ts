@@ -31,7 +31,7 @@ export default function update (client: Client): CronJob {
         const embed = new MessageEmbed()
           .setAuthor(
             `New #${play.personalBestIndex} for ${player.osu_username} in ${play.mode}!`,
-            osuApiV2.getAvatarUrl(player.osu_id)
+            play.user.avatar_url
           )
           .setThumbnail(play.beatmapset.covers.list)
           .setDescription(
@@ -45,8 +45,10 @@ export default function update (client: Client): CronJob {
           .setTimestamp(new Date(play.created_at))
 
         // Send the embed for each tracked channel linked to this player
-        console.log(player)
         for (const channel of player.trackChannels) {
+          console.log(
+            `Sending new top play from ${player.osu_username} to #${channel.name}`
+          )
           channel.send(embed)
         }
       }
