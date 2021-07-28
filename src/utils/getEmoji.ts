@@ -1,7 +1,10 @@
+import client from '../libs/client'
 import { Rank } from '../types/osu'
 
 const RANK_EMOJIS = {
+  ssh: '<:rank_ssh:864503329996668968>',
   xh: '<:rank_ssh:864503329996668968>',
+  ss: '<:rank_ss:864503330448474142>',
   x: '<:rank_ss:864503330448474142>',
   s: '<:rank_s:864503422987010049>',
   sh: '<:rank_sh:864503423311675412>',
@@ -14,7 +17,18 @@ const RANK_EMOJIS = {
 export default function getEmoji (rank: Rank): string {
   const rankLetter = rank.toLowerCase()
 
-  if (RANK_EMOJIS[rankLetter]) {
-    return RANK_EMOJIS[rankLetter]
+  if (!RANK_EMOJIS[rankLetter]) {
+    const emoji = client.emojis.cache.find(
+      (emoji) => emoji.name === `rank_${rankLetter}`
+    )
+
+    if (emoji) {
+      return emoji.toString()
+    }
+
+    console.error(`${rankLetter} emoji does not exist.`)
+    return
   }
+
+  return RANK_EMOJIS[rankLetter]
 }

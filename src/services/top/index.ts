@@ -2,6 +2,7 @@ import { CronJob } from 'cron'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
 import { Client, MessageEmbed } from 'discord.js'
 import getNewTopPlays from './getNewTopPlays'
+import getEmoji from '../../utils/getEmoji'
 
 const EVERY_30_MINUTES = '*/30 * * * *'
 
@@ -41,8 +42,10 @@ export default function update (client: Client): CronJob {
           .setThumbnail(play.beatmapset.covers.list)
           .setDescription(
             `**[${play.beatmapset.title}](${play.beatmap.url})**\n` +
-              ` [${play.beatmap.version}] (${play.beatmap.difficulty_rating} ⭐)` +
-              ` +${play.mods.join('')}`
+              ` ${getEmoji(play.rank)} [${play.beatmap.version}] (${
+                play.beatmap.difficulty_rating
+              } ⭐)` +
+              ` ${play.mods.length > 0 ? '+' : ''}${play.mods.join('')}`
           )
           .addField('PP', `${Math.round(play.pp)}pp`, true)
           .addField('Accuracy', `${(play.accuracy * 100).toFixed(2)}%`, true)
