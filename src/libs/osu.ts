@@ -99,6 +99,10 @@ class OsuApiv2 {
   }): Promise<Score[]> {
     return this.fetch(`users/${id}/scores/best?=${mode}&limit=100`)
   }
+
+  async getBeatmap ({ id }: { id: number }) {
+    return this.fetch(`beatmaps/${id}`)
+  }
 }
 
 export const osuApiV2 = new OsuApiv2(
