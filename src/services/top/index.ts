@@ -4,13 +4,13 @@ import { Client, MessageEmbed } from 'discord.js'
 import getNewTopPlays from './getNewTopPlays'
 import { osuApiV2 } from '../../libs/osu'
 
-const EVERY_3_HOURS = '0 0 */3 * * *'
+const EVERY_30_MINUTES = '*/30 * * * *'
 
 export default function update (client: Client): CronJob {
   console.log('Service started : top plays')
 
   const job = new CronJob({
-    cronTime: EVERY_3_HOURS,
+    cronTime: EVERY_30_MINUTES,
     onTick: diffTopPlays,
     timeZone: 'Europe/Paris'
   })
