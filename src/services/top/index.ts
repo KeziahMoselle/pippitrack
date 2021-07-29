@@ -2,6 +2,7 @@ import { CronJob } from 'cron'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
 import { Client, MessageEmbed } from 'discord.js'
 import getNewTopPlays from './getNewTopPlays'
+import updatePlayerState from './updatePlayerState'
 import getEmoji from '../../utils/getEmoji'
 import { osuApiV2 } from '../../libs/osu'
 
@@ -65,16 +66,19 @@ export default function update (client: Client): CronJob {
             .setTimestamp(new Date(play.created_at))
 
           // Send the embed for each tracked channel linked to this player
-          for (const channel of player.trackChannels) {
-            try {
+          try {
+            for (const channel of player.trackChannels) {
               await channel.send(embed)
 
               console.log(
                 `Sent new top play from ${player.osu_username} to #${channel.name}`
               )
-            } catch (error) {
-              console.error('Top play send error : ', error)
+
+              // Update the state of the player because we just checked its profile
+              updatePlayerState(player)
             }
+          } catch (error) {
+            console.error('Top play send error : ', error)
           }
         }
       } catch (error) {

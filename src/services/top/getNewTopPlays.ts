@@ -49,9 +49,6 @@ export default async function getNewTopPlays (
       personalBestIndex++
     }
 
-    // Update the state of the player because we just checked its profile
-    updatePlayerState(trackedPlayer)
-
     return newTopPlays
   } catch (error) {
     console.error('getNewTopPlays comparing error :', error)
