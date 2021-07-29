@@ -18,16 +18,16 @@ export default function update (client: Client): CronJob {
   })
 
   async function diffTopPlays () {
-    console.time('diffTopPlays')
+    try {
+      console.time('diffTopPlays')
 
-    const trackedPlayers = await getTrackedPlayers(client, 'track')
+      const trackedPlayers = await getTrackedPlayers(client, 'track')
 
-    console.log(
-      `Top plays tracking service: ${trackedPlayers.uniqueTrackedPlayers.length} players to compare.`
-    )
+      console.log(
+        `Top plays tracking service: ${trackedPlayers.uniqueTrackedPlayers.length} players to compare.`
+      )
 
-    for (const player of trackedPlayers.uniqueTrackedPlayers) {
-      try {
+      for (const player of trackedPlayers.uniqueTrackedPlayers) {
         // Get the new top plays from a player
         const newPlays = await getNewTopPlays(player)
 
@@ -66,27 +66,23 @@ export default function update (client: Client): CronJob {
             .setTimestamp(new Date(play.created_at))
 
           // Send the embed for each tracked channel linked to this player
-          try {
-            for (const channel of player.trackChannels) {
-              await channel.send(embed)
+          for (const channel of player.trackChannels) {
+            channel.send(embed).catch((err) => console.error(err))
 
-              console.log(
-                `Sent new top play from ${player.osu_username} to #${channel.name}`
-              )
+            console.log(
+              `Sent new top play from ${player.osu_username} to #${channel.name}`
+            )
 
-              // Update the state of the player because we just checked its profile
-              updatePlayerState(player)
-            }
-          } catch (error) {
-            console.error('Top play send error : ', error)
+            // Update the state of the player because we just checked its profile
+            updatePlayerState(player)
           }
         }
-      } catch (error) {
-        console.error('diffTopPlays error :', error)
       }
+    } catch (error) {
+      console.error('diffTopPlays', error)
+    } finally {
+      console.timeEnd('diffTopPlays')
     }
-
-    console.timeEnd('diffTopPlays')
   }
 
   return job
