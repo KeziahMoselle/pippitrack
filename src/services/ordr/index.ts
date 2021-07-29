@@ -10,12 +10,12 @@ interface TempOrdrInterface {
 export default function listenForRenders (client: Client): TempOrdrInterface {
   console.log('Service started : ordr')
 
-  ordr.on('render_done', async (data) => {
+  ordr.on('render_done', async ({ renderID }) => {
     try {
-      const render = await ordr.renders({ renderID: data.render_done })
+      const render = await ordr.renders({ renderID })
 
       if (!render && render.renders.length === 0) {
-        return console.log(`ID: ${data.render_done} | Render empty ${render}`)
+        return console.log(`ID: ${renderID} | Render empty ${render}`)
       }
 
       const replay = render.renders[0]
@@ -25,9 +25,6 @@ export default function listenForRenders (client: Client): TempOrdrInterface {
         .select('guild_id')
         .eq('osu_username', replay.replayUsername)
         .eq('is_approved', true)
-
-      console.log('ordr service replayUsername :', replay.replayUsername)
-      console.log('ordr service isUserTracked :', isUserTracked)
 
       if (isUserTracked.length === 0) return
 
@@ -41,6 +38,10 @@ export default function listenForRenders (client: Client): TempOrdrInterface {
           if (!replayChannel) {
             return
           }
+
+          console.log(
+            `Sending new replay from ${replay.replayUsername} (id: ${replay.renderID})`
+          )
 
           replayChannel.send(
             `New replay from **${replay.replayUsername}** !\n${replay.videoUrl}`
