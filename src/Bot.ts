@@ -156,6 +156,10 @@ export default class Bot {
   run = async (): Promise<void> => {
     await this.fetchPrefixes()
     console.log('Connecting to Discord...')
-    await this.client.login(this.apiKey)
+    try {
+      await this.client.login(this.apiKey)
+    } catch (error) {
+      console.error('Error while connecting to Discord :', error)
+    }
   }
 }
