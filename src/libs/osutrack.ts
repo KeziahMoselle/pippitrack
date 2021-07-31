@@ -58,6 +58,7 @@ class OsuTrack {
           `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
         )
 
+      let description = ''
       const ppRankNumber = Number(difference.pp_rank)
       let ppRankDiff
 
@@ -68,7 +69,7 @@ class OsuTrack {
 
       // The player is losing ranks
       if (ppRankNumber > 0) {
-        ppRankDiff = Number(user.pp.rank) - Number(difference.pp_rank)
+        ppRankDiff = Number(user.pp.rank) - ppRankNumber
         embed.addField('Rank lost', `-${ppRankNumber}`, true).setColor(14504273)
       }
 
@@ -95,25 +96,6 @@ class OsuTrack {
         }
       }
 
-      embed.addField('Playcount', `+${difference.playcount}`, true)
-
-      if (ppRaw >= 1) {
-        embed.addField('PP', `+${ppRaw}pp`, true)
-      }
-
-      if (ppRankDiff) {
-        embed.addField('Previous Rank', `#${ppRankDiff}`, true)
-        embed.addField('Current rank', `#${user.pp.rank}`, true)
-      }
-
-      if (Math.abs(accuracy) >= 0.01) {
-        embed.addField(
-          'Accuracy',
-          `${accuracy > 0 ? '+' : ''}${accuracy.toFixed(2)}%`,
-          true
-        )
-      }
-
       if (difference.newhs.length > 0) {
         const newhs = difference.newhs.splice(0, 10)
 
@@ -130,8 +112,33 @@ class OsuTrack {
           newHighscores += `${difference.newhs.length} more new top plays omitted. See them on [the osu! website](https://osu.ppy.sh/users/${user.id})`
         }
 
-        embed.setDescription(newHighscores)
+        description += newHighscores
       }
+
+      embed.addField('Playcount', `+${difference.playcount}`, true)
+
+      if (Math.abs(ppRaw) >= 0.1) {
+        const currentNetPp = Number(user.pp.raw)
+        const previousNetPp = currentNetPp - ppRaw
+
+        embed.addField('PP', `${ppRaw > 0 ? '+' : ''}${ppRaw}pp`, true)
+        description += `\n**Net pp:**\n${previousNetPp}pp 🠖 ${currentNetPp}pp`
+      }
+
+      if (ppRankDiff) {
+        embed.addField('Previous Rank', `#${ppRankDiff}`, true)
+        embed.addField('Current rank', `#${user.pp.rank}`, true)
+      }
+
+      if (Math.abs(accuracy) >= 0.01) {
+        embed.addField(
+          'Accuracy',
+          `${accuracy > 0 ? '+' : ''}${accuracy.toFixed(2)}%`,
+          true
+        )
+      }
+
+      embed.setDescription(description)
 
       return {
         status: 'update',
