@@ -5,14 +5,15 @@ import getNewTopPlays from './getNewTopPlays'
 import updatePlayerState from './updatePlayerState'
 import getEmoji from '../../utils/getEmoji'
 import { osuApiV2 } from '../../libs/osu'
+import wait from '../../utils/wait'
 
-const EVERY_10_MINUTES = '*/10 * * * *'
+const EVERY_30_MINUTES = '*/30 * * * *'
 
 export default function update (client: Client): CronJob {
   console.log('Service started : top plays')
 
   const job = new CronJob({
-    cronTime: EVERY_10_MINUTES,
+    cronTime: EVERY_30_MINUTES,
     onTick: diffTopPlays,
     timeZone: 'Europe/Paris'
   })
@@ -77,6 +78,8 @@ export default function update (client: Client): CronJob {
             updatePlayerState(player)
           }
         }
+
+        await wait(2000)
       }
     } catch (error) {
       console.error('diffTopPlays', error)

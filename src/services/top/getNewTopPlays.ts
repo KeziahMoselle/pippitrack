@@ -26,8 +26,6 @@ export default async function getNewTopPlays (
 
   // Compare the new scores with the old ones
   try {
-    console.time(`Compare ${trackedPlayer.osu_username} top plays`)
-
     const newTopPlays = []
 
     const newScores = await osuApiV2.getUserBestScores({
@@ -52,7 +50,5 @@ export default async function getNewTopPlays (
     return newTopPlays
   } catch (error) {
     console.error('getNewTopPlays comparing error :', error)
-  } finally {
-    console.timeEnd(`Compare ${trackedPlayer.osu_username} top plays`)
   }
 }
