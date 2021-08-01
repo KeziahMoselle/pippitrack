@@ -3,6 +3,7 @@ import handleTrackBtn from './buttons/handleTrackBtn'
 import handleUntrackBtn from './buttons/handleUntrackBtn'
 import getPrefixes from './utils/getPrefixes'
 import { defaultPrefix } from './config'
+import handleUntrackAllBtn from './buttons/handleUntrackAllBtn'
 
 export default class Bot {
   apiKey = '' // Discord API Key
@@ -61,11 +62,15 @@ export default class Bot {
 
     try {
       if (btnId === 'untrack') {
-        return await handleUntrackBtn(button)
+        return handleUntrackBtn(button)
       }
 
       if (btnId === 'track') {
-        return await handleTrackBtn(button, this.client)
+        return handleTrackBtn(button, this.client)
+      }
+
+      if (btnId === 'untrackall') {
+        return handleUntrackAllBtn(button)
       }
     } catch (error) {
       console.error('onClickButton', error)

@@ -80,7 +80,7 @@ class OsuTrack {
             `+${ppRankNumber.toString().replace('-', '')}`,
             true
           )
-          .setColor(2064687)
+          .setColor(6867286)
       }
 
       if (difference.playcount === 0 && !ppRankDiff) {
