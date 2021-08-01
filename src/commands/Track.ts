@@ -3,7 +3,9 @@ import { MessageButton } from 'discord-buttons'
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
-import { maxTrackedUsersInGuild } from '../config'
+import { defaultPrefix, maxTrackedUsersInGuild } from '../config'
+import prefixes from '../libs/prefixes'
+import { GuildRow } from '../types/db'
 
 export default class TrackCommand {
   name = 'track'
@@ -65,9 +67,8 @@ export default class TrackCommand {
       }
 
       // Check if the guild has set an admin channel.
-      // If there is one then the guild doesn't accept auto track.
       const { data: guild } = await supabase
-        .from('guilds')
+        .from<GuildRow>('guilds')
         .select('*')
         .eq('guild_id', message.guild.id)
         .single()
@@ -78,6 +79,26 @@ export default class TrackCommand {
           .setDescription(
             'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
           )
+        return message.channel.send(embed)
+      }
+
+      // If the user wants to be tracked and :
+      // - The user is not an administrator
+      // - The guild didn't set an admin channel
+      // That means we need to show an error message to the user.
+      if (
+        !message.member.hasPermission('ADMINISTRATOR') &&
+        !guild.admin_channel
+      ) {
+        const prefix = prefixes.get(message.guild.id) || defaultPrefix
+
+        const embed = new MessageEmbed()
+          .setDescription(
+            'Sorry you need to be an administrator to use this command.\n' +
+              `Members are allowed to send track requests if the administrators allow it. (\`${prefix}config\`)`
+          )
+          .setColor(14504273)
+
         return message.channel.send(embed)
       }
 

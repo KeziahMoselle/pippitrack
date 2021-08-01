@@ -21,11 +21,11 @@ import {
   Link,
   Update,
   Ping,
-  SetChannel,
   Osu,
   RecentScore,
   Untrack,
-  Tracklist
+  Tracklist,
+  Configure
 } from './commands'
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
@@ -51,9 +51,9 @@ bot
   .addCommand(new RecentScore())
   .addCommand(new Osu())
   .addCommand(new Peak())
-  .addCommand(new SetChannel(bot.prefixes))
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
+  .addCommand(new Configure())
   .addCommand(new Ping(bot.client))
   .addCommand(new Help())
   .run()

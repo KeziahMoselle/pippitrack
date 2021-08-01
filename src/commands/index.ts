@@ -4,11 +4,11 @@ import Help from './Help'
 import Link from './Link'
 import Update from './Update'
 import Ping from './Ping'
-import SetChannel from './SetChannel'
 import Osu from './Osu'
 import RecentScore from './RecentScore'
 import Untrack from './Untrack'
 import Tracklist from './Tracklist'
+import Configure from './Configure'
 
 export {
   Track,
@@ -17,9 +17,9 @@ export {
   Help,
   Update,
   Ping,
-  SetChannel,
   Osu,
   RecentScore,
   Untrack,
-  Tracklist
+  Tracklist,
+  Configure
 }

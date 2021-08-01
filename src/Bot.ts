@@ -4,13 +4,14 @@ import handleUntrackBtn from './buttons/handleUntrackBtn'
 import getPrefixes from './utils/getPrefixes'
 import { defaultPrefix } from './config'
 import handleUntrackAllBtn from './buttons/handleUntrackAllBtn'
+import prefixes from './libs/prefixes'
+import { MessageComponent } from 'discord-buttons'
 
 export default class Bot {
   apiKey = '' // Discord API Key
   client = null // The Discord Client
 
   commands = new Map()
-  prefixes = new Map()
 
   onReady = null
 
@@ -45,7 +46,7 @@ export default class Bot {
       return
     }
 
-    const prefix = this.prefixes.get(message.guild.id) || defaultPrefix
+    const prefix = prefixes.get(message.guild.id) || defaultPrefix
 
     if (!message.content.startsWith(prefix)) return
 
@@ -57,8 +58,10 @@ export default class Bot {
    *
    * @memberof Bot
    */
-  onClickButton = async (button): Promise<void> => {
+  onClickButton = async (button: MessageComponent): Promise<void> => {
     const [btnId] = button.id.split('_')
+
+    await button.clicker.fetch()
 
     try {
       if (btnId === 'untrack') {
@@ -74,6 +77,8 @@ export default class Bot {
       }
     } catch (error) {
       console.error('onClickButton', error)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await button.reply.send('Sorry, there was an error.', true)
     }
   }
@@ -147,7 +152,7 @@ export default class Bot {
     const guilds = await getPrefixes()
 
     for (const guild of guilds) {
-      this.prefixes.set(guild.guild_id, guild.prefix)
+      prefixes.set(guild.guild_id, guild.prefix)
     }
 
     console.log('Fetching guilds prefixes done!')

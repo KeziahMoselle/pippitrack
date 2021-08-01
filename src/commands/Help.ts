@@ -1,4 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js'
+import { defaultPrefix } from '../config'
+import prefixes from '../libs/prefixes'
 
 export default class Help {
   name = 'help'
@@ -19,6 +21,15 @@ export default class Help {
    * @param {module:discord.js.Message} message
    */
   async run (message: Message): Promise<Message> {
+    const prefix = prefixes.get(message.guild.id) || defaultPrefix
+
+    let description = `Current prefix : \`${prefix}\``
+
+    if (message.member.hasPermission('ADMINISTRATOR')) {
+      description += `\nHey there administrator ! If you want to configure your server type \`${prefix}config\` !`
+    }
+
+    this.embed.setDescription(description)
     return message.channel.send(this.embed)
   }
 }
