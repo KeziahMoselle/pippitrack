@@ -62,10 +62,8 @@ class OsuTrack {
       const ppRankNumber = Number(difference.pp_rank)
       let ppRankDiff
 
-      const ppRaw = Number(Number.parseFloat(difference.pp_raw).toPrecision(4))
-      const accuracy = Number(
-        Number.parseFloat(difference.accuracy).toPrecision(4)
-      )
+      const ppRaw = Number(Number.parseFloat(difference.pp_raw).toFixed(4))
+      const accuracy = Number(Number.parseFloat(difference.accuracy).toFixed(4))
 
       // The player is losing ranks
       if (ppRankNumber > 0) {
@@ -118,8 +116,8 @@ class OsuTrack {
       embed.addField('Playcount', `+${difference.playcount}`, true)
 
       if (Math.abs(ppRaw) >= 0.1) {
-        const currentNetPp = Number(user.pp.raw)
-        const previousNetPp = currentNetPp - ppRaw
+        const currentNetPp = Number(Number(user.pp.raw).toFixed(2))
+        const previousNetPp = (currentNetPp - ppRaw).toFixed(2)
 
         embed.addField('PP', `${ppRaw > 0 ? '+' : ''}${ppRaw}pp`, true)
         description += `\n**Net pp:**\n${previousNetPp}pp 🠖 ${currentNetPp}pp`

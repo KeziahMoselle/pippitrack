@@ -34,15 +34,19 @@ export default class PeakCommand {
 
       const peak = response.data[0]
       const rank = peak.best_global_rank
-      const bestAccuracy = peak.best_accuracy.toPrecision(4)
+      const bestAccuracy = peak.best_accuracy.toFixed(2)
 
       const embed = new MessageEmbed()
         .setTitle(`Peak stats for : ${user.name}`)
         .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
         .addField('Max rank', `#${rank}`, true)
         .addField('Best accuracy', `${bestAccuracy}%`, true)
-        .setFooter('These data may be incorrect if the profile has not yet been tracked on https://ameobea.me/osutrack/')
-        .setURL(`https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`)
+        .setFooter(
+          'These data may be incorrect if the profile has not yet been tracked on https://ameobea.me/osutrack/'
+        )
+        .setURL(
+          `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
+        )
         .setColor(11279474)
 
       if (medalsUrl) {
@@ -53,9 +57,11 @@ export default class PeakCommand {
     } catch {
       const embed = new MessageEmbed()
         .setTitle(`Player not found : ${args.join(' ')}`)
-        .setDescription(`
+        .setDescription(
+          `
           https://osu.ppy.sh/users/${args.join(' ')}
-          https://ameobea.me/osutrack/user/${args.join(' ')}`)
+          https://ameobea.me/osutrack/user/${args.join(' ')}`
+        )
         .setThumbnail('https://a.ppy.sh/')
 
       return message.channel.send(embed)
