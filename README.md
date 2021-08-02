@@ -42,6 +42,8 @@ Type the following and follow the instructions :
 !config
 ```
 
+![configure](.github/config.gif)
+
 <details>
   <summary>Click to expand - More administrator info</summary>
 
