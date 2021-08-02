@@ -14,6 +14,10 @@ export default class Help {
     this.embed
       .setTitle('Click to see the documentation')
       .setURL('https://github.com/KeziahMoselle/osu-track/')
+      .addField(
+        'Support Server',
+        '[Join the support server](https://discord.gg/bNQUZeHFdR)'
+      )
       .setColor(5814783)
   }
 
@@ -23,11 +27,10 @@ export default class Help {
   async run (message: Message): Promise<Message> {
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
 
-    let description = `Current prefix : \`${prefix}\``
-
-    if (message.member.hasPermission('ADMINISTRATOR')) {
-      description += `\nHey there administrator ! If you want to configure your server type \`${prefix}config\` !`
-    }
+    const description =
+      `**Administrators** can configure the server by typing \`${prefix}config\`.\n` +
+      `**Users** can link their Discord to an osu! profile by typing \`${prefix}u yourUsername\`\n\n` +
+      `Current prefix is \`${prefix}\``
 
     this.embed.setDescription(description)
     return message.channel.send(this.embed)
