@@ -13,13 +13,27 @@ type TrackType = 'track' | 'updates' | 'replay'
  */
 export default async function getTrackedPlayers (
   client: Client,
-  type: TrackType
+  type: TrackType,
+  osuId?: string
 ): Promise<GetTrackedPlayersData> {
   // @TODO Paginate them if there is too much to fetch
-  const { data: trackedPlayers } = await supabase
-    .from<DBUser>('tracked_users')
-    .select('*')
-    .eq('is_approved', true)
+  let trackedPlayers = null
+
+  if (osuId) {
+    const { data } = await supabase
+      .from<DBUser>('tracked_users')
+      .select('*')
+      .eq('osu_id', osuId)
+      .eq('is_approved', true)
+
+    trackedPlayers = data
+  } else {
+    const { data } = await supabase
+      .from<DBUser>('tracked_users')
+      .select('*')
+      .eq('is_approved', true)
+    trackedPlayers = data
+  }
 
   // Merge same osu_id in the same object so we don't iterate over them 2 times
   // It allows us to do only one request for the update, then send the embed to multiple channels if needed

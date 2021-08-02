@@ -3,10 +3,10 @@ import updatePlayerState from './updatePlayerState'
 import { TrackedPlayer } from '../../types'
 import { UsersStateRow } from '../../types/db'
 import { Score } from '../../types/osu'
-import { osuApiV2 } from '../../libs/osu'
 
 export default async function getNewTopPlays (
-  trackedPlayer: TrackedPlayer
+  trackedPlayer: TrackedPlayer,
+  newScores: Score[]
 ): Promise<Score[]> {
   // Check if the user is already in the DB
   const { data: currentPlayerState, error } = await supabase
@@ -27,10 +27,6 @@ export default async function getNewTopPlays (
   // Compare the new scores with the old ones
   try {
     const newTopPlays = []
-
-    const newScores = await osuApiV2.getUserBestScores({
-      id: trackedPlayer.osu_id
-    })
 
     const lastUpdatedAt = new Date(currentPlayerState.last_updated)
 
