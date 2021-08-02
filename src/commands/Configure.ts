@@ -9,11 +9,11 @@ import { MessageEmbed, Message } from 'discord.js'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
 import supabase from '../libs/supabase'
-import { GuildColumns } from '../types/db'
+import { GuildColumns, GuildRow } from '../types/db'
 
 export default class ConfigureCommand {
   name = 'config'
-  arguments = ['option', 'value']
+  arguments = []
   description = 'Configure your server'
   category = 'general'
   prefixes = null
@@ -287,6 +287,56 @@ export default class ConfigureCommand {
    * Sends the menu to the user
    */
   async sendMenu (message: Message): Promise<Message> {
+    const { data: guild, error } = await supabase
+      .from<GuildRow>('guilds')
+      .select('*')
+      .eq('guild_id', message.guild.id)
+      .single()
+
+    if (!error) {
+      const {
+        track_channel,
+        updates_channel,
+        replay_channel,
+        admin_channel,
+        prefix
+      } = guild
+
+      const embed = new MessageEmbed()
+        .setTitle(`${message.guild.name}'s settings`)
+        .addField(
+          'Track Top Plays',
+          `${track_channel ? '✅' : '❌'} ${
+            track_channel ? `<#${track_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField(
+          'Daily Updates',
+          `${updates_channel ? '✅' : '❌'} ${
+            updates_channel ? `<#${updates_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField(
+          'Track o!rdr replays',
+          `${replay_channel ? '✅' : '❌'} ${
+            replay_channel ? `<#${replay_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField(
+          'Track requests',
+          `${admin_channel ? '✅' : '❌'} ${
+            admin_channel ? `<#${admin_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField('prefix', `${prefix || defaultPrefix}`)
+
+      await message.channel.send(embed)
+    }
+
     const sentMessage = await message.channel.send(
       `What do you want to do ${message.member.displayName} ?`,
       this.select
