@@ -12,17 +12,26 @@ class Api {
   }
 
   routes (): void {
+    this.server.get('/', (request, reply) => {
+      reply.code(200).send('POST /api/top_plays')
+    })
+
     this.server.post('/api/top_plays', topPlays)
   }
 
   start (): void {
-    this.server.listen(this.port, (err, address) => {
-      if (err) {
-        console.error('API start error :', err)
-      }
+    this.server.listen(
+      this.port,
+      process.env.NODE_ENV === 'production' ? '0.0.0.0' : undefined,
+      (err, address) => {
+        if (err) {
+          console.error('API start error :', err)
+          process.exit(1)
+        }
 
-      console.log(`API is listening on : ${address}`)
-    })
+        console.log(`API is listening at : ${address}`)
+      }
+    )
   }
 }
 
