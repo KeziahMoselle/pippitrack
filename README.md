@@ -188,7 +188,7 @@ We'll add listeners to the bot's events and handle the commands.
 ### Art
 
 - [AKARA](https://akara.fr/) Thank you for the art ! (Badges cover of the `!peak` command)
-- [Bouf](https://osu.ppy.sh/users/4431069) for the edit of Koigokoro avatar
+- [Bouf](https://osu.ppy.sh/users/4431069) for the name `PippiTrack` and the edit of Koigokoro avatar !
 
 ## License
 
