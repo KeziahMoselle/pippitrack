@@ -3,9 +3,9 @@ import topPlays from './topPlays'
 
 class Api {
   server = fastify()
-  port = 80
+  port = null
 
-  constructor (port: number) {
+  constructor (port: number | string) {
     this.port = port
 
     this.routes()
