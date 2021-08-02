@@ -14,7 +14,7 @@ A Discord bot that allows you to track osu! things. It has some useful commands 
 - [Create an issue](https://github.com/KeziahMoselle/pippi-track/issues/new) on this repository.
 - Contact me on Discord (**Keziah#6631**)
 
-## How to use this bot ?
+## How do I use PippiTrack ?
 
 ### Get started
 
@@ -22,83 +22,92 @@ A Discord bot that allows you to track osu! things. It has some useful commands 
 
 Start by linking your Discord account to an osu! username like so :
 
-`!link <osu! username>`
+```
+!link <osu! username>
+```
 
 ![link](.github/link.png)
 
 Once it's done you can use commands without specifying a username. (like `!u`)
 
+[See all commands](#list-of-commands)
+
 #### For administrators
 
-After inviting the bot to your server, you need to configure it a bit :
+After inviting the bot to your server, you need to configure it or else it won't track anything !
 
-##### Enable tracking
+Type the following and follow the instructions :
 
-To enable tracking you need to set the channels for each type of tracking.
+```
+!config
+```
 
-Type `!set track #channel` if you want to enable top plays tracking
+<details>
+  <summary>Click to expand - More administrator info</summary>
 
-![set channel](.github/set_channel.png)
+  <h5 id="enable-tracking-requests">Tracking requests</h5>
+  <p>#channel must be a <strong>private</strong> channel that only moderators can access otherwise anyone can accept the requests.</p>
+  <p><img src=".github/track_request.png" alt="Track Request">
+  <img src=".github/track_approval.gif" alt="Track Approval">
+  <img src=".github/track_approved.png" alt="Track Approved"></p>
+  <blockquote>
+  <p>Note: There is a limit of 100 tracked users per server.</p>
+  </blockquote>
+  <h5 id="show-a-list-of-tracked-users">Show a list of tracked users</h5>
+  <p>Type <code>!tracklist &lt;?page&gt;</code> to show a list of tracked users.</p>
+  <p>If you have more than 25 tracked users you can type <code>!tracklist 2</code> to show the second page.</p>
+  <p><img src=".github/tracklist.png" alt="link"></p>
+  <h5 id="untrack-a-user">Untrack a user</h5>
+  <p>There is 3 ways to untrack a user :</p>
+  <p><img src=".github/untrack_1.png" alt="link"></p>
+  <p><img src=".github/untrack_2.png" alt="link"></p>
+  <p>Untrack all users at once :</p>
+  <p><img src=".github/untrack_all.png" alt="link"></p>
+  <blockquote>
+    <p>Note: You can mention the user to untrack or use the osu! username.</p>
+  </blockquote>
 
-Type `!set update #channel` if you want to enable daily osu!track updates.
-
-Type `!set replay #channel` if you want to enable replays tracking.
-
-> Note: if you don't mention a channel it will use the current channel
-
-##### Enable tracking requests
-
-Type `!set admin #channel` to enable tracking requests. #channel must be a **private** channel that only moderators can access otherwise anyone can accept the requests.
-
-By default users can track themselves (will probably change in the near future) so it allows you to control who can be tracked on your server.
-
-![Track Request](.github/track_request.png)
-![Track Approval](.github/track_approval.gif)
-![Track Approved](.github/track_approved.png)
-
-> Note: There is a limit of 100 tracked users per server.
-
-##### Set the bot's prefix
-
-Type `!set prefix <new prefix>` to change the bot's prefix.
-
-##### Show a list of tracked users
-
-Type `!tracklist <?page>` to show a list of tracked users.
-
-If you have more than 25 tracked users you can type `!tracklist 2` to show the second page.
-
-![link](.github/tracklist.png)
-
-##### Untrack a user
-
-There is 2 ways to untrack a user :
-
-![link](.github/untrack_1.png)
-
-![link](.github/untrack_2.png)
-
-> Note: You can mention the user to untrack or use the osu! username.
+</details>
 
 ### List of commands
 
-`!track <?username>` - Track a user (top plays, daily updates and replays)
+Track a user (top plays, daily updates and replays)
+
+```
+!track <?username>
+```
 
 ![track](.github/track.png)
 
-`!u <?username>` - Update an osu! profile via [osu!track](https://ameobea.me/osutrack/)
+Update an osu! profile via [osu!track](https://ameobea.me/osutrack/)
+
+```
+!u <?username>
+```
 
 ![update](.github/update.png)
 
-`!peak <?username>` - Display peak rank and accuracy of a player
+Display peak rank and accuracy of a player
+
+```
+!peak <?username>
+```
 
 ![peak](.github/peak.png)
 
-`!osu <?username>` - Display your profile stats via [osu!sig](https://lemmmy.pw/osusig/)
+Display your profile stats via [osu!sig](https://lemmmy.pw/osusig/)
+
+```
+!osu <?username>
+```
 
 ![osusig](.github/osusig.png)
 
-`!help` - Send a link to this page
+Send a link to this page
+
+```
+!help
+```
 
 ### Tracking
 
