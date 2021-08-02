@@ -1,8 +1,10 @@
 import { MessageEmbed, Message } from 'discord.js'
 import supabase from '../libs/supabase'
 import { maxTrackedUsersInGuild } from '../config'
+import { BaseDiscordCommand } from '../types'
+import { TrackedUsersRow } from '../types/db'
 
-export default class TracklistCommand {
+export default class TracklistCommand implements BaseDiscordCommand {
   name = 'tracklist'
   arguments = ['page']
   description = 'Display the list of tracked users in the server.'
@@ -18,7 +20,7 @@ export default class TracklistCommand {
     }
 
     return supabase
-      .from('tracked_users')
+      .from<TrackedUsersRow>('tracked_users')
       .select('*', { count: 'exact' })
       .eq('guild_id', guildId)
       .range(startIndex, endIndex)

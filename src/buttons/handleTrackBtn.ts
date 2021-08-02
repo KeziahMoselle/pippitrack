@@ -1,10 +1,16 @@
-import { MessageButton } from 'discord-buttons'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { MessageButton, MessageComponent } from 'discord-buttons'
+import { Client } from 'discord.js'
 import supabase from '../libs/supabase'
 import getTrackChannels from '../utils/getTrackChannels'
 
-export default async function handleTrackBtn (button, client) {
+export default async function handleTrackBtn (
+  button: MessageComponent,
+  client: Client
+): Promise<void> {
   const [, id, userDiscordId, guildId] = button.id.split('_')
 
+  // @ts-ignore
   await button.reply.defer()
 
   const { error } = await supabase
@@ -14,6 +20,7 @@ export default async function handleTrackBtn (button, client) {
     .single()
 
   if (error) {
+    // @ts-ignore
     return button.reply.send('Sorry, there was an error.', true)
   }
 

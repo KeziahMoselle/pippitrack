@@ -3,8 +3,9 @@ import { osuApiV2 } from '../libs/osu'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import getEmoji from '../utils/getEmoji'
+import { BaseDiscordCommand } from '../types'
 
-export default class RecentScoreCommand {
+export default class RecentScoreCommand implements BaseDiscordCommand {
   name = 'rs'
   arguments = []
   description = 'Display your recent score'

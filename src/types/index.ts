@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js'
+import { Message, TextChannel } from 'discord.js'
 
 export interface TrackedPlayer {
   guild_id: string
@@ -25,4 +25,13 @@ export interface DBUser {
 export interface GetTrackedPlayersData {
   uniqueTrackedPlayers: TrackedPlayer[]
   count: number
+}
+
+export interface BaseDiscordCommand {
+  name: string
+  arguments: string[]
+  description: string
+  category: string
+
+  run(...args): Promise<Message | Message[] | void>
 }

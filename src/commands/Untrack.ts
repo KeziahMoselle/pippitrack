@@ -1,11 +1,12 @@
 import { MessageButton } from 'discord-buttons'
 import { Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
+import { BaseDiscordCommand } from '../types'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import untrackUser from '../utils/untrackUser'
 
-export default class UntrackCommand {
+export default class UntrackCommand implements BaseDiscordCommand {
   name = 'untrack'
   arguments = ['username']
   description = 'Allows you to untrack a player'

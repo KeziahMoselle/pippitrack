@@ -1,19 +1,16 @@
-import { MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
+import { BaseDiscordCommand } from '../types'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
-export default class LinkCommand {
+export default class LinkCommand implements BaseDiscordCommand {
   name = 'link'
   arguments = ['username']
   description = 'Link your Discord account to an osu! username'
   category = 'osu'
 
-  /**
-   * @param {module:discord.js.Message} message
-   * @param {string[]} args
-   */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message> {
     try {
       const user = await getUser({ message, args })
 
@@ -49,12 +46,12 @@ export default class LinkCommand {
       }
 
       // Link the Discord ID to the osu id
-      const { error } = await supabase
-        .from('users')
-        .insert([{
+      const { error } = await supabase.from('users').insert([
+        {
           discord_id: message.author.id,
           osu_id: user.id
-        }])
+        }
+      ])
 
       if (error) {
         console.error(error)

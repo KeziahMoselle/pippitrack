@@ -6,8 +6,9 @@ import notFoundEmbed from '../utils/notFoundEmbed'
 import { defaultPrefix, maxTrackedUsersInGuild } from '../config'
 import prefixes from '../libs/prefixes'
 import { GuildRow } from '../types/db'
+import { BaseDiscordCommand } from '../types'
 
-export default class TrackCommand {
+export default class TrackCommand implements BaseDiscordCommand {
   name = 'track'
   arguments = ['username']
   description =

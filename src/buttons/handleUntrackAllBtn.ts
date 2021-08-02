@@ -1,26 +1,34 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { MessageEmbed } from 'discord.js'
-import { MessageButton } from 'discord-buttons'
+import { MessageButton, MessageComponent } from 'discord-buttons'
 import supabase from '../libs/supabase'
 
-export default async function handleUntrackAllBtn (button) {
+export default async function handleUntrackAllBtn (
+  button: MessageComponent
+): Promise<void> {
   const [, guildId, id] = button.id.split('_')
 
   // Check if the author has the permission to untrack the user
   if (!button.clicker.member.hasPermission('ADMINISTRATOR')) {
-    return button.reply.send(
+    button.reply.send(
       'You need to be an Administrator to untrack all players.',
+      // @ts-ignore
       true
     )
+    return
   }
 
   // Check if the author is the same as the untrack request
   if (button.clicker.id !== id) {
-    return button.reply.send(
+    button.reply.send(
       'Sorry but only the author of the message can complete this action.',
+      // @ts-ignore
       true
     )
+    return
   }
 
+  // @ts-ignore
   await button.reply.defer()
 
   const { data: untrackedUsers, error } = await supabase
@@ -30,6 +38,7 @@ export default async function handleUntrackAllBtn (button) {
 
   if (error) {
     console.error('handleUntrackBtn error :', error)
+    // @ts-ignore
     return button.reply.send('Sorry, there was an error.', true)
   }
 

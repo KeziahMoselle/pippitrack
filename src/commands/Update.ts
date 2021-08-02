@@ -2,8 +2,9 @@ import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import osuTrack from '../libs/osutrack'
 import { Message } from 'discord.js'
+import { BaseDiscordCommand } from '../types'
 
-export default class UpdateCommand {
+export default class UpdateCommand implements BaseDiscordCommand {
   name = 'u'
   arguments = ['username']
   description =

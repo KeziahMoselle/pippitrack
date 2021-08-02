@@ -1,11 +1,12 @@
 import supabase from '../../libs/supabase'
 import { TrackedPlayer } from '../../types'
+import { UsersStateRow } from '../../types/db'
 
 export default async function updatePlayerState (
   trackedPlayer: TrackedPlayer
 ): Promise<void> {
   const { error } = await supabase
-    .from('users_state')
+    .from<UsersStateRow>('users_state')
     .upsert({
       osu_id: trackedPlayer.osu_id,
       last_updated: new Date()

@@ -1,6 +1,7 @@
 import { Client, Message, MessageEmbed } from 'discord.js'
+import { BaseDiscordCommand } from '../types'
 
-export default class Ping {
+export default class Ping implements BaseDiscordCommand {
   name = 'ping'
   arguments = []
   description = 'Get latency info'
@@ -18,8 +19,8 @@ export default class Ping {
    */
   async run (message: Message): Promise<Message> {
     this.embed
-      .setTitle(`Latency is ${Date.now() - message.createdTimestamp}ms`)
-      .setDescription(`API Latency is ${Math.round(this.client.ws.ping)}ms`)
+      .setTitle(`Bot Latency is ${Date.now() - message.createdTimestamp}ms`)
+      .setDescription(`Discord Latency is ${Math.round(this.client.ws.ping)}ms`)
 
     return message.channel.send(this.embed)
   }

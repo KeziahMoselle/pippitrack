@@ -1,23 +1,25 @@
-import { MessageEmbed } from 'discord.js'
+import { MessageEmbed, Message } from 'discord.js'
 import axios from 'axios'
 import { osuApiV2 } from '../libs/osu'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import getRankAchievements from '../utils/getRankAchievements'
+import { BaseDiscordCommand } from '../types'
 
-export default class PeakCommand {
+export default class PeakCommand implements BaseDiscordCommand {
   name = 'peak'
   arguments = ['username']
   description = 'Display peak rank and accuracy of a player'
   category = 'osu'
 
-  PEAK_ENDPOINT = (id) => `https://osutrack-api.ameo.dev/peak?user=${id}&mode=0`
+  PEAK_ENDPOINT = (id: string | number): string =>
+    `https://osutrack-api.ameo.dev/peak?user=${id}&mode=0`
 
   /**
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message, args) {
+  async run (message: Message, args: string[]): Promise<Message> {
     const user = await getUser({ message, args })
 
     if (!user) {

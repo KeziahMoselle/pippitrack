@@ -1,6 +1,6 @@
 export interface UsersStateRow {
   osu_id: string
-  last_updated: string
+  last_updated: string | Date
 }
 
 export interface TrackedUsersRow {

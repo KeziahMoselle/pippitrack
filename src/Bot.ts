@@ -6,12 +6,13 @@ import { defaultPrefix } from './config'
 import handleUntrackAllBtn from './buttons/handleUntrackAllBtn'
 import prefixes from './libs/prefixes'
 import { MessageComponent } from 'discord-buttons'
+import { BaseDiscordCommand } from './types'
 
 export default class Bot {
   apiKey = '' // Discord API Key
   client: Client = null // The Discord Client
 
-  commands = new Map()
+  commands = new Map<string, BaseDiscordCommand>()
 
   onReady = null
 
@@ -150,33 +151,7 @@ export default class Bot {
    * @returns
    * @memberof Bot
    */
-  addCommand = (command): this => {
-    if (!command.run) {
-      console.error(`"${command.name}" does not have a method named "run"`)
-    }
-
-    if (!command.name) {
-      console.error(`"${command.name}" does not have a property named "name"`)
-    }
-
-    if (!command.arguments) {
-      console.error(
-        `"${command.name}" does not have a property named "arguments"`
-      )
-    }
-
-    if (!command.description) {
-      console.error(
-        `"${command.name}" does not have a property named "description"`
-      )
-    }
-
-    if (!command.category) {
-      console.error(
-        `"${command.name}" does not have a property named "category"`
-      )
-    }
-
+  addCommand = (command: BaseDiscordCommand): this => {
     this.commands.set(command.name, command)
     return this
   }

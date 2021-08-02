@@ -1,8 +1,9 @@
 import { Message, MessageEmbed } from 'discord.js'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
+import { BaseDiscordCommand } from '../types'
 
-export default class Help {
+export default class Help implements BaseDiscordCommand {
   name = 'help'
   arguments = []
   description = 'Display a help message'
@@ -21,9 +22,6 @@ export default class Help {
       .setColor(5814783)
   }
 
-  /**
-   * @param {module:discord.js.Message} message
-   */
   async run (message: Message): Promise<Message> {
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
 

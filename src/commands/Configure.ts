@@ -9,9 +9,10 @@ import { MessageEmbed, Message } from 'discord.js'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
 import supabase from '../libs/supabase'
+import { BaseDiscordCommand } from '../types'
 import { GuildColumns, GuildRow } from '../types/db'
 
-export default class ConfigureCommand {
+export default class ConfigureCommand implements BaseDiscordCommand {
   name = 'config'
   arguments = []
   description = 'Configure your server'
@@ -374,10 +375,6 @@ export default class ConfigureCommand {
     return message
   }
 
-  /**
-   * @param {module:discord.js.Message} message
-   * @param {string[]} args
-   */
   async run (message: Message): Promise<Message> {
     if (!message.member.hasPermission('ADMINISTRATOR')) {
       return message.reply(
