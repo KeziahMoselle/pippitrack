@@ -194,11 +194,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
       const message = collected.first()
 
-      if (
-        !message ||
-        message?.content.length === 0 ||
-        message?.mentions?.channels.size === 0
-      ) {
+      if (!message) {
         throw new Error('User did not send a value.')
       }
 
