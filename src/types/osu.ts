@@ -1,6 +1,6 @@
 export type Mode = 'osu' | 'fruits' | 'mania' | 'taiko'
 
-export type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f'
+export type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f' | 'd'
 
 export interface Score {
   id: number

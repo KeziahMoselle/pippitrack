@@ -11,6 +11,7 @@ const RANK_EMOJIS = {
   a: '<:rank_a:864503471612362843>',
   c: '<:rank_c:864628617740025877>',
   b: '<:rank_b:864628978605096990>',
+  d: '<:rank_d:871723113111502908>',
   f: '<:rank_f:864629121354432563>'
 }
 
@@ -21,17 +22,14 @@ export default function getEmoji (rank: Rank): string {
     return RANK_EMOJIS[rankLetter]
   }
 
-  if (!RANK_EMOJIS[rankLetter]) {
-    const emoji = client.emojis.cache.find(
-      (emoji) => emoji.name === `rank_${rankLetter}`
-    )
+  const emoji = client.emojis.cache.find(
+    (emoji) => emoji.name === `rank_${rankLetter}`
+  )
 
-    if (emoji) {
-      return emoji.toString()
-    }
-
-    console.error(`${rankLetter} emoji does not exist.`)
+  if (emoji) {
+    return emoji.toString()
   }
 
+  console.error(`${rankLetter} emoji does not exist.`)
   return ''
 }
