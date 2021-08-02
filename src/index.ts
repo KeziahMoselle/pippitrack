@@ -1,4 +1,8 @@
 import './utils/setup'
+import { apiPort } from './config'
+
+// API
+import Api from './api'
 
 // Setup Discord
 import Bot from './Bot'
@@ -27,6 +31,8 @@ import {
   Tracklist,
   Configure
 } from './commands'
+
+new Api(apiPort).start()
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
