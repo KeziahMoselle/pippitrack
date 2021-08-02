@@ -1,11 +1,11 @@
 import { CronJob } from 'cron'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
-import { Client, MessageEmbed } from 'discord.js'
+import { Client } from 'discord.js'
 import getNewTopPlays from './getNewTopPlays'
 import updatePlayerState from './updatePlayerState'
-import getEmoji from '../../utils/getEmoji'
-import { osuApiV2 } from '../../libs/osu'
 import wait from '../../utils/wait'
+import getEmbed from './getEmbed'
+import { osuApiV2 } from '../../libs/osu'
 
 const EVERY_30_MINUTES = '*/30 * * * *'
 
@@ -30,7 +30,10 @@ export default function update (client: Client): CronJob {
 
       for (const player of trackedPlayers.uniqueTrackedPlayers) {
         // Get the new top plays from a player
-        const newPlays = await getNewTopPlays(player)
+        const newScores = await osuApiV2.getUserBestScores({
+          id: player.osu_id
+        })
+        const newPlays = await getNewTopPlays(player, newScores)
 
         if (newPlays.length === 0) {
           continue
@@ -38,33 +41,7 @@ export default function update (client: Client): CronJob {
 
         // If there is new plays send them to the channel
         for (const play of newPlays) {
-          const { max_combo } = await osuApiV2.getBeatmap({
-            id: play.beatmap.id
-          })
-
-          let modsRow = '**NM**'
-          if (play.mods.length > 0) {
-            modsRow = `**${play.mods.length > 0 ? '+' : ''}${play.mods.join(
-              ''
-            )}**`
-          }
-
-          const embed = new MessageEmbed()
-            .setAuthor(
-              `New #${play.personalBestIndex} for ${player.osu_username} in ${play.mode}!`,
-              play.user.avatar_url
-            )
-            .setThumbnail(play.beatmapset.covers.list)
-            .setDescription(
-              `**[${play.beatmapset.title}](${play.beatmap.url})** \`[${play.beatmap.version}]\`\n` +
-                `${getEmoji(play.rank)} (${play.beatmap.difficulty_rating} ★)` +
-                ` ${modsRow}\n` +
-                `ᐅ x${play.max_combo}/${max_combo} ᐅ [${play.statistics.count_300}/${play.statistics.count_100}/${play.statistics.count_50}/${play.statistics.count_miss}]`
-            )
-            .addField('PP', `${Math.round(play.pp)}pp`, true)
-            .addField('Accuracy', `${(play.accuracy * 100).toFixed(2)}%`, true)
-            .setFooter('Score set')
-            .setTimestamp(new Date(play.created_at))
+          const embed = await getEmbed({ play, player })
 
           // Send the embed for each tracked channel linked to this player
           for (const channel of player.trackChannels) {

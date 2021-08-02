@@ -1,5 +1,5 @@
 import fastify from 'fastify'
-import profile from './profile'
+import topPlays from './topPlays'
 
 class Api {
   server = fastify()
@@ -12,16 +12,16 @@ class Api {
   }
 
   routes (): void {
-    this.server.get('/api/profile', profile)
+    this.server.post('/api/top_plays', topPlays)
   }
 
   start (): void {
     this.server.listen(this.port, (err, address) => {
       if (err) {
-        console.error(err)
+        console.error('API start error :', err)
       }
 
-      console.log(`Server listening on ${address}`)
+      console.log(`API is listening on : ${address}`)
     })
   }
 }
