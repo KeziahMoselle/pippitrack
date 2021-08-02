@@ -184,19 +184,27 @@ export default class ConfigureCommand {
     const sentEmbed = await menu.message.channel.send(choice.embed)
     const filter = (message: Message) => message.member.id === authorId
 
-    // Await for the user to send the value requested
-    const collected = await sentEmbed.channel.awaitMessages(filter, {
-      max: 1,
-      time: this.FIVE_MINUTES
-    })
-
-    const message = collected.first()
-
-    const response = new MessageEmbed()
-      .setTitle(`✅ ${choice.label} updated`)
-      .setColor(6867286)
-
     try {
+      // Await for the user to send the value requested
+      const collected = await sentEmbed.channel.awaitMessages(filter, {
+        max: 1,
+        time: this.FIVE_MINUTES
+      })
+
+      const message = collected.first()
+
+      if (
+        !message ||
+        message?.content.length === 0 ||
+        message?.mentions?.channels.size === 0
+      ) {
+        throw new Error('User did not send a value.')
+      }
+
+      const response = new MessageEmbed()
+        .setTitle(`✅ ${choice.label} updated`)
+        .setColor(6867286)
+
       if (value === 'enable_track') {
         const channel = message.mentions.channels.first()
 
@@ -278,8 +286,17 @@ export default class ConfigureCommand {
       // Send success message and resend the menu
       message.channel.send(response)
       await this.sendMenu(message)
-    } catch (error) {
-      console.error('Configure error after collecting value :', error)
+    } catch {
+      // User did not send a value
+      const embed = new MessageEmbed()
+        .setTitle(`❌ Timeout : ${choice.label}`)
+        .setDescription(
+          'You did not type a value. This operation has been canceled.'
+        )
+        .setColor(14504273)
+
+      sentEmbed.delete()
+      menu.message.channel.send(embed)
     }
   }
 
@@ -332,7 +349,7 @@ export default class ConfigureCommand {
           }`,
           true
         )
-        .addField('prefix', `${prefix || defaultPrefix}`)
+        .addField('Prefix', `${prefix || defaultPrefix}`)
 
       await message.channel.send(embed)
     }

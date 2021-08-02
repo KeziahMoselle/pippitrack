@@ -152,11 +152,7 @@ export default class TrackCommand {
             message.author.displayAvatarURL()
           )
           .setDescription(
-            `If you want this player to be tracked${
-              trackChannel ? ' on' + trackChannel.toString() : ''
-            } ${
-              replayChannel ? 'and ' + replayChannel.toString() : ''
-            }\nclick on the button below !`
+            'If you want this player to be tracked.\nClick on the button below !'
           )
           .addField('Discord Tag', message.member, true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)

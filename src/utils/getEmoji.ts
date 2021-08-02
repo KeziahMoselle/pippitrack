@@ -17,6 +17,10 @@ const RANK_EMOJIS = {
 export default function getEmoji (rank: Rank): string {
   const rankLetter = rank.toLowerCase()
 
+  if (RANK_EMOJIS[rankLetter]) {
+    return RANK_EMOJIS[rankLetter]
+  }
+
   if (!RANK_EMOJIS[rankLetter]) {
     const emoji = client.emojis.cache.find(
       (emoji) => emoji.name === `rank_${rankLetter}`
@@ -27,8 +31,7 @@ export default function getEmoji (rank: Rank): string {
     }
 
     console.error(`${rankLetter} emoji does not exist.`)
-    return
   }
 
-  return RANK_EMOJIS[rankLetter]
+  return ''
 }
