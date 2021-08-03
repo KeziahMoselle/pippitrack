@@ -5,10 +5,14 @@ import updatePlayerState from '../services/top/updatePlayerState'
 import { Score } from '../types/osu'
 import getTrackedPlayers from '../utils/getTrackedPlayers'
 
+interface TextResponse {
+  message: string
+}
+
 export default async function topPlays (
   request,
   reply
-): Promise<Score[] | string> {
+): Promise<Score[] | TextResponse> {
   reply.header('Access-Control-Allow-Origin', '*')
 
   try {
@@ -23,7 +27,9 @@ export default async function topPlays (
     )
 
     if (uniqueTrackedPlayers.length === 0) {
-      return 'No tracked players'
+      return {
+        message: 'No tracked players'
+      }
     }
 
     const [player] = uniqueTrackedPlayers
@@ -32,7 +38,9 @@ export default async function topPlays (
     const newPlays = await getNewTopPlays(player, newScores)
 
     if (newPlays.length === 0) {
-      return 'No new scores !'
+      return {
+        message: 'No new scores !'
+      }
     }
 
     // If there is new plays send them to the channel
