@@ -17,7 +17,7 @@ export default async function topPlays (
 
   try {
     // Top plays are coming from the browser extension.
-    const newScores: Score[] = request.body
+    const newScores: Score[] = JSON.parse(request.body)
     const osuId = `${newScores[0].user_id}`
 
     const { uniqueTrackedPlayers } = await getTrackedPlayers(
