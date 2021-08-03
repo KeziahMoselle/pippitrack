@@ -17,9 +17,10 @@ export default async function getToken (
     const querystring = new URLSearchParams()
     querystring.append('client_id', process.env.OSU_CLIENT_ID)
     querystring.append('client_secret', process.env.OSU_CLIENT_SECRET)
-    querystring.append('code', encodeURIComponent(request.body))
+    querystring.append('code', request.body)
     querystring.append('grant_type', 'authorization_code')
     querystring.append('redirect_uri', process.env.OSU_CALLBACK_URL)
+    querystring.append('scope', 'identify public')
 
     try {
       const response = await axios.post(
