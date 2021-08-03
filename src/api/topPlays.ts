@@ -9,6 +9,8 @@ export default async function topPlays (
   request,
   reply
 ): Promise<Score[] | string> {
+  reply.header('Access-Control-Allow-Origin', '*')
+
   try {
     // Top plays are coming from the browser extension.
     const newScores: Score[] = request.body
