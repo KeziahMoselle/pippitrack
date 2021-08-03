@@ -1,4 +1,5 @@
 import fastify from 'fastify'
+import getToken from './getToken'
 import topPlays from './topPlays'
 
 class Api {
@@ -17,6 +18,7 @@ class Api {
     })
 
     this.server.post('/api/top_plays', topPlays)
+    this.server.post('/api/get_token', getToken)
   }
 
   start (): void {
