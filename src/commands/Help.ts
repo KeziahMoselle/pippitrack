@@ -27,7 +27,7 @@ export default class Help implements BaseDiscordCommand {
 
     const description =
       `**Administrators** can configure the server by typing \`${prefix}config\`.\n` +
-      `**Users** can link their Discord to an osu! profile by typing \`${prefix}u yourUsername\`\n\n` +
+      `**Users** can link their Discord to an osu! profile by typing \`${prefix}link yourUsername\`\n\n` +
       `Current prefix is \`${prefix}\``
 
     this.embed.setDescription(description)
