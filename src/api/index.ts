@@ -32,7 +32,7 @@ class Api {
     this.server.post('/api/get_token', getToken)
   }
 
-  start (): void {
+  start (): this {
     this.server.listen(
       this.port,
       process.env.NODE_ENV === 'production' ? '0.0.0.0' : undefined,
@@ -45,6 +45,12 @@ class Api {
         console.log(`API is listening at : ${address}`)
       }
     )
+
+    return this
+  }
+
+  close () {
+    return this.server.close()
   }
 }
 

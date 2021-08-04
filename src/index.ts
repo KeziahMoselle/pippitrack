@@ -32,7 +32,7 @@ import {
   Configure
 } from './commands'
 
-new Api(apiPort).start()
+const api = new Api(apiPort).start()
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
@@ -69,4 +69,11 @@ trackedUsers()
 
 process.on('unhandledRejection', (error) => {
   console.error('Unhandled rejection:', error)
+})
+
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, exiting gracefully.')
+  bot.client.destroy()
+  await api.close()
+  process.exit()
 })
