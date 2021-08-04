@@ -15,21 +15,21 @@ class Api {
   }
 
   routes (): void {
-    this.server.get('/api', (request, reply) => {
+    this.server.get('/', (request, reply) => {
       reply
         .code(200)
         .send(
-          'GET /api/user_tracked - Check if a player is tracked\n' +
-            'GET /api/total_users - Return the total count of tracked players\n' +
-            'POST /api/top_plays - Get new top plays and send it to Discord\n' +
-            'POST /api/get_token - Get access_token for osu! OAuth'
+          'GET /v1/user_tracked - Check if a player is tracked\n' +
+            'GET /v1/total_users - Return the total count of tracked players\n' +
+            'POST /v1/top_plays - Send new top plays to this endpoint and it will send the new ones to Discord\n' +
+            'POST /v1/get_token - Get an access_token for osu! OAuth (create and refresh token)'
         )
     })
 
-    this.server.get('/api/user_tracked', userTracked)
-    this.server.get('/api/total_users', totalUsers)
-    this.server.post('/api/top_plays', topPlays)
-    this.server.post('/api/get_token', getToken)
+    this.server.get('/v1/user_tracked', userTracked)
+    this.server.get('/v1/total_users', totalUsers)
+    this.server.post('/v1/top_plays', topPlays)
+    this.server.post('/v1/get_token', getToken)
   }
 
   start (): this {
