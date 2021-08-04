@@ -7,10 +7,14 @@ interface GetTokenResponse {
   refresh_token: string
 }
 
+interface MessageResponse {
+  message: string
+}
+
 export default async function getToken (
   request,
   reply
-): Promise<GetTokenResponse | string> {
+): Promise<GetTokenResponse | MessageResponse> {
   reply.header('Access-Control-Allow-Origin', '*')
 
   try {
@@ -43,10 +47,14 @@ export default async function getToken (
       return response.data
     } catch (error) {
       console.error('API getToken POST error :', error)
-      return 'Error'
+      return {
+        message: error
+      }
     }
   } catch (error) {
     console.error('API getToken POST error :', error)
-    return 'Error'
+    return {
+      message: error
+    }
   }
 }
