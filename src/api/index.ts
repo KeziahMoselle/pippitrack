@@ -1,6 +1,7 @@
 import fastify from 'fastify'
 import getToken from './getToken'
 import topPlays from './topPlays'
+import totalUsers from './totalUsers'
 import userTracked from './userTracked'
 
 class Api {
@@ -14,17 +15,19 @@ class Api {
   }
 
   routes (): void {
-    this.server.get('/', (request, reply) => {
+    this.server.get('/api', (request, reply) => {
       reply
         .code(200)
         .send(
           'GET /api/user_tracked - Check if a player is tracked\n' +
+            'GET /api/total_users - Return the total count of tracked players\n' +
             'POST /api/top_plays - Get new top plays and send it to Discord\n' +
             'POST /api/get_token - Get access_token for osu! OAuth'
         )
     })
 
     this.server.get('/api/user_tracked', userTracked)
+    this.server.get('/api/total_users', totalUsers)
     this.server.post('/api/top_plays', topPlays)
     this.server.post('/api/get_token', getToken)
   }
