@@ -14,7 +14,7 @@ export default function listenForRenders (client: Client): TempOrdrInterface {
     try {
       const render = await ordr.renders({ renderID })
 
-      if (!render && render.renders.length === 0) {
+      if (!render || !render.renders || render.renders.length === 0) {
         return console.log(`ID: ${renderID} | Render empty ${render}`)
       }
 
