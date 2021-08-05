@@ -16,6 +16,8 @@ A Discord bot that allows you to track osu! things. It has some useful commands 
 
 ## How do I use PippiTrack ?
 
+### See documentation at [https://pippitrack.com/](https://pippitrack.com/)
+
 ### Get started
 
 #### For users

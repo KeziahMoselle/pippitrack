@@ -14,10 +14,16 @@ export default class Help implements BaseDiscordCommand {
   constructor () {
     this.embed
       .setTitle('Click to see the documentation')
-      .setURL('https://github.com/KeziahMoselle/osu-track/')
+      .setURL('https://pippitrack.com/')
       .addField(
         'Support Server',
-        '[Join the support server](https://discord.gg/bNQUZeHFdR)'
+        '[Join the support server](https://discord.gg/bNQUZeHFdR)',
+        true
+      )
+      .addField(
+        'Source Code',
+        '[GitHub repository](https://github.com/KeziahMoselle/osu-track/)',
+        true
       )
       .setColor(5814783)
   }
