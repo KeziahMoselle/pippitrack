@@ -30,9 +30,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       embed: new MessageEmbed()
         .setTitle('👀 Top plays tracking')
         .setDescription(
-          'To enable top plays tracking mention the channel you want to send the top plays to.\nExample : `#track`'
+          'To enable top plays tracking mention the channel you want to send the top plays to.\nExample : `#track`\nDeactivate top plays tracking : `false`'
         )
-        .setFooter('Please mention the track #channel')
+        .setFooter(
+          'Please mention the track #channel or  `false` to deactivate'
+        )
     },
     {
       label: 'Daily osu!track updates',
@@ -42,9 +44,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       embed: new MessageEmbed()
         .setTitle('🆕 Daily osu!track updates')
         .setDescription(
-          'To enable daily osu!track updates mention the channel you want to send the updates to.\nExample : `#updates`'
+          'To enable daily osu!track updates mention the channel you want to send the updates to.\nExample : `#updates`\nDeactivate daily updates : `false`'
         )
-        .setFooter('Please mention the updates #channel')
+        .setFooter(
+          'Please mention the updates #channel or  `false` to deactivate'
+        )
     },
     {
       label: 'Replay tracking',
@@ -54,9 +58,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       embed: new MessageEmbed()
         .setTitle('▶️ Replay tracking')
         .setDescription(
-          'To enable o!rdr replay tracking mention the channel you want to send the replays to.\nExample : `#replays`'
+          'To enable o!rdr replay tracking mention the channel you want to send the replays to.\nExample : `#replays`\nDeactivate replays tracking : `false`'
         )
-        .setFooter('Please mention the replays #channel')
+        .setFooter(
+          'Please mention the replays #channel or  `false` to deactivate'
+        )
     },
     {
       label: 'Bot prefix',
@@ -183,6 +189,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
     // Send the new choice embed instructions
     const sentEmbed = await menu.message.channel.send(choice.embed)
+
     const filter = (message: Message) => message.member.id === authorId
 
     try {
@@ -203,45 +210,80 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setColor(6867286)
 
       if (value === 'enable_track') {
-        const channel = message.mentions.channels.first()
+        if (message.mentions.channels.size > 0) {
+          const channel = message.mentions.channels.first()
 
-        await this.updateGuildSetting(
-          'track_channel',
-          channel.id,
-          message.guild.id
-        )
+          await this.updateGuildSetting(
+            'track_channel',
+            channel.id,
+            message.guild.id
+          )
 
-        response.setDescription(
-          `Top plays will now be sent to ${channel.toString()}`
-        )
+          response.setDescription(
+            `Top plays will now be sent to ${channel.toString()}`
+          )
+        }
+
+        // Else deactivate requests
+        if (message.content === 'false') {
+          await this.updateGuildSetting('track_channel', null, message.guild.id)
+          response.setDescription('Top plays tracking are now deactivated')
+          response.setColor(14504273)
+        }
       }
 
       if (value === 'enable_updates') {
-        const channel = message.mentions.channels.first()
+        if (message.mentions.channels.size > 0) {
+          const channel = message.mentions.channels.first()
 
-        await this.updateGuildSetting(
-          'updates_channel',
-          channel.id,
-          message.guild.id
-        )
+          await this.updateGuildSetting(
+            'updates_channel',
+            channel.id,
+            message.guild.id
+          )
 
-        response.setDescription(
-          `Daily updates will now be sent to ${channel.toString()}`
-        )
+          response.setDescription(
+            `Daily updates will now be sent to ${channel.toString()}`
+          )
+        }
+
+        // Else deactivate requests
+        if (message.content === 'false') {
+          await this.updateGuildSetting(
+            'updates_channel',
+            null,
+            message.guild.id
+          )
+          response.setDescription('Daily updates are now deactivated')
+          response.setColor(14504273)
+        }
       }
 
       if (value === 'enable_replay') {
-        const channel = message.mentions.channels.first()
+        if (message.mentions.channels.size > 0) {
+          const channel = message.mentions.channels.first()
 
-        await this.updateGuildSetting(
-          'replay_channel',
-          channel.id,
-          message.guild.id
-        )
+          await this.updateGuildSetting(
+            'replay_channel',
+            channel.id,
+            message.guild.id
+          )
 
-        response.setDescription(
-          `Replays will now be sent to ${channel.toString()}`
-        )
+          response.setDescription(
+            `Replays will now be sent to ${channel.toString()}`
+          )
+        }
+
+        // Else deactivate requests
+        if (message.content === 'false') {
+          await this.updateGuildSetting(
+            'replay_channel',
+            null,
+            message.guild.id
+          )
+          response.setDescription('Replays tracking are now deactivated')
+          response.setColor(14504273)
+        }
       }
 
       if (value === 'change_prefix') {
@@ -286,9 +328,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
     } catch {
       // User did not send a value
       const embed = new MessageEmbed()
-        .setTitle(`❌ Timeout : ${choice.label}`)
+        .setTitle(`❌ Error : ${choice.label}`)
         .setDescription(
-          'You did not type a value. This operation has been canceled.'
+          'You did not type a correct value. This operation has been canceled.'
         )
         .setColor(14504273)
 
