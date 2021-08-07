@@ -5,6 +5,13 @@ import { UsersStateRow } from '../../types/db'
 export default async function updatePlayerState (
   trackedPlayer: TrackedPlayer
 ): Promise<void> {
+  if (!trackedPlayer.osu_id) {
+    return console.error(
+      'updatePlayerState error, trackedPlayer object does not contain osu_id',
+      trackedPlayer
+    )
+  }
+
   const { error } = await supabase
     .from<UsersStateRow>('users_state')
     .upsert({
@@ -14,6 +21,6 @@ export default async function updatePlayerState (
     .eq('osu_id', trackedPlayer.osu_id)
 
   if (error) {
-    console.error('updateTopPlays error when upserting :', error)
+    console.error('updatePlayerState error when upserting :', error)
   }
 }

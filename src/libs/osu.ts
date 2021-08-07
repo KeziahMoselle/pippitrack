@@ -97,7 +97,7 @@ class OsuApiv2 {
     id?: string
     mode?: Mode
   }): Promise<Score[]> {
-    return this.fetch(`users/${id}/scores/best?=${mode}&limit=100`)
+    return this.fetch(`users/${id}/scores/best?mode=${mode}&limit=100`)
   }
 
   async getBeatmap ({ id }: { id: number }) {
