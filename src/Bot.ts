@@ -1,11 +1,14 @@
-import { Client, Guild, Message, MessageEmbed, Permissions } from 'discord.js'
-import handleTrackBtn from './buttons/handleTrackBtn'
-import handleUntrackBtn from './buttons/handleUntrackBtn'
+import {
+  Client,
+  Guild,
+  Interaction,
+  Message,
+  MessageEmbed,
+  Permissions
+} from 'discord.js'
 import getPrefixes from './utils/getPrefixes'
 import { defaultPrefix } from './config'
-import handleUntrackAllBtn from './buttons/handleUntrackAllBtn'
 import prefixes from './libs/prefixes'
-import { MessageComponent } from 'discord-buttons'
 import { BaseDiscordCommand } from './types'
 
 export default class Bot {
@@ -28,7 +31,8 @@ export default class Bot {
     })
 
     // Add listeners here
-    this.client.on('message', this.onMessage)
+    this.client.on('messageCreate', this.onMessage)
+    this.client.on('interactionCreate', this.onInteractionCreate)
     this.client.on('clickButton', this.onClickButton)
     this.client.on('guildCreate', this.onGuildCreate)
   }
@@ -39,13 +43,26 @@ export default class Bot {
    * @param {module:discord.js.Message} message
    * @memberof Bot
    */
-  onMessage = (message: Message): void => {
+  onMessage = async (message: Message): Promise<void> => {
     if (
       message.author.bot ||
-      message.channel.type === 'dm' ||
+      message.channel.type === 'DM' ||
       message.type === 'GUILD_MEMBER_JOIN'
     ) {
       return
+    }
+
+    if (!this.client.application?.owner) await this.client.application?.fetch()
+
+    // @ts-ignore
+    for (const [, value] of this.commands) {
+      console.log('cmd created : ', value.name)
+      await this.client.guilds.cache
+        .get(message.channel.guild.id)
+        ?.commands.create({
+          name: value.name,
+          description: value.description
+        })
     }
 
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
@@ -55,6 +72,14 @@ export default class Bot {
     this.runCommand(message, prefix)
   }
 
+  onInteractionCreate = async (interaction: Interaction): Promise<void> => {
+    if (!interaction.isCommand()) return
+    console.log(interaction)
+    const command = this.commands.get(interaction.commandName)
+    const channel = this.client.channels.cache.get(interaction.channelId)
+    command.run(interaction, channel)
+  }
+
   /**
    * Send some basic instructions on guild join
    *
@@ -62,12 +87,11 @@ export default class Bot {
    * @memberof Bot
    */
   onGuildCreate = (guild: Guild): void => {
-    const hasPerms = guild.me.hasPermission([
+    const hasPerms = guild.me.permissions.has([
       Permissions.FLAGS.SEND_MESSAGES,
       Permissions.FLAGS.MANAGE_MESSAGES,
       Permissions.FLAGS.ATTACH_FILES,
       Permissions.FLAGS.EMBED_LINKS,
-      Permissions.FLAGS.ATTACH_FILES,
       Permissions.FLAGS.READ_MESSAGE_HISTORY,
       Permissions.FLAGS.ADD_REACTIONS,
       Permissions.FLAGS.USE_EXTERNAL_EMOJIS
@@ -90,7 +114,7 @@ export default class Bot {
           )
           .setColor(14504273)
 
-        guild.systemChannel.send(embed)
+        guild.systemChannel.send({ embeds: [embed] })
       }
     }
 
@@ -110,7 +134,7 @@ export default class Bot {
         .setFooter('Happy tracking !')
         .setColor(5814783)
 
-      guild.systemChannel.send(embed)
+      guild.systemChannel.send({ embeds: [embed] })
     }
   }
 
@@ -119,29 +143,25 @@ export default class Bot {
    *
    * @memberof Bot
    */
-  onClickButton = async (button: MessageComponent): Promise<void> => {
-    const [btnId] = button.id.split('_')
-
-    await button.clicker.fetch()
-
-    try {
-      if (btnId === 'untrack') {
-        return handleUntrackBtn(button)
-      }
-
-      if (btnId === 'track') {
-        return handleTrackBtn(button, this.client)
-      }
-
-      if (btnId === 'untrackall') {
-        return handleUntrackAllBtn(button)
-      }
-    } catch (error) {
-      console.error('onClickButton', error)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      await button.reply.send('Sorry, there was an error.', true)
-    }
+  onClickButton = async (button): Promise<void> => {
+    // const [btnId] = button.id.split('_')
+    // await button.clicker.fetch()
+    // try {
+    //   if (btnId === 'untrack') {
+    //     return handleUntrackBtn(button)
+    //   }
+    //   if (btnId === 'track') {
+    //     return handleTrackBtn(button, this.client)
+    //   }
+    //   if (btnId === 'untrackall') {
+    //     return handleUntrackAllBtn(button)
+    //   }
+    // } catch (error) {
+    //   console.error('onClickButton', error)
+    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   // @ts-ignore
+    //   await button.reply.send('Sorry, there was an error.', true)
+    // }
   }
 
   /**
@@ -172,13 +192,11 @@ export default class Bot {
     if (!command) return
 
     try {
-      message.channel.startTyping()
+      await message.channel.sendTyping()
       await command.run(message, args)
     } catch (error) {
       console.error('Error catched Bot.js:', error, JSON.stringify(error))
       message.channel.send('Sorry there was an error with an external service.')
-    } finally {
-      message.channel.stopTyping()
     }
   }
 

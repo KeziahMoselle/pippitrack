@@ -45,7 +45,7 @@ export default function update (client: Client): CronJob {
 
           // Send the embed for each tracked channel linked to this player
           for (const channel of player.trackChannels) {
-            channel.send(embed).catch((err) => console.error(err))
+            channel.send({ embeds: [embed] }).catch((err) => console.error(err))
 
             console.log(
               `Sent new top play from ${player.osu_username} to #${channel.name}`

@@ -102,7 +102,7 @@ function sendEmbeds (
     }
 
     for (const channel of update.player.updatesChannels) {
-      channel.send(update.embed)
+      channel.send({ embeds: [update.embed] })
       console.info(`${update.player.osu_username} in #${channel.name}`)
     }
   }

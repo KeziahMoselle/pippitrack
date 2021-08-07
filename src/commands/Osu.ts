@@ -16,7 +16,7 @@ export default class OsuProfileCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     return message.channel.send(this.IMAGE_ENDPOINT(user.id))

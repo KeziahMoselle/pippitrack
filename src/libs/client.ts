@@ -1,5 +1,4 @@
 import { Client, Intents } from 'discord.js'
-import disbut from 'discord-buttons'
 
 // Declare intents
 const intents = new Intents([
@@ -8,10 +7,7 @@ const intents = new Intents([
 ])
 
 const client = new Client({
-  ws: { intents }
+  intents
 })
-
-// Add Discord buttons integration
-disbut(client)
 
 export default client

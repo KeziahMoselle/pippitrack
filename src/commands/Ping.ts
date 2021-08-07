@@ -22,6 +22,6 @@ export default class Ping implements BaseDiscordCommand {
       .setTitle(`Bot Latency is ${Date.now() - message.createdTimestamp}ms`)
       .setDescription(`Discord Latency is ${Math.round(this.client.ws.ping)}ms`)
 
-    return message.channel.send(this.embed)
+    return message.channel.send({ embeds: [this.embed] })
   }
 }

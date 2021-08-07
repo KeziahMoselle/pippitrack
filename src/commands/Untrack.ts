@@ -1,4 +1,3 @@
-import { MessageButton } from 'discord-buttons'
 import { Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
@@ -23,7 +22,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
         'This server has no tracked player!'
       )
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
 
     let secondsBeforeCancel = 10
@@ -37,15 +36,14 @@ export default class UntrackCommand implements BaseDiscordCommand {
       .setFooter(`You have ${secondsBeforeCancel}s to confirm this action.`)
       .setColor(14504273)
 
-    const untrackAllBtn = new MessageButton()
-      .setStyle('red')
-      .setLabel(`Untrack ${count} player${count > 1 ? 's' : ''}`)
-      .setID(`untrackall_${message.guild.id}_${message.author.id}`)
+    // const untrackAllBtn = new MessageButton()
+    //   .setStyle('red')
+    //   .setLabel(`Untrack ${count} player${count > 1 ? 's' : ''}`)
+    //   .setID(`untrackall_${message.guild.id}_${message.author.id}`)
 
-    const sentMessage = (await message.channel.send(
-      embed,
-      untrackAllBtn
-    )) as Message
+    const sentMessage = (await message.channel.send({
+      embeds: [embed]
+    })) as Message
 
     const interval = setInterval(() => {
       if (sentMessage.embeds[0]?.title?.includes('Successfully')) {
@@ -61,7 +59,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
         const newEmbed = embed.setFooter(
           `You have ${secondsBeforeCancel}s to confirm this action.`
         )
-        sentMessage.edit(newEmbed)
+        sentMessage.edit({ embeds: [newEmbed] })
       }
     }, 2000)
 
@@ -80,11 +78,11 @@ export default class UntrackCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     // Check if the author has the permission to untrack the user
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
       return message.reply(
         'You need to be an Administrator to untrack players.'
       )
@@ -103,7 +101,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
           `${user.name} is not tracked.`
         )
 
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       await untrackUser(userFound.id)
@@ -112,14 +110,14 @@ export default class UntrackCommand implements BaseDiscordCommand {
         `${user.name} is no longer being tracked.`
       )
 
-      message.channel.send(embed)
+      message.channel.send({ embeds: [embed] })
     } catch (error) {
       console.error(error)
       const embed = new MessageEmbed()
         .setTitle(`Player not found : ${args.join(' ')}`)
         .setThumbnail('https://a.ppy.sh/')
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
   }
 }

@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
-  InteractionReply,
-  MessageComponent,
-  MessageMenu,
-  MessageMenuOption
-} from 'discord-buttons'
-import { MessageEmbed, Message } from 'discord.js'
+  MessageEmbed,
+  Message,
+  CommandInteraction,
+  TextChannel,
+  Permissions,
+  GuildMember,
+  MessageActionRow,
+  MessageSelectMenu
+} from 'discord.js'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
 import supabase from '../libs/supabase'
@@ -98,27 +101,18 @@ export default class ConfigureCommand implements BaseDiscordCommand {
     }
   ]
 
-  select = null
+  select = new MessageActionRow()
 
   /**
    * Creates the menu for the select command
    */
   constructor () {
-    this.select = new MessageMenu()
-      .setID('configmenu')
-      .setPlaceholder('I want to configure...')
-      .setMaxValues(1)
-      .setMinValues(1)
-
-    for (const choice of this.choices) {
-      const option = new MessageMenuOption()
-        .setLabel(choice.label)
-        .setEmoji(choice.emoji)
-        .setValue(choice.value)
-        .setDescription(choice.description)
-
-      this.select.addOption(option)
-    }
+    this.select.addComponents(
+      new MessageSelectMenu()
+        .setCustomId('configmenu')
+        .setPlaceholder('I want to configure...')
+        .addOptions(this.choices)
+    )
   }
 
   /**
@@ -150,10 +144,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
    * 4. Update the value in the database
    * 5. Send the menu again if the user wants to change something else
    */
-  async handleMenuCollector (
-    menu: MessageComponent,
-    authorId: string
-  ): Promise<Message | InteractionReply> {
+  async handleMenuCollector (menu, authorId: string): Promise<Message> {
     // Check permission
     if (!menu.clicker.member.hasPermission('ADMINISTRATOR')) {
       return menu.reply.send(
@@ -324,7 +315,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
       // Send success message and resend the menu
       message.channel.send(response)
-      await this.sendMenu(message)
+      // await this.sendMenu(message,)
     } catch {
       // User did not send a value
       const embed = new MessageEmbed()
@@ -335,19 +326,21 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setColor(14504273)
 
       sentEmbed.delete()
-      menu.message.channel.send(embed)
+      menu.message.channel.send({ embeds: [embed] })
     }
   }
 
   /**
    * Sends the menu to the user
    */
-  async sendMenu (message: Message): Promise<Message> {
+  async sendMenu (interaction: CommandInteraction): Promise<void> {
     const { data: guild, error } = await supabase
       .from<GuildRow>('guilds')
       .select('*')
-      .eq('guild_id', message.guild.id)
+      .eq('guild_id', interaction.guild.id)
       .single()
+
+    let configEmbed = null
 
     if (!error) {
       const {
@@ -358,8 +351,8 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         prefix
       } = guild
 
-      const embed = new MessageEmbed()
-        .setTitle(`${message.guild.name}'s settings`)
+      configEmbed = new MessageEmbed()
+        .setTitle(`${interaction.guild.name}'s settings`)
         .addField(
           'Track Top Plays',
           `${track_channel ? '✅' : '❌'} ${
@@ -389,36 +382,36 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           true
         )
         .addField('Prefix', `${prefix || defaultPrefix}`)
-
-      await message.channel.send(embed)
     }
 
-    const sentMessage = await message.channel.send(
-      `What do you want to do ${message.member.displayName} ?`,
-      this.select
-    )
-
-    const authorId = message.member.id
-
-    const filter = (menu: MessageComponent) => menu.clicker.id === authorId
-    // @ts-ignore
-    const collector = sentMessage.createMenuCollector(filter, {
-      time: this.FIVE_MINUTES
+    await interaction.reply({
+      content: `What do you want to do ${interaction.member.user.username} ?`,
+      embeds: [configEmbed],
+      components: [this.select]
     })
 
-    collector.once('collect', (menu: MessageComponent) =>
-      this.handleMenuCollector(menu, authorId)
-    )
+    // const authorId = message.member.id
 
-    return message
+    // const filter = (menu) => menu.clicker.id === authorId
+    // // @ts-ignore
+    // const collector = sentMessage.createMenuCollector(filter, {
+    //   time: this.FIVE_MINUTES
+    // })
+
+    // collector.once('collect', (menu) =>
+    //   this.handleMenuCollector(menu, authorId)
+    // )
   }
 
-  async run (message: Message): Promise<Message> {
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply(
+  async run (interaction: CommandInteraction): Promise<void> {
+    const member = interaction.member as GuildMember
+
+    if (!member.permissions.has('ADMINISTRATOR')) {
+      return interaction.reply(
         'You need to be an Administrator to use this command.'
       )
     }
-    return this.sendMenu(message)
+
+    return this.sendMenu(interaction)
   }
 }

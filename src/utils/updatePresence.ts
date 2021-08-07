@@ -26,10 +26,12 @@ export default async function updatePresence (client: Client): Promise<void> {
   }
 
   client.user.setPresence({
-    activity: {
-      name: `${result} | !help`,
-      type: 'WATCHING'
-    }
+    activities: [
+      {
+        name: `${result} | !help`,
+        type: 'WATCHING'
+      }
+    ]
   })
 }
 

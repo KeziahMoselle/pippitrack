@@ -15,7 +15,7 @@ export default class LinkCommand implements BaseDiscordCommand {
       const user = await getUser({ message, args })
 
       if (!user) {
-        return message.channel.send(notFoundEmbed)
+        return message.channel.send({ embeds: [notFoundEmbed] })
       }
 
       const embed = new MessageEmbed()
@@ -42,7 +42,7 @@ export default class LinkCommand implements BaseDiscordCommand {
           return message.reply('Sorry, there was an error.')
         }
 
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       // Link the Discord ID to the osu id
@@ -58,13 +58,13 @@ export default class LinkCommand implements BaseDiscordCommand {
         return message.reply('Sorry, there was an error.')
       }
 
-      message.channel.send(embed)
+      message.channel.send({ embeds: [embed] })
     } catch {
       const embed = new MessageEmbed()
         .setTitle('Player not found')
         .setThumbnail('https://a.ppy.sh/')
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
   }
 }

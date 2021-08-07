@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { CommandInteraction, Message, TextChannel } from 'discord.js'
 
 export interface TrackedPlayer {
   guild_id: string

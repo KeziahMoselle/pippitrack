@@ -23,7 +23,7 @@ export default class PeakCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     try {
@@ -51,11 +51,13 @@ export default class PeakCommand implements BaseDiscordCommand {
         )
         .setColor(11279474)
 
+      const files = []
+
       if (medalsUrl) {
-        embed.attachFiles([medalsUrl])
+        files.push(medalsUrl)
       }
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed], files })
     } catch {
       const embed = new MessageEmbed()
         .setTitle(`Player not found : ${args.join(' ')}`)
@@ -66,7 +68,7 @@ export default class PeakCommand implements BaseDiscordCommand {
         )
         .setThumbnail('https://a.ppy.sh/')
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
   }
 }

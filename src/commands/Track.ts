@@ -1,5 +1,4 @@
 import { MessageEmbed, Message, TextChannel } from 'discord.js'
-import { MessageButton } from 'discord-buttons'
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
@@ -24,7 +23,7 @@ export default class TrackCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     try {
@@ -41,7 +40,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(
             'You can untrack users by typing `!untrack <username>`\nYou can see a list of tracked users by typing `!tracklist <?page>`'
           )
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       const { data: userFound } = await supabase
@@ -59,12 +58,12 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(`**${user.name}** is already being tracked.`)
           .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
 
-        const untrackBtn = new MessageButton()
-          .setStyle('red')
-          .setLabel('Untrack')
-          .setID(`untrack_${userFound.id}`)
+        // const untrackBtn = new MessageButton()
+        //   .setStyle('red')
+        //   .setLabel('Untrack')
+        //   .setID(`untrack_${userFound.id}`)
 
-        return message.channel.send(embed, untrackBtn)
+        return message.channel.send({ embeds: [embed] })
       }
 
       // Check if the guild has set an admin channel.
@@ -80,7 +79,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(
             'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
           )
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       // If the user wants to be tracked and :
@@ -88,7 +87,7 @@ export default class TrackCommand implements BaseDiscordCommand {
       // - The guild didn't set an admin channel
       // That means we need to show an error message to the user.
       if (
-        !message.member.hasPermission('ADMINISTRATOR') &&
+        !message.member.permissions.has('ADMINISTRATOR') &&
         !guild.admin_channel
       ) {
         const prefix = prefixes.get(message.guild.id) || defaultPrefix
@@ -100,7 +99,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           )
           .setColor(14504273)
 
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       const trackChannel = message.guild.channels.cache.get(guild.track_channel)
@@ -111,7 +110,7 @@ export default class TrackCommand implements BaseDiscordCommand {
       if (
         guild.admin_channel &&
         (trackChannel || replayChannel) &&
-        !message.member.hasPermission('ADMINISTRATOR')
+        !message.member.permissions.has('ADMINISTRATOR')
       ) {
         const adminChannel: TextChannel = message.guild.channels.cache.get(
           guild.admin_channel
@@ -155,20 +154,20 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(
             'If you want this player to be tracked.\nClick on the button below !'
           )
-          .addField('Discord Tag', message.member, true)
+          .addField('Discord Tag', message.member.toString(), true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)
           .addField('osu! rank', `#${user.pp.rank}`, true)
           .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
           .setColor(11279474)
 
-        const trackBtn = new MessageButton()
-          .setStyle('green')
-          .setLabel('Accept')
-          .setID(
-            `track_${approvalRequest.id}_${message.member.id}_${message.guild.id}`
-          )
+        // const trackBtn = new MessageButton()
+        //   .setStyle('green')
+        //   .setLabel('Accept')
+        //   .setID(
+        //     `track_${approvalRequest.id}_${message.member.id}_${message.guild.id}`
+        //   )
 
-        await adminChannel.send(embed, trackBtn)
+        await adminChannel.send({ embeds: [embed] })
 
         message.reply(
           'Your request has been successfully sent to the administrators.'
@@ -201,14 +200,14 @@ export default class TrackCommand implements BaseDiscordCommand {
         .addField('mode', 'osu!', true)
         .setColor(11279474)
 
-      message.channel.send(embed)
+      message.channel.send({ embeds: [embed] })
     } catch (error) {
       console.error(error)
       const embed = new MessageEmbed()
         .setTitle(`Player not found : ${args.join(' ')}`)
         .setThumbnail('https://a.ppy.sh/')
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
   }
 }

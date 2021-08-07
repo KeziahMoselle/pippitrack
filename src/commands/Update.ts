@@ -20,13 +20,13 @@ export default class UpdateCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     try {
       const { embed } = await osuTrack.update(user)
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     } catch (error) {
       console.error(error)
       return message.reply('Sorry, there was an error.')

@@ -37,6 +37,6 @@ export default class Help implements BaseDiscordCommand {
       `Current prefix is \`${prefix}\``
 
     this.embed.setDescription(description)
-    return message.channel.send(this.embed)
+    return message.channel.send({ embeds: [this.embed] })
   }
 }
