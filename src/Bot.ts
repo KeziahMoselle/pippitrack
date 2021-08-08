@@ -16,6 +16,7 @@ export default class Bot {
   client: Client = null // The Discord Client
 
   commands = new Map<string, BaseDiscordCommand>()
+  listOfCommands = []
 
   onReady = null
 
@@ -52,17 +53,26 @@ export default class Bot {
       return
     }
 
-    if (!this.client.application?.owner) await this.client.application?.fetch()
+    if (!this.client.application?.owner) {
+      await this.client.application?.fetch()
+    }
 
-    // @ts-ignore
-    for (const [, value] of this.commands) {
-      console.log('cmd created : ', value.name)
-      await this.client.guilds.cache
-        .get(message.channel.guild.id)
-        ?.commands.create({
-          name: value.name,
-          description: value.description
-        })
+    if (
+      message.content.toLowerCase() === '!deploy' &&
+      message.author.id === this.client.application?.owner.id
+    ) {
+      await this.client.application?.commands.set([])
+
+      // @ts-ignore
+      for (const guild of this.client.guilds.cache.values()) {
+        await (guild as Guild).commands.set([])
+      }
+
+      await this.client.application?.commands
+        .set(this.listOfCommands)
+        .catch(console.error)
+
+      message.channel.send('Slash commands have been deployed.')
     }
 
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
@@ -73,11 +83,21 @@ export default class Bot {
   }
 
   onInteractionCreate = async (interaction: Interaction): Promise<void> => {
-    if (!interaction.isCommand()) return
-    console.log(interaction)
-    const command = this.commands.get(interaction.commandName)
-    const channel = this.client.channels.cache.get(interaction.channelId)
-    command.run(interaction, channel)
+    if (interaction.isCommand()) {
+      const command = this.commands.get(interaction.commandName)
+      command.run(interaction)
+    }
+
+    if (interaction.isSelectMenu()) {
+      const [commandName] = interaction.customId.split('_')
+      const command = this.commands.get(commandName)
+
+      if (!command) {
+        return
+      }
+
+      command.handleMenu(interaction)
+    }
   }
 
   /**
@@ -173,6 +193,7 @@ export default class Bot {
    */
   addCommand = (command: BaseDiscordCommand): this => {
     this.commands.set(command.name, command)
+    this.listOfCommands.push(command)
     return this
   }
 

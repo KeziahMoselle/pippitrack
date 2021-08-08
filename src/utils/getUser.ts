@@ -4,6 +4,7 @@ import { Message } from 'discord.js'
 import { User } from 'node-osu'
 
 interface GetUserArgs {
+  username?: string
   message?: Message
   args?: string[]
   id?: string
@@ -13,6 +14,7 @@ interface GetUserArgs {
  * Get osu! user data
  */
 export default async function getUser ({
+  username,
   message,
   args,
   id
@@ -35,12 +37,10 @@ export default async function getUser ({
     })
   }
 
-  if (args?.length > 0) {
+  if (username) {
     // Allow username with whitespaces
-    const usernameArg = args.join(' ').replace(/"/g, '')
-
     return osu.getUser({
-      u: usernameArg,
+      u: username,
       type: 'string'
     })
   }

@@ -1,4 +1,9 @@
-import { CommandInteraction, Message, TextChannel } from 'discord.js'
+import {
+  CommandInteraction,
+  Message,
+  SelectMenuInteraction,
+  TextChannel
+} from 'discord.js'
 
 export interface TrackedPlayer {
   guild_id: string
@@ -34,4 +39,5 @@ export interface BaseDiscordCommand {
   category: string
 
   run(...args): Promise<Message | Message[] | void>
+  handleMenu?(interaction: SelectMenuInteraction)
 }

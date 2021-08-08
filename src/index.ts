@@ -28,8 +28,7 @@ import {
   Osu,
   RecentScore,
   Untrack,
-  Tracklist,
-  Configure
+  Tracklist
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -59,7 +58,6 @@ bot
   .addCommand(new Peak())
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
-  .addCommand(new Configure())
   .addCommand(new Ping(bot.client))
   .addCommand(new Help())
   .run()

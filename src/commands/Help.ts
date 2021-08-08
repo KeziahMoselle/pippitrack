@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { CommandInteraction, MessageEmbed } from 'discord.js'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
 import { BaseDiscordCommand } from '../types'
@@ -28,8 +28,8 @@ export default class Help implements BaseDiscordCommand {
       .setColor(5814783)
   }
 
-  async run (message: Message): Promise<Message> {
-    const prefix = prefixes.get(message.guild.id) || defaultPrefix
+  async run (interaction: CommandInteraction): Promise<void> {
+    const prefix = prefixes.get(interaction.guildId) || defaultPrefix
 
     const description =
       `**Administrators** can configure the server by typing \`${prefix}config\`.\n` +
@@ -37,6 +37,6 @@ export default class Help implements BaseDiscordCommand {
       `Current prefix is \`${prefix}\``
 
     this.embed.setDescription(description)
-    return message.channel.send({ embeds: [this.embed] })
+    return interaction.reply({ embeds: [this.embed] })
   }
 }

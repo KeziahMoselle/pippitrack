@@ -18,6 +18,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    'camelcase': 'off'
+    'camelcase': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off'
   }
 }

@@ -8,7 +8,6 @@ import Osu from './Osu'
 import RecentScore from './RecentScore'
 import Untrack from './Untrack'
 import Tracklist from './Tracklist'
-import Configure from './Configure'
 
 export {
   Track,
@@ -20,6 +19,5 @@ export {
   Osu,
   RecentScore,
   Untrack,
-  Tracklist,
-  Configure
+  Tracklist
 }
