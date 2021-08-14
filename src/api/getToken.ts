@@ -14,13 +14,20 @@ export default async function getToken (
   reply.header('Access-Control-Allow-Origin', '*')
 
   try {
+    const grantType = request?.query?.grant_type || 'authorization_code'
+
     const querystring = new URLSearchParams()
     querystring.append('client_id', process.env.OSU_CLIENT_ID)
     querystring.append('client_secret', process.env.OSU_CLIENT_SECRET)
-    querystring.append('code', request.body)
-    querystring.append('grant_type', 'authorization_code')
-    querystring.append('redirect_uri', process.env.OSU_CALLBACK_URL)
-    querystring.append('scope', 'identify public')
+    querystring.append('grant_type', grantType)
+
+    if (grantType === 'refresh_token') {
+      querystring.append('refresh_token', request.body)
+    } else {
+      querystring.append('code', request.body)
+      querystring.append('redirect_uri', process.env.OSU_CALLBACK_URL)
+      querystring.append('scope', 'identify public')
+    }
 
     try {
       const response = await axios.post(
