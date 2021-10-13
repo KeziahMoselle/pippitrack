@@ -4,7 +4,8 @@ import disbut from 'discord-buttons'
 // Declare intents
 const intents = new Intents([
   Intents.FLAGS.GUILDS,
-  Intents.FLAGS.GUILD_MESSAGES
+  Intents.FLAGS.GUILD_MESSAGES,
+  Intents.FLAGS.GUILD_MEMBERS
 ])
 
 const client = new Client({
