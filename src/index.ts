@@ -31,7 +31,8 @@ import {
   Update,
   Track,
   Untrack,
-  Tracklist
+  Tracklist,
+  MpStat
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -69,6 +70,7 @@ bot
   .addCommand(new Track())
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
+  .addCommand(new MpStat())
   .run()
 
 // Run subscribers

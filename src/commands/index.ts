@@ -11,6 +11,7 @@ import Tracklist from './Tracklist'
 import Configure from './Configure'
 import Score from './Score'
 import Gifted from './Gifted'
+import MpStat from './MpStat'
 
 export {
   Track,
@@ -25,5 +26,6 @@ export {
   Tracklist,
   Configure,
   Score,
-  Gifted
+  Gifted,
+  MpStat
 }
