@@ -29,7 +29,8 @@ import {
   RecentScore,
   Untrack,
   Tracklist,
-  Configure
+  Configure,
+  Score
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -62,6 +63,7 @@ bot
   .addCommand(new Configure())
   .addCommand(new Ping(bot.client))
   .addCommand(new Help())
+  .addCommand(new Score())
   .run()
 
 // Run subscribers

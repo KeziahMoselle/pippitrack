@@ -9,6 +9,7 @@ import RecentScore from './RecentScore'
 import Untrack from './Untrack'
 import Tracklist from './Tracklist'
 import Configure from './Configure'
+import Score from './Score'
 
 export {
   Track,
@@ -21,5 +22,6 @@ export {
   RecentScore,
   Untrack,
   Tracklist,
-  Configure
+  Configure,
+  Score
 }
