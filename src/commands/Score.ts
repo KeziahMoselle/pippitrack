@@ -32,7 +32,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
         .eq('osu_id', user.id)
         .single()
 
-      if (!data.ranked_score || !data.total_score) {
+      if (!data) {
         hasData = false
       }
 
