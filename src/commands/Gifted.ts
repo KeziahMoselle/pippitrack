@@ -27,13 +27,19 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     const embed = new MessageEmbed()
       .setAuthor(user.name, `http://s.ppy.sh/a/${user.id}`)
 
-    if (score >= 0 && score < 1) {
+    if (score <= 0.5) {
+      embed.setTitle('It seems you are enjoying the game.')
+        .setFooter(`${user.name} has a score of ${score}.`)
+        .setColor(11279474)
+    }
+
+    if (score > 0.5 && score < 1.3) {
       embed.setTitle('It seems you are pretty average.')
         .setFooter(`${user.name} has a score of ${score}.`)
         .setColor(11279474)
     }
 
-    if (score >= 1 && score < 2) {
+    if (score >= 1.3 && score < 2) {
       embed.setTitle('You are gifted!')
         .setFooter(`${user.name} has a score of ${score}.`)
         .setColor('#8850ff')
@@ -47,27 +53,4 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
 
     return message.channel.send(embed)
   }
-}
-
-/**
- * Clamp a value in a given range.
- *
- * Function taken from @studiometa/js-toolkit
- * @param {number} value
- * @param {number} min
- * @param {number} max
- * @return {number}
- */
-function clamp (value, min, max) {
-  return min < max
-    ? value < min
-      ? min
-      : value > max
-        ? max
-        : value
-    : value < max
-      ? max
-      : value > min
-        ? min
-        : value
 }
