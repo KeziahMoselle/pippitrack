@@ -30,7 +30,8 @@ import {
   Untrack,
   Tracklist,
   Configure,
-  Score
+  Score,
+  Gifted
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -64,6 +65,7 @@ bot
   .addCommand(new Ping(bot.client))
   .addCommand(new Help())
   .addCommand(new Score())
+  .addCommand(new Gifted())
   .run()
 
 // Run subscribers

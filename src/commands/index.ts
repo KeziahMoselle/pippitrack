@@ -10,6 +10,7 @@ import Untrack from './Untrack'
 import Tracklist from './Tracklist'
 import Configure from './Configure'
 import Score from './Score'
+import Gifted from './Gifted'
 
 export {
   Track,
@@ -23,5 +24,6 @@ export {
   Untrack,
   Tracklist,
   Configure,
-  Score
+  Score,
+  Gifted
 }
