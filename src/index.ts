@@ -70,6 +70,7 @@ bot
   .addCommand(new Track())
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
+  .addCommand(new Configure())
   .addCommand(new MpStat())
   .run()
 
