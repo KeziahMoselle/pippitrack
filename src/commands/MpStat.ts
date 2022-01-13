@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import { osu } from '../libs/osu'
 import { Game } from 'node-osu'
+import { tools } from 'osu-api-extended'
 
 export default class MpStat implements BaseDiscordCommand {
   name = 'mpstat'
@@ -24,7 +25,7 @@ export default class MpStat implements BaseDiscordCommand {
       .addFields(
         { name: 'Duration', value: matchLength },
         { name: 'Players', value: this.formatPlayerList(stats.playersList), inline: true },
-        { name: 'Favourite Mod', value: stats.FavouriteMod }
+        { name: 'Average SR', value: stats.averageStarRating.toPrecision(3), inline: true}
       )
 
     return message.channel.send(embed);
@@ -75,64 +76,27 @@ export default class MpStat implements BaseDiscordCommand {
                   averageConsistencyList: [], 
                   mostConsistentPlayer: "",
                   mostWellPlayedMap: "",
-                  FavouriteMod: "",
                   averageStarRating: 0,
                   nbMapsPlayedPerPlayer: [],
                   playersList: []
                 }
-    let srList = new Array();
-    let playersList = new Array();
+    let srList = [];
+    let playersList = [];
     let mostWellPlayedMap = "";
-    let modCounter = {"NM": 0, "HR": 0, "DT": 0, "HD": 0, "EZ": 0};
     for (const game of games) {
       let beatmap = await osu.getBeatmaps({ b: game.beatmapId });
-      srList.push(beatmap[0].difficulty.rating)
+      
+      srList.push(Number(beatmap[0].difficulty.rating));
       for (const multiplayerScore of game.scores) {
-        await this.updatePlayerList(multiplayerScore['userId'], playersList)
-        console.log(multiplayerScore['score']);
-        let score = await osu.getScores({ b: multiplayerScore['score'] }) 
-        console.log(score);
-        this.computeMod(score['mods'], modCounter)
+        await this.updatePlayerList(multiplayerScore['userId'], playersList) 
       }
     }
-
-    stats.FavouriteMod = this.getFavouriteMod(modCounter);
+    console.log(srList);
+    stats.averageStarRating = srList.reduce(((previousSR, currentSR) => previousSR + currentSR), 0)/games.length;
     stats.playersList = playersList;
     
 
     return stats;
-  }
-
-  computeMod(mods, modCounter) {
-    for (const mod of mods) {
-      switch (mod) {
-        case 'None':
-          modCounter["NM"]++;
-        case 'HardRock':
-          modCounter["HR"]++;
-          break;
-        case 'DoubleTime':
-          modCounter["DT"]++;
-          break;
-        case  'Hidden':
-          modCounter["HD"]++;
-        case 'Easy':
-          modCounter["EZ"]++;
-      }
-    }
-  }
-
-  getFavouriteMod(modCounter) {
-    let max = 0;
-    let chosenMod;
-    for(let mod in modCounter) {
-      if (modCounter[mod] > max) {
-        max = modCounter[mod];
-        chosenMod = mod;
-      }
-    }
-
-    return chosenMod;
   }
 
   async updatePlayerList(userId: Number, playersList: any[]) {
