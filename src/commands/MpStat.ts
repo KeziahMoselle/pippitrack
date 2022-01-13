@@ -23,14 +23,27 @@ export default class MpStat implements BaseDiscordCommand {
       .setURL(this.getMatchURL(message.content))
       .setDescription('Analyzed data for MP with ID: '+matchId)
       .addFields(
-        { name: 'Duration', value: matchLength },
-        { name: 'Players', value: this.formatPlayerList(stats.playersList), inline: true },
-        { name: 'Average SR', value: stats.averageStarRating.toPrecision(3), inline: true}
+        { name: 'Duration', value: matchLength, inline:true },
+        { name: 'Average SR', value: stats.averageStarRating.toPrecision(3), inline: true })
+      .addFields(
+        { name: 'Players', value: this.formatPlayerList(stats.playersList) },
+        { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList) },
+        { name: 'Average Accuracy', value: this.formatAccuracyList(stats.averageAccuracyList) }
       )
-
+      .addFields(
+        { name: 'Best accuracy player', value: stats.bestAccuracyPlayer + " " + stats.bestAvgAccuracy, inline:true },
+      )
     return message.channel.send(embed);
 
 
+  }
+
+  formatAccuracyList(averageAccuracyList) {
+    let res = "";
+    for (const avgAcc of averageAccuracyList) {
+      res+=avgAcc+"\n";
+    }
+    return res;
   }
 
   formatPlayerList(playersList) {
@@ -40,6 +53,14 @@ export default class MpStat implements BaseDiscordCommand {
     }
     return res;
   } 
+
+  formatMapPlayedCounterlist(playersList) {
+    let res = "";
+    for (const player of playersList) {
+      res+=player['mapPlayedCounter']+"\n"
+    }
+    return res;
+  }
 
   getMatchURL(content: string) : string {
     return content.split(" ")[1];
@@ -73,11 +94,11 @@ export default class MpStat implements BaseDiscordCommand {
   async getStatsFromGames(games: Game[]) {
     let stats = { averageAccuracyList: [],
                   bestAccuracyPlayer: "",
+                  bestAvgAccuracy: 0,
                   averageConsistencyList: [], 
                   mostConsistentPlayer: "",
                   mostWellPlayedMap: "",
                   averageStarRating: 0,
-                  nbMapsPlayedPerPlayer: [],
                   playersList: []
                 }
     let srList = [];
@@ -88,30 +109,64 @@ export default class MpStat implements BaseDiscordCommand {
       
       srList.push(Number(beatmap[0].difficulty.rating));
       for (const multiplayerScore of game.scores) {
-        await this.updatePlayerList(multiplayerScore['userId'], playersList) 
+        let counts = multiplayerScore['counts'];
+        await this.updatePlayerList(multiplayerScore['userId'], playersList, tools.accuracy(counts['300'], counts['100'], counts['50'], counts['miss'], counts['geki'], counts['katu'], "osu")) 
       }
+      console.log(playersList);
     }
-    console.log(srList);
+
     stats.averageStarRating = srList.reduce(((previousSR, currentSR) => previousSR + currentSR), 0)/games.length;
+
+    let averageAccuracyInfo = this.retrieveAvgAccuracyInfo(playersList);
+    stats.averageAccuracyList = averageAccuracyInfo.avgAccuracyList;
+    stats.bestAccuracyPlayer = averageAccuracyInfo.bestAvgAccPlayer;
+    stats.bestAvgAccuracy = averageAccuracyInfo.bestAvgAcc;
     stats.playersList = playersList;
     
 
     return stats;
   }
 
-  async updatePlayerList(userId: Number, playersList: any[]) {
+  retrieveAvgAccuracyInfo(playersList: any[]) {
+    let res = {
+      bestAvgAccPlayer: "",
+      bestAvgAcc: 0,
+      avgAccuracyList: []
+    }
+
+    for (const player of playersList) {
+      let currentAccList = player['accuracyList'];
+      let avgAcc = player['accuracyList'].reduce(((previousAcc, currentAcc) => previousAcc + currentAcc), 0)/currentAccList.length;
+      avgAcc = Number(avgAcc.toPrecision(4));
+      res['avgAccuracyList'].push(avgAcc);
+
+      if (avgAcc > res['bestAvgAcc']) {
+        res['bestAvgAcc'] = avgAcc;
+        res['bestAvgAccPlayer'] = player['name']
+      }
+    }
+
+    return res;
+  }
+
+  async updatePlayerList(userId: Number, playersList: any[], accuracy: Number) {
+    console.log(accuracy);
     let userIdString = userId.toString();
+    let playerToUpdate;
     if (playersList.length == 0) {
       let user = await osu.getUser({ u: userIdString });
       playersList.push({
         id: userId,
-        name: user.name
+        name: user.name,
+        mapPlayedCounter: 0,
+        accuracyList: [accuracy]
       });
     } else {
       let found = 0;
       for (const player of playersList) {
         if (player['id'] == userId) {
           found++;
+          playerToUpdate = player;
         }
       }
 
@@ -119,8 +174,14 @@ export default class MpStat implements BaseDiscordCommand {
         let user = await osu.getUser({ u: userIdString });
         playersList.push({
           id: userId,
-          name: user.name
+          name: user.name,
+          mapPlayedCounter: 0,
+          accuracyList: [accuracy]
         });
+      } else {
+        playerToUpdate.accuracyList.push(accuracy);
+        playerToUpdate.mapPlayedCounter = Number(playerToUpdate.mapPlayedCounter)+1;
+
       }
     }
   }
