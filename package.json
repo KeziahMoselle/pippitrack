@@ -22,6 +22,7 @@
     "fastify": "^3.20.0",
     "node-osu": "^2.2.1",
     "ordr.js": "^3.2.0",
+    "osu-api-extended": "^2.0.8",
     "p-memoize": "^4.0.1",
     "typescript": "^4.3.5"
   },
