@@ -23,7 +23,8 @@ export default class MpStat implements BaseDiscordCommand {
       .setDescription('Analyzed data for MP with ID: '+matchId)
       .addFields(
         { name: 'Duration', value: matchLength },
-        { name: 'Players', value: this.formatPlayerList(stats), inline: true }
+        { name: 'Players', value: this.formatPlayerList(stats.playersList), inline: true },
+        { name: 'Favourite Mod', value: stats.FavouriteMod }
       )
 
     return message.channel.send(embed);
@@ -76,20 +77,62 @@ export default class MpStat implements BaseDiscordCommand {
                   mostWellPlayedMap: "",
                   FavouriteMod: "",
                   averageStarRating: 0,
-                  nbMapsPlayedPerPlayer: []
+                  nbMapsPlayedPerPlayer: [],
+                  playersList: []
                 }
     let srList = new Array();
     let playersList = new Array();
     let mostWellPlayedMap = "";
-    let modCounter = {NM: 0, HR: 0, DT: 0, HD: 0, EZ: 0};
+    let modCounter = {"NM": 0, "HR": 0, "DT": 0, "HD": 0, "EZ": 0};
     for (const game of games) {
       let beatmap = await osu.getBeatmaps({ b: game.beatmapId });
       srList.push(beatmap[0].difficulty.rating)
       for (const multiplayerScore of game.scores) {
         await this.updatePlayerList(multiplayerScore['userId'], playersList)
+        console.log(multiplayerScore['score']);
+        let score = await osu.getScores({ b: multiplayerScore['score'] }) 
+        console.log(score);
+        this.computeMod(score['mods'], modCounter)
       }
     }
-    return playersList;
+
+    stats.FavouriteMod = this.getFavouriteMod(modCounter);
+    stats.playersList = playersList;
+    
+
+    return stats;
+  }
+
+  computeMod(mods, modCounter) {
+    for (const mod of mods) {
+      switch (mod) {
+        case 'None':
+          modCounter["NM"]++;
+        case 'HardRock':
+          modCounter["HR"]++;
+          break;
+        case 'DoubleTime':
+          modCounter["DT"]++;
+          break;
+        case  'Hidden':
+          modCounter["HD"]++;
+        case 'Easy':
+          modCounter["EZ"]++;
+      }
+    }
+  }
+
+  getFavouriteMod(modCounter) {
+    let max = 0;
+    let chosenMod;
+    for(let mod in modCounter) {
+      if (modCounter[mod] > max) {
+        max = modCounter[mod];
+        chosenMod = mod;
+      }
+    }
+
+    return chosenMod;
   }
 
   async updatePlayerList(userId: Number, playersList: any[]) {
