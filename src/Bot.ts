@@ -5,6 +5,7 @@ import getPrefixes from './utils/getPrefixes'
 import { defaultPrefix } from './config'
 import prefixes from './libs/prefixes'
 import { BaseDiscordCommand } from './types'
+import MpStat from './commands/MpStat'
 
 export default class Bot {
   apiKey = '' // Discord API Key
@@ -15,6 +16,8 @@ export default class Bot {
   commands = new Collection<string, BaseDiscordCommand>()
 
   onReady = null
+
+  MpStat = new MpStat()
 
   constructor (client: Client, apiKey: string) {
     this.client = client
@@ -53,7 +56,10 @@ export default class Bot {
 
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
 
-    if (!message.content.startsWith(prefix)) return
+    if (message.content.startsWith(prefix)) {
+      this.runCommand(message, prefix)
+      return
+    }
 
     const embed = new MessageEmbed()
       .setTitle('Migrating to slash commands')
