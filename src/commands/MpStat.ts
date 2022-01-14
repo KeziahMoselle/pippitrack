@@ -17,31 +17,55 @@ export default class MpStat implements BaseDiscordCommand {
     const matchLength = this.getMatchLength(match.start, match.end);
     const stats = await this.getStatsFromGames(match.games);
 
-    const embed = new MessageEmbed()
+    let formattedPlayerList = this.formatPlayerList(stats.playersList);
+
+    const generalEmbed = new MessageEmbed()
       .setColor('#0099ff')
       .setTitle('MP Link Analyzed')
       .setURL(this.getMatchURL(message.content))
       .setDescription('Analyzed data for MP with ID: '+matchId)
       .addFields(
         { name: 'Duration', value: matchLength, inline:true },
-        { name: 'Average SR', value: stats.averageStarRating.toPrecision(3), inline: true })
+        { name: 'Average SR', value: stats.averageStarRating.toPrecision(3), inline: true },
+        { name: '\u200B', value: '\u200B' })
       .addFields(
-        { name: 'Players', value: this.formatPlayerList(stats.playersList) },
-        { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList) },
-        { name: 'Average Accuracy', value: this.formatAccuracyList(stats.averageAccuracyList) }
-      )
-      .addFields(
-        { name: 'Best accuracy player', value: stats.bestAccuracyPlayer + " " + stats.bestAvgAccuracy, inline:true },
-      )
-    return message.channel.send(embed);
+        { name: 'Players', value: formattedPlayerList, inline: true },
+        { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList), inline: true })
+    
+    const performanceEmbed = new MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle("Lobby's performance")
+        .addFields(
+          { name: 'Players', value: formattedPlayerList, inline: true },
+          { name: 'Average Accuracy', value: this.formatAccuracyList(stats.averageAccuracyList), inline: true },
+          { name: 'Consistency Rate', value: this.formatConsistencyRate(stats.averageConsistencyList), inline: true }
+        )
+    const mostPerformEmbed = new MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Most performant players')
+        .addFields(
+          { name: 'Best accuracy player', value: stats.bestAccuracyPlayer + " " + stats.bestAvgAccuracy+"%", inline:true },
+          { name: 'Most consistent player', value: stats.mostConsistentPlayer + " with a " + stats.bestConsistencyRate + "% combo rate",  inline:true },
+        )
+    message.channel.send(generalEmbed);
+    message.channel.send(performanceEmbed);
+    return message.channel.send(mostPerformEmbed);
 
 
+  }
+
+  formatConsistencyRate(consistencyRates) {
+    let res = "";
+    for (const consistencyRate of consistencyRates) {
+      res+=consistencyRate+"%\n";
+    }
+    return res;
   }
 
   formatAccuracyList(averageAccuracyList) {
     let res = "";
     for (const avgAcc of averageAccuracyList) {
-      res+=avgAcc+"\n";
+      res+=avgAcc+"%\n";
     }
     return res;
   }
@@ -97,6 +121,7 @@ export default class MpStat implements BaseDiscordCommand {
                   bestAvgAccuracy: 0,
                   averageConsistencyList: [], 
                   mostConsistentPlayer: "",
+                  bestConsistencyRate: 0,
                   mostWellPlayedMap: "",
                   averageStarRating: 0,
                   playersList: []
@@ -110,21 +135,53 @@ export default class MpStat implements BaseDiscordCommand {
       srList.push(Number(beatmap[0].difficulty.rating));
       for (const multiplayerScore of game.scores) {
         let counts = multiplayerScore['counts'];
-        await this.updatePlayerList(multiplayerScore['userId'], playersList, tools.accuracy(counts['300'], counts['100'], counts['50'], counts['miss'], counts['geki'], counts['katu'], "osu")) 
+        await this.updatePlayerList(multiplayerScore['userId'], 
+                                    playersList, 
+                                    tools.accuracy(counts['300'], counts['100'], counts['50'], counts['miss'], counts['geki'], counts['katu'], "osu"),
+                                    multiplayerScore['maxCombo'],
+                                    beatmap[0].maxCombo
+                                  ) 
       }
-      console.log(playersList);
     }
 
     stats.averageStarRating = srList.reduce(((previousSR, currentSR) => previousSR + currentSR), 0)/games.length;
 
     let averageAccuracyInfo = this.retrieveAvgAccuracyInfo(playersList);
+    let consistencyInfo = this.retrieveConsistencyInfo(playersList);
+
     stats.averageAccuracyList = averageAccuracyInfo.avgAccuracyList;
     stats.bestAccuracyPlayer = averageAccuracyInfo.bestAvgAccPlayer;
     stats.bestAvgAccuracy = averageAccuracyInfo.bestAvgAcc;
+
+    stats.averageConsistencyList = consistencyInfo.avgConsistencyRatesList;
+    stats.mostConsistentPlayer = consistencyInfo.mostConsistentPlayer;
+    stats.bestConsistencyRate = consistencyInfo.bestConsistencyRate;
+
     stats.playersList = playersList;
     
 
     return stats;
+  }
+
+  retrieveConsistencyInfo(playersList: any[]) {
+    let res = {
+      avgConsistencyRatesList : [],
+      mostConsistentPlayer: "",
+      bestConsistencyRate: 0
+    }
+
+    for (const player of playersList) {
+      let currentConsistencyRates = player['consistencyRates'];
+      let avgConsistencyRate = player['consistencyRates'].reduce(((previousRate, currentRate) => previousRate + currentRate), 0)/currentConsistencyRates.length;
+      avgConsistencyRate = Number(avgConsistencyRate.toPrecision(4));
+      res['avgConsistencyRatesList'].push(avgConsistencyRate);
+      if (avgConsistencyRate > res['bestConsistencyRate']) {
+        res['bestConsistencyRate'] = avgConsistencyRate;
+        res['mostConsistentPlayer'] = player['name']
+      }
+    }
+
+    return res;
   }
 
   retrieveAvgAccuracyInfo(playersList: any[]) {
@@ -149,8 +206,7 @@ export default class MpStat implements BaseDiscordCommand {
     return res;
   }
 
-  async updatePlayerList(userId: Number, playersList: any[], accuracy: Number) {
-    console.log(accuracy);
+  async updatePlayerList(userId: Number, playersList: any[], accuracy: Number, playerCombo: Number, beatmapMaxCombo: Number) {
     let userIdString = userId.toString();
     let playerToUpdate;
     if (playersList.length == 0) {
@@ -159,7 +215,8 @@ export default class MpStat implements BaseDiscordCommand {
         id: userId,
         name: user.name,
         mapPlayedCounter: 0,
-        accuracyList: [accuracy]
+        accuracyList: [accuracy],
+        consistencyRates: [(Number(playerCombo)/Number(beatmapMaxCombo))*100]
       });
     } else {
       let found = 0;
@@ -176,10 +233,12 @@ export default class MpStat implements BaseDiscordCommand {
           id: userId,
           name: user.name,
           mapPlayedCounter: 0,
-          accuracyList: [accuracy]
+          accuracyList: [accuracy],
+          consistencyRates: []
         });
       } else {
         playerToUpdate.accuracyList.push(accuracy);
+        playerToUpdate.consistencyRates.push((Number(playerCombo)/Number(beatmapMaxCombo))*100);
         playerToUpdate.mapPlayedCounter = Number(playerToUpdate.mapPlayedCounter)+1;
 
       }
