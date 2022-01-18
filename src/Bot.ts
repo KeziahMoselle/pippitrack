@@ -225,4 +225,23 @@ export default class Bot {
       console.error('Error while connecting to Discord :', error)
     }
   }
+
+  parseFlaggedArgs (args: string[]) {
+    const parsedArgs = {}
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith('-')) {
+        const nextArg = args[i + 1]
+        if (nextArg) {
+          if (nextArg.startsWith('-')) {
+            parsedArgs[args[i].slice(1)] = args[i]
+          } else {
+            parsedArgs[args[i].slice(1)] = args[i + 1]
+          }
+        } else {
+          parsedArgs[args[i].slice(1)] = args[i]
+        }
+      }
+    }
+    return parsedArgs
+  }
 }

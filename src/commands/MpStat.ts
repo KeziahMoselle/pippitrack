@@ -2,48 +2,62 @@ import { Message, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import { osu } from '../libs/osu'
 import { Game } from 'node-osu'
-import { tools } from 'osu-api-extended'
+import { mods, tools } from 'osu-api-extended'
 
 export default class MpStat implements BaseDiscordCommand {
   name = 'mpstat'
-  arguments = []
+  arguments = ['wu']
   description = 'Analyze and show useful information about an osu!multiplayer match'
   category = 'osu'
 
   MP_REGEX = /\/matches\/(?<matchId>\d*)/
 
-  async run (message: Message, args?: string[]): Promise<Message> {
-    console.log(args)
+  async run (message: Message, args?: string[], flags?): Promise<Message> {
+    let flagsToProceed
+    if (flags) {
+      flagsToProceed = this.checkingFlags(Object.keys(flags))
+    }
+    let res
+    if (flagsToProceed) {
+      res = this.areFlagsExecutable(flags, flagsToProceed)
+      if (res.error) {
+        return message.channel.send(res.error)
+      }
+    }
     const matchId = this.parseMatchId(message)
     const match = (await osu.getMatch({ mp: matchId }))
 
     const matchLength = this.getMatchLength(match.start, match.end)
-    const stats = await this.getStatsFromGames(match.games)
-
+    const stats = await this.getStatsFromGames(match.games, res ? res.wu : 0)
     const formattedPlayerList = this.formatPlayerList(stats.playersList)
+    const mpStartDate = new Date(match.raw_start)
+    const dateAccordingToTimezone = (mpStartDate.getTime() / 1000) + mpStartDate.getTimezoneOffset() * 60
 
     const generalEmbed = new MessageEmbed()
       .setColor('#0099ff')
       .setTitle('MP Link Analyzed')
       .setURL(this.getMatchURL(message.content))
-      .setDescription('Analyzed data for MP with ID: ' + matchId)
-      .addFields(
-        { name: 'Duration', value: matchLength },
-        { name: 'Players', value: formattedPlayerList, inline: true },
-        { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList), inline: true }
-      )
+      .setDescription('Match played <t:' + dateAccordingToTimezone.toString() + ':R>')
+      .addField('Duration', matchLength, false)
+    if (stats.deletedMaps > 0) {
+      generalEmbed.addField('Disclaimer', stats.deletedMaps + (stats.deletedMaps === 1 ? ' map has' : ' maps have') + ' been deleted since the multiplayer lobby and therefore not counted', false)
+    }
+    generalEmbed.addFields(
+      { name: 'Players', value: formattedPlayerList, inline: true },
+      { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList), inline: true }
+    )
     const SREmbed = new MessageEmbed()
-      .setColor('#0099ff')
+      .setColor('#33ff3f')
       .setTitle('Star Rating')
       .addFields(
-        { name: 'Average SR', value: stats.avgSR, inline: true },
-        { name: 'Min SR', value: stats.minSR, inline: true },
-        { name: 'Max SR', value: stats.maxSR, inline: true }
+        { name: 'Average SR', value: stats.avgSR + ' :star:', inline: true },
+        { name: 'Min SR', value: stats.minSR + ' :star:', inline: true },
+        { name: 'Max SR', value: stats.maxSR + ' :star:', inline: true }
       )
 
     const BPMEmbed = new MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle('BPM')
+      .setColor('#ff0000')
+      .setTitle('BPM :musical_note:')
       .addFields(
         { name: 'Average BPM', value: stats.avgBPM, inline: true },
         { name: 'Min BPM ', value: stats.minBPM, inline: true },
@@ -51,19 +65,20 @@ export default class MpStat implements BaseDiscordCommand {
       )
 
     const performanceEmbed = new MessageEmbed()
-      .setColor('#0099ff')
+      .setColor('#f700ff')
       .setTitle("Lobby's performance")
       .addFields(
         { name: 'Players', value: formattedPlayerList, inline: true },
-        { name: 'Average Accuracy', value: this.formatAccuracyList(stats.averageAccuracyList), inline: true },
-        { name: 'Consistency Rate', value: this.formatConsistencyRate(stats.averageConsistencyList), inline: true }
+        { name: 'Average Accuracy', value: this.formatPercentage(stats.averageAccuracyList), inline: true },
+        { name: 'Consistency Rate*', value: this.formatPercentage(stats.averageConsistencyList), inline: true }
       )
+      .setFooter('* Consistency Rate is about how well you got combo on a map.\nThe value shown is the average of every consistency rates you got.\n')
     const mostPerformEmbed = new MessageEmbed()
-      .setColor('#0099ff')
+      .setColor('#9300ff')
       .setTitle('Most performant players')
       .addFields(
-        { name: 'Best accuracy player', value: stats.bestAccuracyPlayer + ' ' + stats.bestAvgAccuracy + '%', inline: true },
-        { name: 'Most consistent player', value: stats.mostConsistentPlayer + ' with a ' + stats.bestConsistencyRate + '% combo rate', inline: true }
+        { name: 'Best accuracy player', value: '**' + stats.bestAccuracyPlayer + ' **' + stats.bestAvgAccuracy + '%', inline: true },
+        { name: 'Most consistent player', value: '**' + stats.mostConsistentPlayer + '** with a ' + stats.bestConsistencyRate + '% combo rate', inline: true }
       )
     await message.channel.send(generalEmbed)
     await message.channel.send(SREmbed)
@@ -72,18 +87,39 @@ export default class MpStat implements BaseDiscordCommand {
     return message.channel.send(mostPerformEmbed)
   }
 
-  formatConsistencyRate (consistencyRates): string {
-    let res = ''
-    for (const consistencyRate of consistencyRates) {
-      res += consistencyRate + '%\n'
+  checkingFlags (flags : any[]) : string[] {
+    const flagsToProceed = []
+    flags.forEach(flag => {
+      const flagToProceed = this.arguments.find(argument => argument === flag)
+      if (flagToProceed) {
+        flagsToProceed.push(flagToProceed)
+      }
+    })
+    return flagsToProceed
+  }
+
+  areFlagsExecutable (flags, flagsToProceed: string[]) {
+    const res = {
+      error: '',
+      wu: 0
     }
+    flagsToProceed.forEach(flagToProceed => {
+      switch (flagToProceed) {
+        case 'wu':
+          if (isNaN(parseInt(flags[flagToProceed]))) {
+            res.error = '-wu : Warm-Up count must be a number'
+          } else {
+            res[flagToProceed] = parseInt(flags[flagToProceed])
+          }
+      }
+    })
     return res
   }
 
-  formatAccuracyList (averageAccuracyList): string {
+  formatPercentage(percentageList) {
     let res = ''
-    for (const avgAcc of averageAccuracyList) {
-      res += avgAcc + '%\n'
+    for (const percentage of percentageList) {
+      res += percentage + '%\n'
     }
     return res
   }
@@ -91,7 +127,7 @@ export default class MpStat implements BaseDiscordCommand {
   formatPlayerList (playersList): string {
     let res = ''
     for (const player of playersList) {
-      res += player.name + '\n'
+      res += '**' + player.name + '**\n'
     }
     return res
   }
@@ -114,25 +150,15 @@ export default class MpStat implements BaseDiscordCommand {
   }
 
   getMatchLength (startTime: Date, endTime: Date) {
-    const start = { h: startTime.getHours(), m: startTime.getMinutes(), s: startTime.getSeconds() }
-    const end = { h: endTime.getHours(), m: endTime.getMinutes(), s: endTime.getSeconds() }
-
-    const hTotal = (end.h - start.h)
-    const mTotal = (end.m - start.m)
-    const sTotal = (end.s - start.s)
-    const totalLength = {
-      h: hTotal,
-      m: mTotal < 0 ? mTotal * -1 : mTotal,
-      s: sTotal < 0 ? sTotal * -1 : sTotal
-    }
-
-    const res = (totalLength.h < 10 ? '0' : '') + totalLength.h + 'h' +
-            totalLength.m + (totalLength.m === 1 ? 'min' : 'mins') +
-            totalLength.s + 's'
+    const ms = endTime.getTime() - startTime.getTime()
+    const h = Math.floor(ms / 3600000)
+    const m = Math.floor((ms / 3600000 - h) * 60)
+    const s = Math.floor((((ms / 3600000 - h) * 60) - m) * 60)
+    const res = (h < 10 ? '0' + h : h) + 'h' + (m < 10 ? '0' + m : m) + (m < 1 ? 'min' : 'mins') + (s < 10 ? '0' + s : s) + 's'
     return res
   }
 
-  async getStatsFromGames (games: Game[]) {
+  async getStatsFromGames (games: Game[], warmUpCount: number) {
     const stats = {
       averageAccuracyList: [],
       bestAccuracyPlayer: '',
@@ -147,38 +173,37 @@ export default class MpStat implements BaseDiscordCommand {
       maxSR: 0,
       avgBPM: 0,
       minBPM: 0,
-      maxBPM: 0
+      maxBPM: 0,
+      deletedMaps: 0
     }
     const srList = []
     const bpmList = []
     const playersList = []
+    const modCount = {}
     const mostWellPlayedMap = ''
 
     const beatmapsFetches = games.map(game => osu.getBeatmaps({ b: game.beatmapId }))
-
     const beatmaps = (await Promise.all(beatmapsFetches))
       .map(beatmap => beatmap[0])
+    for (const game of games.slice(warmUpCount)) {
+      const beatmap = beatmaps.find(beatmap => beatmap ? beatmap.id === game.beatmapId : undefined)
+      if (beatmap) {
+        srList.push(Number(beatmap.difficulty.rating))
+        bpmList.push(Number(beatmap.bpm))
 
-    for (const beatmap of beatmaps) {
-      srList.push(Number(beatmap.difficulty.rating))
-      bpmList.push(Number(beatmap.bpm))
-    }
-
-    for (const game of games) {
-      const beatmap = beatmaps.find(beatmap => beatmap.id === game.beatmapId)
-
-      const playerFetches = game.scores.map(multiplayerScore => {
-        const counts = multiplayerScore['counts']
-
-        return this.updatePlayerList(multiplayerScore['userId'],
-          playersList,
-          tools.accuracy(counts['300'], counts['100'], counts['50'], counts.miss, counts.geki, counts.katu, 'osu'),
-          multiplayerScore['maxCombo'],
-          beatmap.maxCombo
-        )
-      })
-
-      await Promise.all(playerFetches)
+        const playerFetches = game.scores.map(multiplayerScore => {
+          const counts = multiplayerScore['counts']
+          return this.updatePlayerList(multiplayerScore['userId'],
+            playersList,
+            tools.accuracy(counts['300'], counts['100'], counts['50'], counts.miss, counts.geki, counts.katu, 'osu'),
+            multiplayerScore['maxCombo'],
+            beatmap.maxCombo
+          )
+        })
+        await Promise.all(playerFetches)
+      } else {
+        stats.deletedMaps++
+      }
     }
     const averageAccuracyInfo = this.retrieveAvgAccuracyInfo(playersList)
     const consistencyInfo = this.retrieveConsistencyInfo(playersList)
