@@ -66,24 +66,35 @@ export default class MpStat implements BaseDiscordCommand {
 
     const performanceEmbed = new MessageEmbed()
       .setColor('#f700ff')
-      .setTitle("Lobby's performance")
+      .setTitle("Lobby's performance (1)")
       .addFields(
         { name: 'Players', value: formattedPlayerList, inline: true },
         { name: 'Average Accuracy', value: this.formatPercentage(stats.averageAccuracyList), inline: true },
         { name: 'Consistency Rate*', value: this.formatPercentage(stats.averageConsistencyList), inline: true }
       )
       .setFooter('* Consistency Rate is about how well you got combo on a map.\nThe value shown is the average of every consistency rates you got.\n')
+    
+    const missEmbed = new MessageEmbed()
+      .setColor('#f700ff')
+      .setTitle("Lobby's performance (2)")
+      .addFields(
+        { name: 'Average misses during the lobby', value: stats.avgMissOverall },
+        { name: 'Player', value: formattedPlayerList, inline: true },
+        { name: 'Average misses', value: this.formatAvgMiss(stats.avgPlayersMiss), inline: true }
+      )
+
     const mostPerformEmbed = new MessageEmbed()
       .setColor('#9300ff')
       .setTitle('Most performant players')
       .addFields(
-        { name: 'Best accuracy player', value: '**' + stats.mostAccuratePlayer + '**' + stats.bestAvgAccuracy + '%', inline: true },
+        { name: 'Best accuracy player', value: '**' + stats.mostAccuratePlayer + '** ' + stats.bestAvgAccuracy + '%', inline: true },
         { name: 'Most consistent player', value: '**' + stats.mostConsistentPlayer + '** with a ' + stats.bestConsistencyRate + '% combo rate', inline: true }
       )
     await message.channel.send(generalEmbed)
     await message.channel.send(SREmbed)
     await message.channel.send(BPMEmbed)
     await message.channel.send(performanceEmbed)
+    await message.channel.send(missEmbed)
     return message.channel.send(mostPerformEmbed)
   }
 
@@ -142,6 +153,14 @@ export default class MpStat implements BaseDiscordCommand {
     return res
   }
 
+  formatAvgMiss(avgMissesList): string {
+    let res = ''
+    for (const avgMisses of avgMissesList) {
+      res += avgMisses + '\n'
+    }
+    return res
+  }
+
   getMatchURL (content: string) : string {
     return content.split(' ')[1]
   }
@@ -170,6 +189,8 @@ export default class MpStat implements BaseDiscordCommand {
       bestConsistencyRate: 0,
       mostWellPlayedMap: '',
       playersList: [],
+      avgPlayersMiss: [],
+      avgMissOverall: 0,
       avgSR: 0,
       minSR: 0,
       maxSR: 0,
@@ -199,7 +220,8 @@ export default class MpStat implements BaseDiscordCommand {
             playersList,
             tools.accuracy(counts['300'], counts['100'], counts['50'], counts.miss, counts.geki, counts.katu, 'osu'),
             multiplayerScore['maxCombo'],
-            beatmap.maxCombo
+            beatmap.maxCombo,
+            counts.miss
           )
         })
         await Promise.all(playerFetches)
@@ -218,12 +240,16 @@ export default class MpStat implements BaseDiscordCommand {
     stats.mostConsistentPlayer = consistencyInfo.most
     stats.bestConsistencyRate = consistencyInfo.best
 
-    const BPMInfo = this.retrieveBasicStatsInfos(bpmList)
+    const missInfos = this.getMissInfos(playersList)
+    stats.avgMissOverall = missInfos.avgOverallMisses
+    stats.avgPlayersMiss = missInfos.avgPlayersMisses
+
+    const BPMInfo = this.getBasicStatsInfos(bpmList)
     stats.avgBPM = Number(BPMInfo.avg.toFixed(2))
     stats.minBPM = BPMInfo.min
     stats.maxBPM = BPMInfo.max
 
-    const SRInfo = this.retrieveBasicStatsInfos(srList)
+    const SRInfo = this.getBasicStatsInfos(srList)
     stats.avgSR = Number(SRInfo.avg.toPrecision(3))
     stats.maxSR = Number(SRInfo.max.toPrecision(3))
     stats.minSR = Number(SRInfo.min.toPrecision(3))
@@ -233,7 +259,7 @@ export default class MpStat implements BaseDiscordCommand {
     return stats
   }
 
-  retrieveBasicStatsInfos (infos: any[]) {
+  getBasicStatsInfos (infos: any[]) {
     const res = {
       avg: 0,
       max: 0,
@@ -278,11 +304,28 @@ export default class MpStat implements BaseDiscordCommand {
     return res
   }
 
-  getAvgFromList (list: any[]) {
-    return list.reduce((prev, cur) => prev + cur, 0) / list.length
+  getMissInfos(playerList: any[]) {
+    const missInfos = {
+      avgOverallMisses: 0,
+      avgPlayersMisses: []
+    }
+
+    playerList.forEach((player) => {
+      const avgPlayerMiss = Number(this.getAvgFromList(player.misses).toFixed(2))
+      missInfos.avgOverallMisses = Number(missInfos.avgOverallMisses) + Number(avgPlayerMiss)
+      missInfos.avgPlayersMisses.push(avgPlayerMiss)
+    })
+
+    missInfos.avgOverallMisses = Number((Number(missInfos.avgOverallMisses) / Number(playerList.length)).toFixed(2))
+
+    return missInfos
   }
 
-  async updatePlayerList (userId: number, playersList: any[], accuracy: number, playerCombo: number, beatmapMaxCombo: number) {
+  getAvgFromList (list: any[]) {
+    return list.reduce((prev, cur) => Number(prev) + Number(cur), 0) / list.length
+  }
+
+  async updatePlayerList (userId: number, playersList: any[], accuracy: number, playerCombo: number, beatmapMaxCombo: number, missOnTheMap: number) {
     const playerToUpdate = playersList.find(player => player.id === userId)
     if (!playerToUpdate) {
       const user = await osu.getUser({ u: userId.toString() })
@@ -291,10 +334,12 @@ export default class MpStat implements BaseDiscordCommand {
         name: user.name,
         mapPlayedCounter: 1,
         accuracyList: [accuracy],
-        consistencyRates: [(Number(playerCombo) / Number(beatmapMaxCombo)) * 100]
+        consistencyRates: [(Number(playerCombo) / Number(beatmapMaxCombo)) * 100],
+        misses: [missOnTheMap]
       })
     } else {
       playerToUpdate.accuracyList.push(accuracy)
+      playerToUpdate.misses.push(missOnTheMap)
       playerToUpdate.consistencyRates.push((Number(playerCombo) / Number(beatmapMaxCombo)) * 100)
       playerToUpdate.mapPlayedCounter = Number(playerToUpdate.mapPlayedCounter) + 1
     }
