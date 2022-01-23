@@ -77,7 +77,7 @@ export default class MpStat implements BaseDiscordCommand {
       .setColor('#9300ff')
       .setTitle('Most performant players')
       .addFields(
-        { name: 'Best accuracy player', value: '**' + stats.bestAccuracyPlayer + ' **' + stats.bestAvgAccuracy + '%', inline: true },
+        { name: 'Best accuracy player', value: '**' + stats.mostAccuratePlayer + '**' + stats.bestAvgAccuracy + '%', inline: true },
         { name: 'Most consistent player', value: '**' + stats.mostConsistentPlayer + '** with a ' + stats.bestConsistencyRate + '% combo rate', inline: true }
       )
     await message.channel.send(generalEmbed)
@@ -111,6 +111,8 @@ export default class MpStat implements BaseDiscordCommand {
           } else {
             res[flagToProceed] = parseInt(flags[flagToProceed])
           }
+          break
+        default:
       }
     })
     return res
@@ -161,7 +163,7 @@ export default class MpStat implements BaseDiscordCommand {
   async getStatsFromGames (games: Game[], warmUpCount: number) {
     const stats = {
       averageAccuracyList: [],
-      bestAccuracyPlayer: '',
+      mostAccuratePlayer: '',
       bestAvgAccuracy: 0,
       averageConsistencyList: [],
       mostConsistentPlayer: '',
@@ -205,23 +207,23 @@ export default class MpStat implements BaseDiscordCommand {
         stats.deletedMaps++
       }
     }
-    const averageAccuracyInfo = this.retrieveAvgAccuracyInfo(playersList)
-    const consistencyInfo = this.retrieveConsistencyInfo(playersList)
+    const averageAccuracyInfo = this.getBestAndAllPercentageFrom(playersList, 'accuracy')
+    const consistencyInfo = this.getBestAndAllPercentageFrom(playersList, 'consistency')
 
-    stats.averageAccuracyList = averageAccuracyInfo.avgAccuracyList
-    stats.bestAccuracyPlayer = averageAccuracyInfo.bestAvgAccPlayer
-    stats.bestAvgAccuracy = averageAccuracyInfo.bestAvgAcc
+    stats.averageAccuracyList = averageAccuracyInfo.avgList
+    stats.mostAccuratePlayer = averageAccuracyInfo.most
+    stats.bestAvgAccuracy = averageAccuracyInfo.best
 
-    stats.averageConsistencyList = consistencyInfo.avgConsistencyRatesList
-    stats.mostConsistentPlayer = consistencyInfo.mostConsistentPlayer
-    stats.bestConsistencyRate = consistencyInfo.bestConsistencyRate
+    stats.averageConsistencyList = consistencyInfo.avgList
+    stats.mostConsistentPlayer = consistencyInfo.most
+    stats.bestConsistencyRate = consistencyInfo.best
 
-    const BPMInfo = this.retrieveGeneralInfos(bpmList)
+    const BPMInfo = this.retrieveBasicStatsInfos(bpmList)
     stats.avgBPM = Number(BPMInfo.avg.toFixed(2))
     stats.minBPM = BPMInfo.min
     stats.maxBPM = BPMInfo.max
 
-    const SRInfo = this.retrieveGeneralInfos(srList)
+    const SRInfo = this.retrieveBasicStatsInfos(srList)
     stats.avgSR = Number(SRInfo.avg.toPrecision(3))
     stats.maxSR = Number(SRInfo.max.toPrecision(3))
     stats.minSR = Number(SRInfo.min.toPrecision(3))
@@ -231,7 +233,7 @@ export default class MpStat implements BaseDiscordCommand {
     return stats
   }
 
-  retrieveGeneralInfos (infos: any[]) {
+  retrieveBasicStatsInfos (infos: any[]) {
     const res = {
       avg: 0,
       max: 0,
@@ -240,53 +242,44 @@ export default class MpStat implements BaseDiscordCommand {
 
     res.max = infos.reduce((previous, current) => { return previous > current ? previous : current })
     res.min = infos.reduce((previous, current) => { return previous < current ? previous : current })
-    res.avg = infos.reduce((previous, current) => previous + current, 0) / infos.length
+    res.avg = this.getAvgFromList(infos)
     return res
   }
 
-  retrieveConsistencyInfo (playersList: any[]) {
+  getBestAndAllPercentageFrom (playersList: any[], statToTakeCare: string) {
     const res = {
-      avgConsistencyRatesList: [],
-      mostConsistentPlayer: '',
-      bestConsistencyRate: 0
+      avgList: [],
+      most: '',
+      best: 0
     }
 
     for (const player of playersList) {
-      const currentConsistencyRates = player.consistencyRates
-      let avgConsistencyRate = player.consistencyRates.reduce((previousRate, currentRate) => previousRate + currentRate, 0) / currentConsistencyRates.length
-      avgConsistencyRate = Number(avgConsistencyRate.toPrecision(4))
+      let currentList
+      let avg
+      switch (statToTakeCare) {
+        case 'consistency':
+          currentList = player.consistencyRates
+          break
+        case 'accuracy':
+          currentList = player.accuracyList
+          break
+        default:
+      }
+      avg = this.getAvgFromList(currentList)
+      avg = Number(avg.toPrecision(4))
+      res.avgList.push(avg)
 
-      res.avgConsistencyRatesList.push(avgConsistencyRate)
-
-      if (avgConsistencyRate > res.bestConsistencyRate) {
-        res.bestConsistencyRate = avgConsistencyRate
-        res.mostConsistentPlayer = player.name
+      if (avg > res.best) {
+        res.best = avg
+        res.most = player.name
       }
     }
 
     return res
   }
 
-  retrieveAvgAccuracyInfo (playersList: any[]) {
-    const res = {
-      bestAvgAccPlayer: '',
-      bestAvgAcc: 0,
-      avgAccuracyList: []
-    }
-
-    for (const player of playersList) {
-      const currentAccList = player.accuracyList
-      let avgAcc = player.accuracyList.reduce((previousAcc, currentAcc) => previousAcc + currentAcc, 0) / currentAccList.length
-      avgAcc = Number(avgAcc.toPrecision(4))
-      res.avgAccuracyList.push(avgAcc)
-
-      if (avgAcc > res.bestAvgAcc) {
-        res.bestAvgAcc = avgAcc
-        res.bestAvgAccPlayer = player.name
-      }
-    }
-
-    return res
+  getAvgFromList (list: any[]) {
+    return list.reduce((prev, cur) => prev + cur, 0) / list.length
   }
 
   async updatePlayerList (userId: number, playersList: any[], accuracy: number, playerCombo: number, beatmapMaxCombo: number) {
