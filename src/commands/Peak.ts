@@ -5,6 +5,7 @@ import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import getRankAchievements from '../utils/getRankAchievements'
 import { BaseDiscordCommand } from '../types'
+import getOsuAvatar from '../utils/getOsuAvatar'
 
 export default class PeakCommand implements BaseDiscordCommand {
   name = 'peak'
@@ -40,7 +41,7 @@ export default class PeakCommand implements BaseDiscordCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`Peak stats for : ${user.name}`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setThumbnail(getOsuAvatar(user.id))
         .addField('Max rank', `#${rank}`, true)
         .addField('Best accuracy', `${bestAccuracy}%`, true)
         .setFooter(

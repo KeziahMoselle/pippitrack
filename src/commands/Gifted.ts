@@ -2,6 +2,7 @@ import { Message, MessageEmbed } from 'discord.js'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import { BaseDiscordCommand } from '../types'
+import getOsuAvatar from '../utils/getOsuAvatar'
 
 export default class RecentScoreCommand implements BaseDiscordCommand {
   name = 'gifted'
@@ -25,7 +26,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     )
 
     const embed = new MessageEmbed()
-      .setAuthor(user.name, `http://s.ppy.sh/a/${user.id}`)
+      .setAuthor(user.name, getOsuAvatar(user.id))
 
     if (score <= 0.5) {
       embed.setTitle('It seems you are enjoying the game.')

@@ -4,10 +4,12 @@ import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import getEmoji from '../utils/getEmoji'
 import { User } from 'node-osu'
+import getOsuAvatar from '../utils/getOsuAvatar'
 
 interface UpdateData {
   embed: MessageEmbed
   status: 'first' | 'no_change' | 'update'
+  embedMessage: string
 }
 
 class OsuTrack {
@@ -28,10 +30,13 @@ class OsuTrack {
         .eq('osu_id', user.id)
         .single()
 
+      let embedMessage = ''
+
       if (data?.updated_at) {
-        embed.setFooter('Last updated').setTimestamp(data.updated_at)
+        const unixTimestamp = Math.trunc(new Date(data?.updated_at).getTime() / 1000)
+        embedMessage = `Last update <t:${unixTimestamp}:R>`
       } else {
-        embed.setFooter('First update !').setTimestamp()
+        embedMessage = 'First update!'
       }
 
       // This player hasn't been tracked
@@ -47,13 +52,14 @@ class OsuTrack {
 
         return {
           status: 'first',
-          embed
+          embed,
+          embedMessage
         }
       }
 
       embed
         .setTitle(`Changes since last update for ${user.name}`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setThumbnail(getOsuAvatar(user.id))
         .setURL(
           `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
         )
@@ -90,7 +96,8 @@ class OsuTrack {
 
         return {
           status: 'no_change',
-          embed
+          embed,
+          embedMessage
         }
       }
 
@@ -140,7 +147,8 @@ class OsuTrack {
 
       return {
         status: 'update',
-        embed
+        embed,
+        embedMessage
       }
     } catch (error) {
       console.error(error)

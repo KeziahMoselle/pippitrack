@@ -3,6 +3,7 @@ import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import { UsersStateRow } from '../types/db'
 import getEmoji from '../utils/getEmoji'
+import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
@@ -47,7 +48,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`${user.name}'s scores`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setThumbnail(getOsuAvatar(user.id))
         .setDescription(description)
         .addField('Ranked score', `
           ${intl.format(user.scores.ranked)}

@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
+import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
@@ -20,7 +21,7 @@ export default class LinkCommand implements BaseDiscordCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`${message.member.displayName} has been set to ${user.name}`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setThumbnail(getOsuAvatar(user.id))
         .addField('Rank', `#${user.pp.rank}`, true)
         .addField('mode', 'osu!', true)
         .setColor(11279474)

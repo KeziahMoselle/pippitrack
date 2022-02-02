@@ -7,6 +7,7 @@ import { defaultPrefix, maxTrackedUsersInGuild } from '../config'
 import prefixes from '../libs/prefixes'
 import { GuildRow } from '../types/db'
 import { BaseDiscordCommand } from '../types'
+import getOsuAvatar from '../utils/getOsuAvatar'
 
 export default class TrackCommand implements BaseDiscordCommand {
   name = 'track'
@@ -57,7 +58,7 @@ export default class TrackCommand implements BaseDiscordCommand {
         const embed = new MessageEmbed()
           .setTitle('Player already tracked')
           .setDescription(`**${user.name}** is already being tracked.`)
-          .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+          .setThumbnail(getOsuAvatar(user.id))
 
         const untrackBtn = new MessageButton()
           .setStyle('red')
@@ -158,7 +159,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           .addField('Discord Tag', message.member, true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)
           .addField('osu! rank', `#${user.pp.rank}`, true)
-          .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+          .setThumbnail(getOsuAvatar(user.id))
           .setColor(11279474)
 
         const trackBtn = new MessageButton()
@@ -196,7 +197,7 @@ export default class TrackCommand implements BaseDiscordCommand {
 
       const embed = new MessageEmbed()
         .setTitle(`Now tracking : ${user.name}`)
-        .setThumbnail(`http://s.ppy.sh/a/${user.id}`)
+        .setThumbnail(getOsuAvatar(user.id))
         .addField('Rank', `#${user.pp.rank}`, true)
         .addField('mode', 'osu!', true)
         .setColor(11279474)
