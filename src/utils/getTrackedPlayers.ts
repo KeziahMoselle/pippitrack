@@ -19,6 +19,8 @@ export default async function getTrackedPlayers (
   // @TODO Paginate them if there is too much to fetch
   let trackedPlayers = null
 
+  const guildsIds = client.guilds.cache.map(guild => guild.id)
+
   if (osuId) {
     const { data } = await supabase
       .from<DBUser>('tracked_users')
@@ -40,6 +42,10 @@ export default async function getTrackedPlayers (
   const uniqueTrackedPlayers: TrackedPlayers = {}
 
   for (const player of trackedPlayers) {
+    if (!guildsIds.includes(player.guild_id)) {
+      continue
+    }
+
     // Add the player to the unique list
     if (!uniqueTrackedPlayers[player.osu_id]) {
       uniqueTrackedPlayers[player.osu_id] = {
