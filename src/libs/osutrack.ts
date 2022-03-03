@@ -19,6 +19,10 @@ class OsuTrack {
     const user = osuUser || (await getUser({ id }))
     const embed = new MessageEmbed()
 
+    if (!user.pp.rank) {
+      return
+    }
+
     try {
       const { data: difference } = await axios.post(
         `${this.baseUrl}/get_changes.php?mode=0&user=${user.name}`
