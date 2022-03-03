@@ -33,6 +33,11 @@ export default function update (client: Client): CronJob {
         const newScores = await osuApiV2.getUserBestScores({
           id: player.osu_id
         })
+
+        if (!newScores) {
+          continue
+        }
+
         const newPlays = await getNewTopPlays(player, newScores)
 
         if (newPlays.length === 0) {
