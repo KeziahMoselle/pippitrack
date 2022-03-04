@@ -32,6 +32,8 @@ export default function update (client: Client): CronJob {
         // Get the new top plays from a player
         const newScores = await osuApiV2.getUserBestScores({
           id: player.osu_id
+        }).catch((error) => {
+          console.error('diffTopPlays, getUserBestScores error', error)
         })
 
         if (!newScores) {
