@@ -20,7 +20,11 @@ const RANK_EMOJIS = {
   diff_green: '<:green:949378988718043166>',
   diff_orange: '<:orange:949378988940333136>',
   diff_blue: '<:blue:949378988739010630>',
-  diff_black: '<:black:949378988684476416>'
+  diff_black: '<:black:949378988684476416>',
+  osu: '<:osu:949398794502549514>',
+  mania: '<:mania:949398794460606474>',
+  taiko: '<:taiko:949398794846474281>',
+  fruits: '<:fruits:949398794590646272>'
 }
 
 type Emojis =
@@ -31,7 +35,11 @@ type Emojis =
   'diff_green' |
   'diff_orange' |
   'diff_blue' |
-  'diff_black'
+  'diff_black' |
+  'osu' |
+  'mania' |
+  'taiko' |
+  'fruits'
 
 export default function getEmoji (rank: Rank | Emojis): string {
   const rankLetter = rank.toLowerCase()

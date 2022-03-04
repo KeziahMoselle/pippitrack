@@ -61,7 +61,7 @@ interface Beatmapset {
     'beatmapset_id': number,
     'difficulty_rating': number,
     'id': number,
-    'mode': string,
+    'mode': 'osu' | 'taiko' | 'fruits' | 'mania',
     'status': string,
     'total_length': number,
     'user_id': number,
@@ -97,8 +97,7 @@ export default function detectNewBeatmaps (client: Client): CronJob {
   const job = new CronJob({
     cronTime: EVERY_5_MINUTES,
     onTick: newBeatmaps,
-    timeZone: 'Europe/Paris',
-    runOnInit: true
+    timeZone: 'Europe/Paris'
   })
 
   let currentDate = new Date()
@@ -112,14 +111,15 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     })
 
     const beatmapsets: Beatmapset[] = data.beatmapsets
+      .filter(beatmap => beatmap.status === 'ranked')
 
     const newBeatmapsets: Beatmapset[] = []
 
-    for (const beatmap of beatmapsets.filter(beatmap => beatmap.status === 'ranked')) {
+    for (const beatmap of beatmapsets) {
       const isNew = new Date(beatmap.ranked_date) > currentDate
 
       if (isNew) {
-        console.log('New beatmap detected', beatmap)
+        console.log(`New beatmap detected: ${beatmap.artist} - ${beatmap.title} by ${beatmap.creator}`)
         newBeatmapsets.push(beatmap)
       }
     }
@@ -165,7 +165,13 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       `
 
       for (const diff of sortedDiffs) {
-        diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - ${diff.version} \`AR${diff.ar}\` \`CS${diff.cs}\` [link to diff](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})\n`
+        diffDescription += `${getEmoji(diff.mode)}${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - ${diff.version}`
+
+        if (diff.mode === 'osu') {
+          diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
+        }
+
+        diffDescription += ` [link to diff](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})\n`
       }
 
       embed.setDescription(diffDescription)
