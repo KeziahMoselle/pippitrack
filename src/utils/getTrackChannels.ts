@@ -42,10 +42,16 @@ async function getTrackChannels (guildId: string, client: Client) {
     guild.replay_channel
   ) as TextChannel
 
+  // Get beatmaps channel for new beatmaps
+  const beatmapsChannel: TextChannel = discordGuild.channels.cache.get(
+    guild.beatmaps_channel
+  ) as TextChannel
+
   return {
     trackChannel,
     updatesChannel,
-    replayChannel
+    replayChannel,
+    beatmapsChannel
   }
 }
 

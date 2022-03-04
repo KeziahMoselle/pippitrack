@@ -37,6 +37,20 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         )
     },
     {
+      label: 'Send new ranked beatmaps',
+      value: 'enable_beatmaps_track',
+      emoji: '📰',
+      description: 'Set a channel to track new ranked beatmaps',
+      embed: new MessageEmbed()
+        .setTitle('📰 Send new ranked beatmaps')
+        .setDescription(
+          'To enable beatmaps tracking mention the channel you want to send new beatmaps to.\nExample : `#new-beatmaps`\nDeactivate beatmaps tracking : `false`'
+        )
+        .setFooter(
+          'Please mention the track #channel or  `false` to deactivate'
+        )
+    },
+    {
       label: 'Daily osu!track updates',
       value: 'enable_updates',
       emoji: '🆕',
@@ -232,6 +246,29 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         }
       }
 
+      if (value === 'enable_beatmaps_track') {
+        if (message.mentions.channels.size > 0) {
+          const channel = message.mentions.channels.first()
+
+          await this.updateGuildSetting(
+            'beatmaps_channel',
+            channel.id,
+            message.guild.id
+          )
+
+          response.setDescription(
+            `New ranked beatmaps will now be sent to ${channel.toString()}`
+          )
+        }
+
+        // Else deactivate tracking
+        if (message.content === 'false') {
+          await this.updateGuildSetting('beatmaps_channel', null, message.guild.id)
+          response.setDescription('Beatmaps tracking is now deactivated')
+          response.setColor(14504273)
+        }
+      }
+
       if (value === 'enable_updates') {
         if (message.mentions.channels.size > 0) {
           const channel = message.mentions.channels.first()
@@ -355,6 +392,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         updates_channel,
         replay_channel,
         admin_channel,
+        beatmaps_channel,
         prefix
       } = guild
 
@@ -364,6 +402,13 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           'Track Top Plays',
           `${track_channel ? '✅' : '❌'} ${
             track_channel ? `<#${track_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField(
+          'Track Beatmaps',
+          `${beatmaps_channel ? '✅' : '❌'} ${
+            beatmaps_channel ? `<#${beatmaps_channel}>` : 'No channel set.'
           }`,
           true
         )

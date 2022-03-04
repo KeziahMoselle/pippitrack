@@ -19,6 +19,7 @@ export interface GuildRow {
   updates_channel: string
   replay_channel: string
   admin_channel: string
+  beatmaps_channel: string
   prefix: string
 }
 
@@ -28,4 +29,5 @@ export type GuildColumns =
   | 'updates_channel'
   | 'replay_channel'
   | 'admin_channel'
+  | 'beatmaps_channel'
   | 'prefix'

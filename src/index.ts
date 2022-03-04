@@ -13,6 +13,7 @@ import updatePresence from './utils/updatePresence'
 import ordr from './services/ordr'
 import update from './services/update'
 import top from './services/top'
+import beatmaps from './services/beatmaps'
 
 // Subscribers
 import trackedUsers from './subscribers/trackedUsers'
@@ -50,6 +51,7 @@ bot.onReady = (client) => {
   top(client).start()
   update(client).start()
   ordr(client).start()
+  beatmaps(client).start()
 }
 
 bot
