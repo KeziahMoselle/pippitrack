@@ -165,10 +165,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       let diffDescription = ''
 
       // Additional info like length, circle counts..
-      diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\`\n`
-      diffDescription += `${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
-      diffDescription += `${getEmoji('count_circles')} Circles \`${beatmap.beatmaps[0].count_circles}\`\n`
-      diffDescription += `${getEmoji('count_sliders')} Sliders \`${beatmap.beatmaps[0].count_sliders}\`\n\n`
+      diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
+      diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n\n`
 
       for (const diff of sortedDiffs) {
         // Add mode icon if not default gamemode
@@ -177,15 +175,14 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         }
 
         // Add each difficulty name
-        diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - ${diff.version}`
+        diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - [${diff.version}](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})`
 
         // Only add AR and CS for osu gamemode
         if (diff.mode === 'osu') {
           diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
         }
 
-        // Direct link to difficulty
-        diffDescription += ` [link to diff](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})\n`
+        diffDescription += '\n'
       }
 
       embed.setDescription(diffDescription.trim())
