@@ -111,7 +111,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     })
 
     const beatmapsets: Beatmapset[] = data.beatmapsets
-      .filter(beatmap => beatmap.status === 'ranked')
 
     const newBeatmapsets: Beatmapset[] = []
 
@@ -152,29 +151,44 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         .setURL(`https://osu.ppy.sh/beatmapsets/${beatmap.id}`)
         .setAuthor(`New beatmap by ${beatmap.creator}`, getOsuAvatar(creator.id))
         .setImage(`https://assets.ppy.sh/beatmaps/${beatmap.id}/covers/cover.jpg`)
-        .setColor('#b3ff66')
+
+      if (beatmap.status === 'ranked') {
+        embed.setColor('#b3ff66')
+      }
+
+      if (beatmap.status === 'loved') {
+        embed.setColor('#ff66ab')
+      }
 
       const sortedDiffs = beatmap.beatmaps.sort((a, b) => b.difficulty_rating - a.difficulty_rating)
 
-      let diffDescription = `
-        ${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\`
-        ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`
-        ${getEmoji('count_circles')} Circles \`${beatmap.beatmaps[0].count_circles}\`
-        ${getEmoji('count_sliders')} Sliders \`${beatmap.beatmaps[0].count_sliders}\`
-        \n
-      `
+      let diffDescription = ''
+
+      // Additional info like length, circle counts..
+      diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\`\n`
+      diffDescription += `${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
+      diffDescription += `${getEmoji('count_circles')} Circles \`${beatmap.beatmaps[0].count_circles}\`\n`
+      diffDescription += `${getEmoji('count_sliders')} Sliders \`${beatmap.beatmaps[0].count_sliders}\`\n\n`
 
       for (const diff of sortedDiffs) {
-        diffDescription += `${getEmoji(diff.mode)}${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - ${diff.version}`
+        // Add mode icon if not default gamemode
+        if (diff.mode !== 'osu') {
+          diffDescription += `${getEmoji(diff.mode)}`
+        }
 
+        // Add each difficulty name
+        diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - ${diff.version}`
+
+        // Only add AR and CS for osu gamemode
         if (diff.mode === 'osu') {
           diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
         }
 
+        // Direct link to difficulty
         diffDescription += ` [link to diff](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})\n`
       }
 
-      embed.setDescription(diffDescription)
+      embed.setDescription(diffDescription.trim())
 
       for (const chan of channels) {
         const channel = client.channels.cache.get(chan) as TextChannel
