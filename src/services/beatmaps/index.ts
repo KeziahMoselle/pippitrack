@@ -118,7 +118,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       const isNew = new Date(beatmap.ranked_date) > currentDate
 
       if (isNew) {
-        console.log(`New beatmap detected: ${beatmap.artist} - ${beatmap.title} by ${beatmap.creator}`)
         newBeatmapsets.push(beatmap)
       }
     }
@@ -126,7 +125,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     currentDate = new Date()
 
     if (newBeatmapsets.length === 0) {
-      console.log('Beatmap service: no new beatmaps')
       console.timeEnd('newBeatmaps')
       return
     }
@@ -185,12 +183,16 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         diffDescription += '\n'
       }
 
+      diffDescription += `\n\n${beatmap.status.charAt(0).toUpperCase() + beatmap.status.slice(1)} <t:${unixTimestamp}:R>`
+
       embed.setDescription(diffDescription.trim())
 
       for (const chan of channels) {
         const channel = client.channels.cache.get(chan) as TextChannel
-        channel.send(`Ranked <t:${unixTimestamp}:R>`, embed)
+        channel.send(embed)
       }
+
+      console.log(`New ${beatmap.status} beatmap sent to ${channels.length} channels: ${beatmap.artist} - ${beatmap.title} by ${beatmap.creator}`)
     }
 
     console.timeEnd('newBeatmaps')
