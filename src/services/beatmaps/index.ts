@@ -89,13 +89,13 @@ interface Beatmapset {
   }[]
 }
 
-const EVERY_5_MINUTES = '*/5 * * * *'
+const EVERY_MINUTE = '*/1 * * * *'
 
 export default function detectNewBeatmaps (client: Client): CronJob {
   console.log('Service started : detect new beatmaps')
 
   const job = new CronJob({
-    cronTime: EVERY_5_MINUTES,
+    cronTime: EVERY_MINUTE,
     onTick: newBeatmaps,
     timeZone: 'Europe/Paris'
   })
@@ -164,7 +164,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
 
       // Additional info like length, circle counts..
       diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
-      diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n\n`
+      diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
+      diffDescription += `**Direct download**: [Download](https://osu.ppy.sh/d/${beatmap.id}) • [Beatconnect](https://beatconnect.io/b/${beatmap.id}) • [Nerina](https://nerina.pw/d/${beatmap.id})\n\n`
 
       for (const diff of sortedDiffs) {
         // Add mode icon if not default gamemode
