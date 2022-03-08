@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
-import { RanksObject, UpdateRecordRow, UsersStateRow } from '../types/db'
+import { RanksObject, UpdateRecordRow } from '../types/db'
 import getEmoji from '../utils/getEmoji'
 import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
