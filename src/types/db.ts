@@ -31,3 +31,29 @@ export type GuildColumns =
   | 'admin_channel'
   | 'beatmaps_channel'
   | 'prefix'
+
+export interface RanksObject {
+  SSH: number
+  SS: number
+  SH: number
+  S: number
+  A: number
+}
+
+export interface UpdateRecordRow {
+  id: number
+  osu_id: string
+  difference_rank: number
+  difference_pp: number
+  difference_accuracy: number
+  new_top_plays: string
+  playcount: number
+  rank: number
+  total_pp: number
+  ranked_score: number
+  total_score: number
+  level: number
+  ranks: string | RanksObject
+  is_score_only: boolean
+  created_at: string | Date
+}

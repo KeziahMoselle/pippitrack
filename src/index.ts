@@ -48,6 +48,9 @@ bot.onReady = (client) => {
   setInterval(async () => await updatePresence(client), EVERY_FIVE_MINUTES)
 
   // Run services
+
+  if (process.env.NODE_ENV === 'development') return console.log('Development mode: ignoring services.')
+
   top(client).start()
   update(client).start()
   ordr(client).start()
