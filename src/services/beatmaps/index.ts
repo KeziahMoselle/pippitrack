@@ -89,13 +89,13 @@ interface Beatmapset {
   }[]
 }
 
-const EVERY_MINUTE = '*/1 * * * *'
+const EVERY_5_MINUTES = '*/5 * * * *'
 
 export default function detectNewBeatmaps (client: Client): CronJob {
   console.log('Service started : detect new beatmaps')
 
   const job = new CronJob({
-    cronTime: EVERY_MINUTE,
+    cronTime: EVERY_5_MINUTES,
     onTick: newBeatmaps,
     timeZone: 'Europe/Paris'
   })
