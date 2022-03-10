@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import { osu } from '../libs/osu'
-import { Game } from 'node-osu'
+import { Constants, Game } from 'node-osu'
 import { mods, tools } from 'osu-api-extended'
 
 export default class MpStat implements BaseDiscordCommand {
@@ -202,7 +202,6 @@ export default class MpStat implements BaseDiscordCommand {
     const srList = []
     const bpmList = []
     const playersList = []
-    const modCount = {}
     const mostWellPlayedMap = ''
 
     const beatmapsFetches = games.map(game => osu.getBeatmaps({ b: game.beatmapId }))
@@ -211,9 +210,35 @@ export default class MpStat implements BaseDiscordCommand {
     for (const game of games.slice(warmUpCount)) {
       const beatmap = beatmaps.find(beatmap => beatmap ? beatmap.id === game.beatmapId : undefined)
       if (beatmap) {
-        srList.push(Number(beatmap.difficulty.rating))
-        bpmList.push(Number(beatmap.bpm))
+        const gameMods = mods.name(game.raw_mods)
 
+        if (gameMods.includes('DT')) {
+          const beatmapWithMods = await osu.getBeatmaps({
+            b: game.beatmapId,
+            mods: mods.id('DT')
+          })
+          srList.push(Number(beatmapWithMods[0].difficulty.rating))
+          bpmList.push(Number(beatmap.bpm) * 1.5)
+        } else if (gameMods.includes('HT')) {
+          const beatmapWithMods = await osu.getBeatmaps({
+            b: game.beatmapId,
+            mods: mods.id('HT')
+          })
+          srList.push(Number(beatmapWithMods[0].difficulty.rating))
+          bpmList.push(Number(beatmap.bpm) * 0.5)
+        } else if (gameMods.includes('HR')) {
+          const beatmapWithMods = await osu.getBeatmaps({
+            b: game.beatmapId,
+            mods: mods.id('HR')
+          })
+          srList.push(Number(beatmapWithMods[0].difficulty.rating))
+          bpmList.push(Number(beatmapWithMods[0].bpm))
+        } else {
+          srList.push(Number(beatmap.difficulty.rating))
+          bpmList.push(Number(beatmap.bpm))
+        }
+        console.log(beatmap.title)
+        console.log(bpmList)
         const playerFetches = game.scores.map(multiplayerScore => {
           const counts = multiplayerScore['counts']
           return this.updatePlayerList(multiplayerScore['userId'],
@@ -311,13 +336,13 @@ export default class MpStat implements BaseDiscordCommand {
     }
 
     playerList.forEach((player) => {
-      const avgPlayerMiss = Number(this.getAvgFromList(player.misses).toFixed(2))
+      const avgPlayerMiss = Math.floor(Number(this.getAvgFromList(player.misses)))
       missInfos.avgOverallMisses = Number(missInfos.avgOverallMisses) + Number(avgPlayerMiss)
       missInfos.avgPlayersMisses.push(avgPlayerMiss)
     })
 
-    missInfos.avgOverallMisses = Number((Number(missInfos.avgOverallMisses) / Number(playerList.length)).toFixed(2))
-
+    missInfos.avgOverallMisses = Number((Number(missInfos.avgOverallMisses) / Number(playerList.length)))
+    missInfos.avgOverallMisses = Math.floor(missInfos.avgOverallMisses)
     return missInfos
   }
 
