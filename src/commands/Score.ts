@@ -56,7 +56,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
         deltaTotalScore = user.scores.total - data.total_score
 
         // Diff level
-        deltaLevel = user.level - data.level
+        deltaLevel = Number((user.level - data.level).toFixed(3))
 
         // Diff ranks
         const ranks: RanksObject = data.ranks as RanksObject
@@ -74,10 +74,6 @@ export default class ScoreCommand implements BaseDiscordCommand {
 
       description += `**▸ Level:** ${user.level} ${deltaLevel ? `\`(+${deltaLevel})\`` : ''}\n`
 
-      description += `**▸ Ranked Score:** ${intl.format(user.scores.ranked)} ${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}\n`
-
-      description += `**▸ Total Score:** ${intl.format(user.scores.total)} ${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}\n`
-
       description += '**▸ Ranks:**'
       description += ` ${getEmoji('xh')} ${user.counts.SSH}`
       description += ` ${getEmoji('x')} ${user.counts.SS}`
@@ -86,16 +82,18 @@ export default class ScoreCommand implements BaseDiscordCommand {
       description += ` ${getEmoji('a')} ${user.counts.A}`
 
       description += '\n**▸ New ranks:**'
-      description += ` ${getEmoji('xh')} \`+${deltaRanks.SSH}\``
-      description += ` ${getEmoji('x')} \`+${deltaRanks.SS}\``
-      description += ` ${getEmoji('sh')} \`+${deltaRanks.SH}\``
-      description += ` ${getEmoji('s')} \`+${deltaRanks.S}\``
-      description += ` ${getEmoji('a')} \`+${deltaRanks.A}\``
+      description += ` ${getEmoji('xh')} \`${deltaRanks.SSH < 0 ? '' : '+'}${deltaRanks.SSH}\``
+      description += ` ${getEmoji('x')} \`${deltaRanks.SS < 0 ? '' : '+'}${deltaRanks.SS}\``
+      description += ` ${getEmoji('sh')} \`${deltaRanks.SH < 0 ? '' : '+'}${deltaRanks.SH}\``
+      description += ` ${getEmoji('s')} \`${deltaRanks.S < 0 ? '' : '+'}${deltaRanks.S}\``
+      description += ` ${getEmoji('a')} \`${deltaRanks.A < 0 ? '' : '+'}${deltaRanks.A}\``
 
       const embed = new MessageEmbed()
         .setTitle(`Changes since last update for ${user.name}'s scores`)
         .setThumbnail(getOsuAvatar(user.id))
         .setDescription(description)
+        .addField('Ranked score', `${intl.format(user.scores.ranked)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}`)
+        .addField('Total score', `${intl.format(user.scores.total)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`)
         .setColor(11279474)
 
       let messageEmbed = 'First update !'
