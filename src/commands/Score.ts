@@ -92,8 +92,8 @@ export default class ScoreCommand implements BaseDiscordCommand {
         .setTitle(`Changes since last update for ${user.name}'s scores`)
         .setThumbnail(getOsuAvatar(user.id))
         .setDescription(description)
-        .addField('Ranked score', `${intl.format(user.scores.ranked)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}`)
-        .addField('Total score', `${intl.format(user.scores.total)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`)
+        .addField('Ranked score', `${intl.format(user.scores.ranked)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}`, true)
+        .addField('Total score', `${intl.format(user.scores.total)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`, true)
         .setColor(11279474)
 
       let messageEmbed = 'First update !'
