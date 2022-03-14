@@ -27,7 +27,6 @@ import {
   Update,
   Ping,
   Osu,
-  RecentScore,
   Untrack,
   Tracklist,
   Configure,
@@ -61,7 +60,6 @@ bot
   .addCommand(new Link())
   .addCommand(new Track())
   .addCommand(new Update())
-  .addCommand(new RecentScore())
   .addCommand(new Osu())
   .addCommand(new Peak())
   .addCommand(new Untrack())
