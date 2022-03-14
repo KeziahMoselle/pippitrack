@@ -17,7 +17,7 @@ export default class Help implements BaseDiscordCommand {
       .setURL('https://pippitrack.com/')
       .addField(
         'Support Server',
-        '[Join the support server](https://discord.gg/bNQUZeHFdR)',
+        '[Join the support server](http://discord.pippitrack.com/)',
         true
       )
       .addField(
