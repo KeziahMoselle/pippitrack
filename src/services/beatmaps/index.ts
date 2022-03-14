@@ -105,98 +105,106 @@ export default function detectNewBeatmaps (client: Client): CronJob {
 
   async function newBeatmaps () {
     console.time('newBeatmaps')
-    const { data } = await axios.get(ENDPOINT, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36'
-      }
-    })
-
-    const beatmapsets: Beatmapset[] = data.beatmapsets
-    const newBeatmapsets: Beatmapset[] = []
-
-    for (const beatmap of beatmapsets) {
-      const isNewSinceStartup = new Date(beatmap.ranked_date) > startTime
-      if (sentBeatmaps.has(beatmap.id)) continue
-
-      if (isNewSinceStartup) {
-        sentBeatmaps.add(beatmap.id)
-        newBeatmapsets.push(beatmap)
-      }
-    }
-
-    if (newBeatmapsets.length === 0) {
-      console.timeEnd('newBeatmaps')
-      return
-    }
-
-    const { data: guilds } = await supabase
-      .from('guilds')
-      .select('beatmaps_channel')
-      .neq('beatmaps_channel', null)
-
-    const channels = guilds.map(guild => guild.beatmaps_channel)
-
-    for (const beatmap of newBeatmapsets) {
-      const creator = await osu.getUser({
-        u: beatmap.creator,
-        type: 'string'
+    try {
+      const { data } = await axios.get(ENDPOINT, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36'
+        }
       })
 
-      const unixTimestamp = Math.trunc(new Date(beatmap.ranked_date).getTime() / 1000)
+      const beatmapsets: Beatmapset[] = data.beatmapsets
+      const newBeatmapsets: Beatmapset[] = []
 
-      const embed = new MessageEmbed()
-        .setTitle(`${beatmap.artist} - ${beatmap.title}`)
-        .setURL(`https://osu.ppy.sh/beatmapsets/${beatmap.id}`)
-        .setAuthor(`${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`, getOsuAvatar(creator.id))
-        .setImage(`https://assets.ppy.sh/beatmaps/${beatmap.id}/covers/cover.jpg`)
+      for (const beatmap of beatmapsets) {
+        const isNewSinceStartup = new Date(beatmap.ranked_date) > startTime
+        if (sentBeatmaps.has(beatmap.id)) continue
 
-      if (beatmap.status === 'ranked') {
-        embed.setColor('#b3ff66')
+        if (isNewSinceStartup) {
+          sentBeatmaps.add(beatmap.id)
+          newBeatmapsets.push(beatmap)
+        }
       }
 
-      if (beatmap.status === 'loved') {
-        embed.setColor('#ff66ab')
+      if (newBeatmapsets.length === 0) {
+        console.timeEnd('newBeatmaps')
+        return
       }
 
-      const sortedDiffs = beatmap.beatmaps.sort((a, b) => b.difficulty_rating - a.difficulty_rating)
+      const { data: guilds } = await supabase
+        .from('guilds')
+        .select('beatmaps_channel')
+        .neq('beatmaps_channel', null)
 
-      let diffDescription = ''
+      const channels = guilds.map(guild => guild.beatmaps_channel)
 
-      // Additional info like length, circle counts..
-      diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
-      diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
-      diffDescription += `**Direct download**: [Beatconnect](https://beatconnect.io/b/${beatmap.id}) • [Nerina](https://nerina.pw/d/${beatmap.id})\n\n`
+      for (const beatmap of newBeatmapsets) {
+        const creator = await osu.getUser({
+          u: beatmap.creator,
+          type: 'string'
+        })
 
-      for (const diff of sortedDiffs) {
-        // Add mode icon if not default gamemode
-        if (diff.mode !== 'osu') {
-          diffDescription += `${getEmoji(diff.mode)}`
+        const unixTimestamp = Math.trunc(new Date(beatmap.ranked_date).getTime() / 1000)
+
+        const embed = new MessageEmbed()
+          .setTitle(`${beatmap.artist} - ${beatmap.title}`)
+          .setURL(`https://osu.ppy.sh/beatmapsets/${beatmap.id}`)
+          .setAuthor(`${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`, getOsuAvatar(creator.id))
+          .setImage(`https://assets.ppy.sh/beatmaps/${beatmap.id}/covers/cover.jpg`)
+
+        if (beatmap.status === 'ranked') {
+          embed.setColor('#b3ff66')
         }
 
-        // Add each difficulty name
-        diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - [${diff.version}](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})`
-
-        // Only add AR and CS for osu gamemode
-        if (diff.mode === 'osu') {
-          diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
+        if (beatmap.status === 'loved') {
+          embed.setColor('#ff66ab')
         }
 
-        diffDescription += '\n'
+        const sortedDiffs = beatmap.beatmaps.sort((a, b) => b.difficulty_rating - a.difficulty_rating)
+
+        let diffDescription = ''
+
+        // Additional info like length, circle counts..
+        diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
+        diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
+        diffDescription += `**Direct download**: [Beatconnect](https://beatconnect.io/b/${beatmap.id}) • [Nerina](https://nerina.pw/d/${beatmap.id})\n\n`
+
+        for (const diff of sortedDiffs) {
+          // Add mode icon if not default gamemode
+          if (diff.mode !== 'osu') {
+            diffDescription += `${getEmoji(diff.mode)}`
+          }
+
+          // Add each difficulty name
+          diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - [${diff.version}](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})`
+
+          // Only add AR and CS for osu gamemode
+          if (diff.mode === 'osu') {
+            diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
+          }
+
+          diffDescription += '\n'
+        }
+
+        diffDescription += `\n\n${beatmap.status.charAt(0).toUpperCase() + beatmap.status.slice(1)} <t:${unixTimestamp}:R>`
+
+        embed.setDescription(diffDescription.trim())
+
+        for (const chan of channels) {
+          try {
+            const channel = client.channels.cache.get(chan) as TextChannel
+            channel.send(embed)
+          } catch (error) {
+            console.error('Cannot get channel', chan)
+          }
+        }
+
+        console.log(`New ${beatmap.status} beatmap sent to ${channels.length} channels: ${beatmap.artist} - ${beatmap.title} by ${beatmap.creator}`)
       }
-
-      diffDescription += `\n\n${beatmap.status.charAt(0).toUpperCase() + beatmap.status.slice(1)} <t:${unixTimestamp}:R>`
-
-      embed.setDescription(diffDescription.trim())
-
-      for (const chan of channels) {
-        const channel = client.channels.cache.get(chan) as TextChannel
-        channel.send(embed)
-      }
-
-      console.log(`New ${beatmap.status} beatmap sent to ${channels.length} channels: ${beatmap.artist} - ${beatmap.title} by ${beatmap.creator}`)
+    } catch (error) {
+      console.error('newBeatmaps', error)
+    } finally {
+      console.timeEnd('newBeatmaps')
     }
-
-    console.timeEnd('newBeatmaps')
   }
 
   return job

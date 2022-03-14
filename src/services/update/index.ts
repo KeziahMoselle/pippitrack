@@ -54,7 +54,12 @@ export default function update (client: Client): CronJob {
         const fetches = batchOfPlayers.map((player) => updatePlayer(player))
 
         // Batch updates of players
-        const results = await Promise.all(fetches)
+        let results = null
+        try {
+          results = await Promise.all(fetches)
+        } catch (error) {
+          console.error('massUpdatePlayers, Promise.all error', error)
+        }
 
         // Send embeds without waiting for the response
         sendEmbeds(results)
