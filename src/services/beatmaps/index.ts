@@ -89,18 +89,19 @@ interface Beatmapset {
   }[]
 }
 
-const EVERY_5_MINUTES = '*/5 * * * *'
+const EVERY_1_MINUTE = '*/1 * * * *'
 
 export default function detectNewBeatmaps (client: Client): CronJob {
   console.log('Service started : detect new beatmaps')
 
   const job = new CronJob({
-    cronTime: EVERY_5_MINUTES,
+    cronTime: EVERY_1_MINUTE,
     onTick: newBeatmaps,
     timeZone: 'Europe/Paris'
   })
 
-  let currentDate = new Date()
+  const sentBeatmaps = new Set()
+  const startTime = new Date()
 
   async function newBeatmaps () {
     console.time('newBeatmaps')
@@ -111,18 +112,17 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     })
 
     const beatmapsets: Beatmapset[] = data.beatmapsets
-
     const newBeatmapsets: Beatmapset[] = []
 
     for (const beatmap of beatmapsets) {
-      const isNew = new Date(beatmap.ranked_date) > currentDate
+      const isNewSinceStartup = new Date(beatmap.ranked_date) > startTime
+      if (sentBeatmaps.has(beatmap.id)) continue
 
-      if (isNew) {
+      if (isNewSinceStartup) {
+        sentBeatmaps.add(beatmap.id)
         newBeatmapsets.push(beatmap)
       }
     }
-
-    currentDate = new Date()
 
     if (newBeatmapsets.length === 0) {
       console.timeEnd('newBeatmaps')
