@@ -125,7 +125,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       }
 
       if (newBeatmapsets.length === 0) {
-        console.timeEnd('newBeatmaps')
         return
       }
 
