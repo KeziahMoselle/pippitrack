@@ -34,7 +34,7 @@ export default async function getEmbed ({
     )
     .addField('PP', `${Math.round(play.pp)}pp`, true)
     .addField('Accuracy', `${(play.accuracy * 100).toFixed(2)}%`, true)
-    .setFooter('Score set')
+    .setFooter({ text: 'Score set' })
     .setTimestamp(new Date(play.created_at))
 
   return embed

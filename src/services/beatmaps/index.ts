@@ -191,7 +191,7 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         for (const chan of channels) {
           try {
             const channel = client.channels.cache.get(chan) as TextChannel
-            channel.send(embed)
+            channel.send({ embeds: [embed] })
           } catch (error) {
             console.error('Cannot get channel', chan)
           }

@@ -108,7 +108,7 @@ async function sendEmbeds (
 
     for (const channel of update.player.updatesChannels) {
       try {
-        await channel.send(update.embed)
+        await channel.send({ embeds: [update.embed] })
         console.info(`${update.player.osu_username} in #${channel.name}`)
       } catch (error) {
         console.error('sendEmbeds error:', error, update, channel)

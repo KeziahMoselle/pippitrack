@@ -1,23 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  InteractionReply,
-  MessageComponent,
-  MessageMenu,
-  MessageMenuOption
-} from 'discord-buttons'
-import { MessageEmbed, Message } from 'discord.js'
+import { MessageEmbed, Message, Interaction, GuildMember, CommandInteraction } from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import { GuildColumns, GuildRow } from '../types/db'
 
-export default class ConfigureCommand implements BaseDiscordCommand {
-  name = 'config'
-  arguments = []
-  description = 'Configure your server'
-  category = 'general'
-  prefixes = null
+export default class ConfigureCommand {
+  data = new SlashCommandBuilder()
+    .setName('configure')
+    .setDescription('Configure your server')
 
   FIVE_MINUTES = 5 * 60 * 1000
 
@@ -32,9 +25,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'To enable top plays tracking mention the channel you want to send the top plays to.\nExample : `#track`\nDeactivate top plays tracking : `false`'
         )
-        .setFooter(
-          'Please mention the track #channel or  `false` to deactivate'
-        )
+        .setFooter({
+          text: 'Please mention the track #channel or  `false` to deactivate'
+        })
     },
     {
       label: 'Send new ranked beatmaps',
@@ -46,9 +39,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'To enable beatmaps tracking mention the channel you want to send new beatmaps to.\nExample : `#new-beatmaps`\nDeactivate beatmaps tracking : `false`'
         )
-        .setFooter(
-          'Please mention the track #channel or  `false` to deactivate'
-        )
+        .setFooter({
+          text: 'Please mention the track #channel or  `false` to deactivate'
+        })
     },
     {
       label: 'Daily osu!track updates',
@@ -60,9 +53,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'To enable daily osu!track updates mention the channel you want to send the updates to.\nExample : `#updates`\nDeactivate daily updates : `false`'
         )
-        .setFooter(
-          'Please mention the updates #channel or  `false` to deactivate'
-        )
+        .setFooter({
+          text: 'Please mention the updates #channel or  `false` to deactivate'
+        })
     },
     {
       label: 'Replay tracking',
@@ -74,9 +67,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'To enable o!rdr replay tracking mention the channel you want to send the replays to.\nExample : `#replays`\nDeactivate replays tracking : `false`'
         )
-        .setFooter(
-          'Please mention the replays #channel or  `false` to deactivate'
-        )
+        .setFooter({
+          text: 'Please mention the replays #channel or  `false` to deactivate'
+        })
     },
     {
       label: 'Bot prefix',
@@ -88,7 +81,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'To set a new prefix type the prefix you want to use.\nExample : `>`'
         )
-        .setFooter('Please type the new prefix')
+        .setFooter({ text: 'Please type the new prefix' })
     },
     {
       label: 'Track requests',
@@ -100,9 +93,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(
           'If you want to allow members to send track requests to an admin channel, mention the channel you want to send the requests to.\nIf you want to deactivate requests type `false`\n\nExample : `#admin-channel`\nDeactivate requests : `false`'
         )
-        .setFooter(
-          'Please type either a #channel or  `false` to deactivate requests'
-        )
+        .setFooter({
+          text: 'Please type either a #channel or  `false` to deactivate requests'
+        })
     },
     {
       label: 'I am done !',
@@ -112,13 +105,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
     }
   ]
 
-  select = null
-
   /**
    * Creates the menu for the select command
    */
   constructor () {
-    this.select = new MessageMenu()
+    /* this.select = new MessageMenu()
       .setID('configmenu')
       .setPlaceholder('I want to configure...')
       .setMaxValues(1)
@@ -132,7 +123,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setDescription(choice.description)
 
       this.select.addOption(option)
-    }
+    } */
   }
 
   /**
@@ -164,12 +155,12 @@ export default class ConfigureCommand implements BaseDiscordCommand {
    * 4. Update the value in the database
    * 5. Send the menu again if the user wants to change something else
    */
-  async handleMenuCollector (
+  /* async handleMenuCollector (
     menu: MessageComponent,
     authorId: string
   ): Promise<Message | InteractionReply> {
     // Check permission
-    if (!menu.clicker.member.hasPermission('ADMINISTRATOR')) {
+    if (!menu.clicker.member.permissions.has('ADMINISTRATOR')) {
       return menu.reply.send(
         'You need to be an Administrator to use this command.',
         // @ts-ignore
@@ -372,14 +363,14 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setColor(14504273)
 
       sentEmbed.delete()
-      menu.message.channel.send(embed)
+      menu.message.channel.send({ embeds: [embed] })
     }
-  }
+  } */
 
   /**
    * Sends the menu to the user
    */
-  async sendMenu (message: Message): Promise<Message> {
+  /* async sendMenu (message: Message): Promise<Message> {
     const { data: guild, error } = await supabase
       .from<GuildRow>('guilds')
       .select('*')
@@ -435,7 +426,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         )
         .addField('Prefix', `${prefix || defaultPrefix}`)
 
-      await message.channel.send(embed)
+      await message.channel.send({ embeds: [embed] })
     }
 
     const sentMessage = await message.channel.send(
@@ -456,14 +447,21 @@ export default class ConfigureCommand implements BaseDiscordCommand {
     )
 
     return message
-  }
+  } */
 
-  async run (message: Message): Promise<Message> {
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply(
-        'You need to be an Administrator to use this command.'
-      )
+  async run (interaction: CommandInteraction): Promise<void> {
+    const member = interaction.member as GuildMember
+
+    if (!member.permissions.has('ADMINISTRATOR')) {
+      return interaction.reply({
+        content: 'You need to be an Administrator to use this command.',
+        ephemeral: true
+      })
     }
-    return this.sendMenu(message)
+
+    return interaction.reply({
+      content: 'Does it work ?'
+    })
+    // return this.sendMenu(message)
   }
 }

@@ -47,7 +47,7 @@ export default class TracklistCommand implements BaseDiscordCommand {
     const [page = 1] = args
 
     // Check if the author has the permission to run this command
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
       return message.reply(
         'You need to be an Administrator to use this command.'
       )
@@ -74,17 +74,17 @@ export default class TracklistCommand implements BaseDiscordCommand {
           .setTitle('There is no tracked users in this server')
           .setDescription('Start tracking by typing `!track username`')
 
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       }
 
       const embed = new MessageEmbed()
         .setTitle(`List of tracked users in ${message.guild.name}`)
-        .setFooter(
-          `${totalCount} tracked users (max: ${maxTrackedUsersInGuild}) | Page ${page}/${this.roundUp(
+        .setFooter({
+          text: `${totalCount} tracked users (max: ${maxTrackedUsersInGuild}) | Page ${page}/${this.roundUp(
             totalCount / 25,
             0
           )}`
-        )
+        })
         .setColor(11279474)
 
       const description = trackedUsers.reduce((description, user) => {
@@ -94,7 +94,7 @@ export default class TracklistCommand implements BaseDiscordCommand {
 
       embed.setDescription(description)
 
-      message.channel.send(embed)
+      message.channel.send({ embeds: [embed] })
     } catch (error) {
       console.error(error)
 

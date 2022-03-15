@@ -27,7 +27,6 @@ import {
   Update,
   Ping,
   Osu,
-  Untrack,
   Tracklist,
   Configure,
   Score,
@@ -57,18 +56,17 @@ bot.onReady = (client) => {
 }
 
 bot
-  .addCommand(new Link())
+  /* .addCommand(new Link())
   .addCommand(new Track())
   .addCommand(new Update())
   .addCommand(new Osu())
   .addCommand(new Peak())
-  .addCommand(new Untrack())
-  .addCommand(new Tracklist())
+  .addCommand(new Tracklist()) */
   .addCommand(new Configure())
-  .addCommand(new Ping(bot.client))
+  /* .addCommand(new Ping(bot.client))
   .addCommand(new Help())
   .addCommand(new Score())
-  .addCommand(new Gifted())
+  .addCommand(new Gifted()) */
   .run()
 
 // Run subscribers

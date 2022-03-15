@@ -9,7 +9,7 @@ export default async function handleUntrackAllBtn (
   const [, guildId, id] = button.id.split('_')
 
   // Check if the author has the permission to untrack the user
-  if (!button.clicker.member.hasPermission('ADMINISTRATOR')) {
+  if (!button.clicker.member.permissions.has('ADMINISTRATOR')) {
     button.reply.send(
       'You need to be an Administrator to untrack all players.',
       // @ts-ignore

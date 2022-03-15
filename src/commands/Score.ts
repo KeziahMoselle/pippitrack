@@ -20,7 +20,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
       const user = await getUser({ message, args })
 
       if (!user) {
-        return message.channel.send(notFoundEmbed)
+        return message.channel.send({ embeds: [notFoundEmbed] })
       }
 
       let hasData = true
@@ -104,7 +104,10 @@ export default class ScoreCommand implements BaseDiscordCommand {
         messageEmbed = `Last score update <t:${unixTimestamp}:R>`
       }
 
-      message.channel.send(messageEmbed, embed)
+      message.channel.send({
+        content: messageEmbed,
+        embeds: [embed]
+      })
 
       await supabase
         .from<UpdateRecordRow>('updates_records')
@@ -128,7 +131,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setDescription(`Error: ${error}`)
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
   }
 }

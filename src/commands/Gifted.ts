@@ -18,7 +18,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     const score = Number(
@@ -30,28 +30,28 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
 
     if (score <= 0.5) {
       embed.setTitle('It seems you are enjoying the game.')
-        .setFooter(`${user.name} has a score of ${score}.`)
         .setColor(11279474)
     }
 
     if (score > 0.5 && score < 1.3) {
       embed.setTitle('It seems you are pretty average.')
-        .setFooter(`${user.name} has a score of ${score}.`)
         .setColor(11279474)
     }
 
     if (score >= 1.3 && score < 2) {
       embed.setTitle('You are gifted!')
-        .setFooter(`${user.name} has a score of ${score}.`)
         .setColor('#8850ff')
     }
 
     if (score >= 2) {
       embed.setTitle('You are OMEGA gifted!')
-        .setFooter(`${user.name} has a score of ${score}.`)
         .setColor('#50b2ff')
     }
 
-    return message.channel.send(embed)
+    embed.setFooter({
+      text: `${user.name} has a score of ${score}.`
+    })
+
+    return message.channel.send({ embeds: [embed] })
   }
 }
