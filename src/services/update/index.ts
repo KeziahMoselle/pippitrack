@@ -93,7 +93,7 @@ async function updatePlayer (player: TrackedPlayer) {
   }
 }
 
-function sendEmbeds (
+async function sendEmbeds (
   updates: {
     player: TrackedPlayer
     embed: MessageEmbed
@@ -107,8 +107,12 @@ function sendEmbeds (
     }
 
     for (const channel of update.player.updatesChannels) {
-      channel.send(update.embed)
-      console.info(`${update.player.osu_username} in #${channel.name}`)
+      try {
+        await channel.send(update.embed)
+        console.info(`${update.player.osu_username} in #${channel.name}`)
+      } catch (error) {
+        console.error('sendEmbeds error:', error, update, channel)
+      }
     }
   }
 }

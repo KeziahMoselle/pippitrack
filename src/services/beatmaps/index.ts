@@ -104,7 +104,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
   const startTime = new Date()
 
   async function newBeatmaps () {
-    console.time('newBeatmaps')
     try {
       const { data } = await axios.get(ENDPOINT, {
         headers: {
@@ -202,8 +201,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       }
     } catch (error) {
       console.error('newBeatmaps', error)
-    } finally {
-      console.timeEnd('newBeatmaps')
     }
   }
 
