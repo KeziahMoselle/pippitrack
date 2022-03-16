@@ -62,7 +62,7 @@ interface Beatmapset {
     'difficulty_rating': number,
     'id': number,
     'mode': 'osu' | 'taiko' | 'fruits' | 'mania',
-    'status': string,
+    'status': 'loved' | 'ranked',
     'total_length': number,
     'user_id': number,
     'version': string,
@@ -107,7 +107,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     try {
       const { data } = await axios.get(ENDPOINT, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36',
+          cookie: process.env.OSU_HEADER_COOKIE || ''
         }
       })
 
