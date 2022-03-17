@@ -1,4 +1,4 @@
-import { MessageEmbed, Message } from 'discord.js'
+import { MessageEmbed, Message, Interaction, CommandInteraction } from 'discord.js'
 import axios from 'axios'
 import { osuApiV2 } from '../libs/osu'
 import getUser from '../utils/getUser'
@@ -6,25 +6,30 @@ import notFoundEmbed from '../utils/notFoundEmbed'
 import getRankAchievements from '../utils/getRankAchievements'
 import { BaseDiscordCommand } from '../types'
 import getOsuAvatar from '../utils/getOsuAvatar'
+import { SlashCommandBuilder } from '@discordjs/builders'
 
 export default class PeakCommand implements BaseDiscordCommand {
-  name = 'peak'
-  arguments = ['username']
-  description = 'Display peak rank and accuracy of a player'
-  category = 'osu'
+  data = new SlashCommandBuilder()
+    .setName('peak')
+    .setDescription('Display peak rank and accuracy of a player')
+    .addStringOption((option) =>
+      option.setName('username')
+        .setDescription('Your osu! username')
+    )
 
   PEAK_ENDPOINT = (id: string | number): string =>
     `https://osutrack-api.ameo.dev/peak?user=${id}&mode=0`
 
-  /**
-   * @param {module:discord.js.Message} message
-   * @param {string[]} args
-   */
-  async run (message: Message, args: string[]): Promise<Message> {
-    const user = await getUser({ message, args })
+  async run (interaction: CommandInteraction): Promise<void> {
+    const username = interaction.options.getString('username')
+
+    const user = await getUser({
+      username,
+      discordId: interaction.user.id
+    })
 
     if (!user) {
-      return message.channel.send({ embeds: [notFoundEmbed] })
+      return interaction.reply({ embeds: [notFoundEmbed] })
     }
 
     try {
@@ -52,21 +57,12 @@ export default class PeakCommand implements BaseDiscordCommand {
         )
         .setColor(11279474)
 
-      return message.channel.send({
+      return interaction.reply({
         embeds: [embed],
         files: [medalsUrl]
       })
     } catch {
-      const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${args.join(' ')}`)
-        .setDescription(
-          `
-          https://osu.ppy.sh/users/${args.join(' ')}
-          https://ameobea.me/osutrack/user/${args.join(' ')}`
-        )
-        .setThumbnail('https://a.ppy.sh/')
-
-      return message.channel.send({ embeds: [embed] })
+      interaction.reply({ embeds: [notFoundEmbed], ephemeral: true })
     }
   }
 }

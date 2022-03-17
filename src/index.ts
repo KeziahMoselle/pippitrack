@@ -24,7 +24,8 @@ import {
   Link,
   Gifted,
   Help,
-  Osu
+  Osu,
+  Peak
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -55,6 +56,7 @@ bot
   .addCommand(new Gifted())
   .addCommand(new Help())
   .addCommand(new Osu())
+  .addCommand(new Peak())
   .run()
 
 // Run subscribers
