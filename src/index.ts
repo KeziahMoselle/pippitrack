@@ -20,7 +20,8 @@ import trackedUsers from './subscribers/trackedUsers'
 
 // Commands
 import {
-  Configure
+  Configure,
+  Link
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -47,6 +48,7 @@ bot.onReady = (client) => {
 
 bot
   .addCommand(new Configure())
+  .addCommand(new Link())
   .run()
 
 // Run subscribers

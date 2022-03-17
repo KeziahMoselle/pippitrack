@@ -1,71 +1,70 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction, Interaction, Message, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
+import getEmoji from '../utils/getEmoji'
 import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
 export default class LinkCommand implements BaseDiscordCommand {
-  name = 'link'
-  arguments = ['username']
-  description = 'Link your Discord account to an osu! username'
-  category = 'osu'
+  data = new SlashCommandBuilder()
+    .setName('link')
+    .setDescription('Link your osu! account to your Discord account')
+    .addStringOption((option) =>
+      option.setName('username')
+        .setDescription('Your osu! username')
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option.setName('mode')
+        .setDescription('Game mode')
+        .addChoice('Standard', 'osu')
+        .addChoice('Catch The Beat', 'fruits')
+        .addChoice('Taiko', 'taiko')
+        .addChoice('Mania', 'mania')
+    )
 
-  async run (message: Message, args: string[]): Promise<Message> {
+  async run (interaction: CommandInteraction): Promise<Message> {
     try {
-      const user = await getUser({ message, args })
+      const username = interaction.options.getString('username')
+      const mode = interaction.options.getString('mode') || 'osu'
 
-      if (!user) {
-        return message.channel.send({ embeds: [notFoundEmbed] })
-      }
+      const user = await getUser({ username, mode })
 
       const embed = new MessageEmbed()
-        .setTitle(`${message.member.displayName} has been set to ${user.name}`)
+        .setTitle(`${interaction.user.username} has been set to ${user.name}`)
         .setThumbnail(getOsuAvatar(user.id))
         .addField('Rank', `#${user.pp.rank}`, true)
-        .addField('mode', 'osu!', true)
+        .addField('Mode', `${getEmoji(mode)} ${mode}`, true)
         .setColor(11279474)
 
-      const { data: isDiscordUserPresent } = await supabase
+      const { error } = await supabase
         .from('users')
-        .select('discord_id')
-        .eq('discord_id', message.author.id)
-
-      // If the Discord ID is present, update instead of insert
-      if (isDiscordUserPresent.length > 0) {
-        const { error } = await supabase
-          .from('users')
-          .update({ osu_id: user.id })
-          .eq('discord_id', message.author.id)
-
-        if (error) {
-          console.error(error)
-          return message.reply('Sorry, there was an error.')
-        }
-
-        return message.channel.send({ embeds: [embed] })
-      }
-
-      // Link the Discord ID to the osu id
-      const { error } = await supabase.from('users').insert([
-        {
-          discord_id: message.author.id,
-          osu_id: user.id
-        }
-      ])
+        .upsert({
+          discord_id: interaction.user.id,
+          osu_id: user.id,
+          mode
+        })
+        .eq('discord_id', interaction.user.id)
 
       if (error) {
         console.error(error)
-        return message.reply('Sorry, there was an error.')
+        interaction.reply({
+          content: error.message,
+          ephemeral: true
+        })
+        return
       }
 
-      message.channel.send({ embeds: [embed] })
-    } catch {
+      interaction.reply({ embeds: [embed] })
+      return
+    } catch (error) {
       const embed = new MessageEmbed()
-        .setTitle('Player not found')
-        .setThumbnail('https://a.ppy.sh/')
+        .setTitle('Error')
+        .setDescription(error.message)
 
-      return message.channel.send({ embeds: [embed] })
+      interaction.reply({ embeds: [embed] })
     }
   }
 }

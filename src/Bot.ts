@@ -83,8 +83,6 @@ export default class Bot {
         ephemeral: true
       })
     }
-
-    console.log(interaction)
   }
 
   initSlashCommands = async (): Promise<void> => {

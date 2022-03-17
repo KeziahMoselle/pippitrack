@@ -41,7 +41,7 @@ type Emojis =
   'taiko' |
   'fruits'
 
-export default function getEmoji (rank: Rank | Emojis): string {
+export default function getEmoji (rank: Rank | Emojis | string): string {
   const rankLetter = rank.toLowerCase()
 
   if (RANK_EMOJIS[rankLetter]) {

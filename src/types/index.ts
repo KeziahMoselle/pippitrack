@@ -35,7 +35,7 @@ export interface BaseDiscordCommand {
   description?: string
   category?: string
 
-  data?: SlashCommandBuilder
+  data?: SlashCommandBuilder | any
 
   run(...args): Promise<Message | Message[] | void>
   handleSelect?(...args): Promise<void | Message>

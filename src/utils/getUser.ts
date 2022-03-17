@@ -7,6 +7,19 @@ interface GetUserArgs {
   message?: Message
   args?: string[]
   id?: string
+  username?: string
+  mode?: string
+}
+
+function getModeInt (mode: string) {
+  const modes = {
+    osu: 0,
+    taiko: 1,
+    ctb: 2,
+    mania: 3
+  }
+
+  return modes[mode]
 }
 
 /**
@@ -15,8 +28,18 @@ interface GetUserArgs {
 export default async function getUser ({
   message,
   args,
-  id
+  id,
+  username,
+  mode = 'osu'
 }: GetUserArgs): Promise<User> {
+  if (username) {
+    return osu.getUser({
+      u: username,
+      type: 'string',
+      m: getModeInt(mode)
+    })
+  }
+
   if (message?.mentions?.users?.size > 0) {
     const id = message.mentions.users.first().id
     const { data: dbUser } = await supabase
