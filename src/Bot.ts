@@ -89,13 +89,24 @@ export default class Bot {
     try {
       console.log('Started refreshing application (/) commands.')
 
-      await this.rest.put(
-        Routes.applicationGuildCommands(
-          '869554664327221248',
-          '869542280158150707'
-        ),
-        { body: this.commands.map(command => command.data.toJSON()) }
-      )
+      const body = this.commands.map(command => command.data.toJSON())
+
+      if (process.env.NODE_ENV === 'development') {
+        await this.rest.put(
+          Routes.applicationGuildCommands(
+            process.env.DISCORD_CLIENT_ID,
+            process.env.DISCORD_GUILD_ID
+          ),
+          { body }
+        )
+      }
+
+      if (process.env.NODE_ENV === 'production') {
+        await this.rest.put(
+          Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+          { body }
+        )
+      }
 
       console.log('Successfully reloaded application (/) commands.')
     } catch (error) {
