@@ -56,8 +56,7 @@ export default class Bot {
 
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
 
-    if (message.content.startsWith(prefix)) {
-      this.runCommand(message, prefix)
+    if (!message.content.startsWith(prefix)) {
       return
     }
 
