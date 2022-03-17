@@ -23,7 +23,8 @@ import {
   Configure,
   Link,
   Gifted,
-  Help
+  Help,
+  Osu
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -53,6 +54,7 @@ bot
   .addCommand(new Link())
   .addCommand(new Gifted())
   .addCommand(new Help())
+  .addCommand(new Osu())
   .run()
 
 // Run subscribers

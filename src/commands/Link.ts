@@ -1,11 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { CommandInteraction, Interaction, Message, MessageEmbed } from 'discord.js'
+import { CommandInteraction, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import getEmoji from '../utils/getEmoji'
 import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
-import notFoundEmbed from '../utils/notFoundEmbed'
 
 export default class LinkCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
@@ -25,7 +24,7 @@ export default class LinkCommand implements BaseDiscordCommand {
         .addChoice('Mania', 'mania')
     )
 
-  async run (interaction: CommandInteraction): Promise<Message> {
+  async run (interaction: CommandInteraction): Promise<void> {
     try {
       const username = interaction.options.getString('username')
       const mode = interaction.options.getString('mode') || 'osu'
