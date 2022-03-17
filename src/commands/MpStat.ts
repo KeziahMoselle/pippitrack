@@ -174,7 +174,6 @@ export default class MpStat implements BaseDiscordCommand {
     const srList = []
     const bpmList = []
     const playersList = []
-    const mostWellPlayedMap = ''
 
     const beatmapsFetches = games.map(game => osu.getBeatmaps({ b: game.beatmapId }))
     const beatmaps = (await Promise.all(beatmapsFetches))
