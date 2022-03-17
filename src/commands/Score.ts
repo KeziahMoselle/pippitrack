@@ -14,6 +14,10 @@ export default class ScoreCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
     .setName('score')
     .setDescription('Get differences in score/ranks')
+    .addStringOption((option) =>
+      option.setName('username')
+        .setDescription('Your osu! username')
+    )
 
   async run (interaction: CommandInteraction): Promise<void> {
     try {
