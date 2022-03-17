@@ -1,4 +1,4 @@
-import { MessageEmbed, Message, Interaction, CommandInteraction } from 'discord.js'
+import { MessageEmbed, CommandInteraction } from 'discord.js'
 import axios from 'axios'
 import { osuApiV2 } from '../libs/osu'
 import getUser from '../utils/getUser'
