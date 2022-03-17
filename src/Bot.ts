@@ -1,4 +1,4 @@
-import { Client, Collection, Guild, Interaction, Message, MessageEmbed, Permissions } from 'discord.js'
+import { Client, Collection, Guild, Interaction, Message, MessageEmbed, MessageInteraction, Permissions } from 'discord.js'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import getPrefixes from './utils/getPrefixes'
@@ -12,7 +12,7 @@ export default class Bot {
 
   rest = new REST({ version: '9' })
 
-  commands = new Collection()
+  commands = new Collection<string, BaseDiscordCommand>()
 
   onReady = null
 
@@ -62,6 +62,12 @@ export default class Bot {
    * Run a / command
    */
   onInteractionCreate = async (interaction: Interaction): Promise<void> => {
+    if (interaction.isSelectMenu()) {
+      const messageInteraction = interaction.message.interaction as MessageInteraction
+      const command = this.commands.get(messageInteraction.commandName)
+      command.handleSelect(interaction)
+    }
+
     if (!interaction.isCommand()) return
 
     const command = this.commands.get(interaction.commandName)
@@ -81,18 +87,16 @@ export default class Bot {
     console.log(interaction)
   }
 
-  initSlashCommands = async () => {
+  initSlashCommands = async (): Promise<void> => {
     try {
       console.log('Started refreshing application (/) commands.')
-
-      console.log(JSON.stringify(Array.from(this.commands)))
 
       await this.rest.put(
         Routes.applicationGuildCommands(
           '869554664327221248',
           '869542280158150707'
         ),
-        { body: this.commands.values() }
+        { body: this.commands.map(command => command.data.toJSON()) }
       )
 
       console.log('Successfully reloaded application (/) commands.')
@@ -167,7 +171,7 @@ export default class Bot {
    * @memberof Bot
    */
   addCommand = (command: BaseDiscordCommand): this => {
-    this.commands.set(command.name, command)
+    this.commands.set(command.data.name, command)
     return this
   }
 

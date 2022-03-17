@@ -1,3 +1,5 @@
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { APIMessage } from 'discord-api-types/v9'
 import { Message, TextChannel } from 'discord.js'
 
 export interface TrackedPlayer {
@@ -28,10 +30,13 @@ export interface GetTrackedPlayersData {
 }
 
 export interface BaseDiscordCommand {
-  name: string
-  arguments: string[]
-  description: string
-  category: string
+  name?: string
+  arguments?: string[]
+  description?: string
+  category?: string
+
+  data?: SlashCommandBuilder
 
   run(...args): Promise<Message | Message[] | void>
+  handleSelect?(...args): Promise<void | Message>
 }
