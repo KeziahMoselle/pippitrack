@@ -55,17 +55,25 @@ export default class Bot {
 
     if (!message.content.startsWith(prefix)) return
 
-    const embed = new MessageEmbed()
-      .setTitle('Migrating to slash commands')
-      .setDescription(
-        'Discord is enforcing / commands, please use them instead.\n' +
-        '`/configure` | `/link` | `/update` | `/score` | `/gifted` | `/help` | `/osu` | `/peak` | `/track` | `/untrack` | `/tracklist`'
-      )
-      .setColor(14504273)
+    const commandName = message.content.split(prefix)[1]
 
-    message.reply({
-      embeds: [embed]
-    })
+    if (
+      this.commands.has(commandName) ||
+      commandName === 'u' ||
+      commandName === 'config'
+    ) {
+      const embed = new MessageEmbed()
+        .setTitle('Migrating to slash commands')
+        .setDescription(
+          'Discord is enforcing / commands, please use them instead.\n' +
+          '`/configure` | `/link` | `/update` | `/score` | `/gifted` | `/help` | `/osu` | `/peak` | `/track` | `/untrack` | `/tracklist`'
+        )
+        .setColor(14504273)
+
+      message.reply({
+        embeds: [embed]
+      })
+    }
   }
 
   /**
