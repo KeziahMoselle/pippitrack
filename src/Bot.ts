@@ -62,10 +62,12 @@ export default class Bot {
       commandName === 'u' ||
       commandName === 'config'
     ) {
+      console.log(`${message.member.toString()} used ${commandName}.`)
       const embed = new MessageEmbed()
         .setTitle('Migrating to slash commands')
         .setDescription(
           'Discord is enforcing / commands, please use them instead.\n' +
+          'If you don\'t see any commands when typing "/" please kick and [reinvite the bot](https://invite.pippitrack.com/).\n\n' +
           '`/configure` | `/link` | `/update` | `/score` | `/gifted` | `/help` | `/osu` | `/peak` | `/track` | `/untrack` | `/tracklist`'
         )
         .setColor(14504273)
