@@ -43,7 +43,8 @@ export default async function getUser ({
   if (id) {
     return osu.getUser({
       u: id,
-      type: 'id'
+      type: 'id',
+      m: getModeInt(mode)
     })
   }
 
@@ -58,7 +59,8 @@ export default async function getUser ({
     if (savedUsername) {
       return osu.getUser({
         u: savedUsername.osu_id,
-        type: 'id'
+        type: 'id',
+        m: getModeInt(mode)
       })
     }
   }

@@ -28,7 +28,10 @@ import {
   Peak,
   Ping,
   Score,
-  Update
+  Update,
+  Track,
+  Untrack,
+  Tracklist
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -63,6 +66,9 @@ bot
   .addCommand(new Ping(client))
   .addCommand(new Score())
   .addCommand(new Update())
+  .addCommand(new Track())
+  .addCommand(new Untrack())
+  .addCommand(new Tracklist())
   .run()
 
 // Run subscribers
