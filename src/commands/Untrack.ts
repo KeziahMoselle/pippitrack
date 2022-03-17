@@ -1,5 +1,5 @@
-import { MessageButton } from 'discord-buttons'
-import { Message, MessageEmbed } from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import getUser from '../utils/getUser'
@@ -7,87 +7,81 @@ import notFoundEmbed from '../utils/notFoundEmbed'
 import untrackUser from '../utils/untrackUser'
 
 export default class UntrackCommand implements BaseDiscordCommand {
-  name = 'untrack'
-  arguments = ['username']
-  description = 'Allows you to untrack a player'
-  category = 'osu'
+  data = new SlashCommandBuilder()
+    .setName('untrack')
+    .setDescription('Allows you to untrack a player or the entire server.')
+    .addStringOption((option) =>
+      option.setName('username')
+        .setDescription('Your osu! username')
+        .setRequired(false)
+    )
+    .addBooleanOption(option =>
+      option.setName('all')
+        .setDescription('Untrack all players')
+    )
 
-  async untrackAll (message: Message): Promise<Message | Message[]> {
+  async untrackAll (interaction: CommandInteraction): Promise<void> {
     const { count } = await supabase
       .from('tracked_users')
       .select('id', { count: 'exact' })
-      .eq('guild_id', message.guild.id)
+      .eq('guild_id', interaction.guild.id)
 
     if (count === 0) {
       const embed = new MessageEmbed().setDescription(
         'This server has no tracked player!'
       )
 
-      return message.channel.send(embed)
+      return interaction.reply({ embeds: [embed] })
     }
 
-    let secondsBeforeCancel = 10
+    const { data: untrackedUsers, error } = await supabase
+      .from('tracked_users')
+      .delete()
+      .eq('guild_id', interaction.guild.id)
+
+    if (error) {
+      console.error('handleUntrackBtn error :', error)
+      return interaction.reply({
+        content: 'Sorry, there was an error.',
+        ephemeral: true
+      })
+    }
 
     const embed = new MessageEmbed()
-      .setDescription(
-        `Do you really want to untrack **${count}** player${
-          count > 1 ? 's' : ''
-        } tracked on this server ?`
+      .setTitle(
+      `Successfully untracked ${untrackedUsers.length} player${
+        untrackedUsers.length > 1 ? 's' : ''
+      }.`
       )
-      .setFooter(`You have ${secondsBeforeCancel}s to confirm this action.`)
-      .setColor(14504273)
+      .setColor(6867286)
 
-    const untrackAllBtn = new MessageButton()
-      .setStyle('red')
-      .setLabel(`Untrack ${count} player${count > 1 ? 's' : ''}`)
-      .setID(`untrackall_${message.guild.id}_${message.author.id}`)
-
-    const sentMessage = (await message.channel.send(
-      embed,
-      untrackAllBtn
-    )) as Message
-
-    const interval = setInterval(() => {
-      if (sentMessage.embeds[0]?.title?.includes('Successfully')) {
-        clearInterval(interval)
-        return sentMessage
-      }
-      secondsBeforeCancel -= 2
-
-      if (secondsBeforeCancel <= 0) {
-        clearInterval(interval)
-        sentMessage.delete()
-      } else {
-        const newEmbed = embed.setFooter(
-          `You have ${secondsBeforeCancel}s to confirm this action.`
-        )
-        sentMessage.edit(newEmbed)
-      }
-    }, 2000)
-
-    return sentMessage
+    interaction.reply({ embeds: [embed] })
   }
 
-  /**
-   * @param {module:discord.js.Message} message
-   * @param {string[]} args
-   */
-  async run (message: Message, args: string[]): Promise<Message | Message[]> {
-    if (args.includes('-all')) {
-      return this.untrackAll(message)
+  async run (interaction: CommandInteraction): Promise<void> {
+    const username = interaction.options.getString('username')
+    const all = interaction.options.getBoolean('all')
+
+    if (all) {
+      return this.untrackAll(interaction)
     }
 
-    const user = await getUser({ message, args })
-
-    if (!user) {
-      return message.channel.send(notFoundEmbed)
+    if (!username) {
+      return interaction.reply({ embeds: [notFoundEmbed] })
     }
+
+    const user = await getUser({
+      username
+    })
 
     // Check if the author has the permission to untrack the user
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply(
-        'You need to be an Administrator to untrack players.'
-      )
+    const member = interaction.member as GuildMember
+
+    if (!member.permissions.has('ADMINISTRATOR')) {
+      return interaction.reply({
+        content: 'You need to be an Administrator to untrack players.',
+        ephemeral: true
+      })
     }
 
     try {
@@ -95,7 +89,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
         .from('tracked_users')
         .select('id')
         .eq('osu_id', user.id)
-        .eq('guild_id', message.guild.id)
+        .eq('guild_id', interaction.guild.id)
         .single()
 
       if (!userFound) {
@@ -103,7 +97,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
           `${user.name} is not tracked.`
         )
 
-        return message.channel.send(embed)
+        return interaction.reply({ embeds: [embed] })
       }
 
       await untrackUser(userFound.id)
@@ -112,14 +106,17 @@ export default class UntrackCommand implements BaseDiscordCommand {
         `${user.name} is no longer being tracked.`
       )
 
-      message.channel.send(embed)
+      interaction.reply({ embeds: [embed] })
     } catch (error) {
+      if (error.message === 'Cannot read property \'rank\' of undefined') {
+        return interaction.reply({ embeds: [notFoundEmbed] })
+      }
+
       console.error(error)
       const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${args.join(' ')}`)
-        .setThumbnail('https://a.ppy.sh/')
+        .setDescription(error.message)
 
-      return message.channel.send(embed)
+      return interaction.reply({ embeds: [embed] })
     }
   }
 }

@@ -1,14 +1,20 @@
-import { MessageEmbed, Message } from 'discord.js'
+import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { maxTrackedUsersInGuild } from '../config'
 import { BaseDiscordCommand } from '../types'
 import { TrackedUsersRow } from '../types/db'
+import { SlashCommandBuilder } from '@discordjs/builders'
 
 export default class TracklistCommand implements BaseDiscordCommand {
-  name = 'tracklist'
-  arguments = ['page']
-  description = 'Display the list of tracked users in the server.'
-  category = 'osu'
+  data = new SlashCommandBuilder()
+    .setName('tracklist')
+    .setDescription('Display the list of tracked users in the server.')
+    .addIntegerOption(option =>
+      option.setName('page')
+        .setDescription('The page number to display.')
+        .setMinValue(1)
+        .setMaxValue(5)
+    )
 
   fetchPage (page: number, guildId: string) {
     let startIndex = 0
@@ -43,48 +49,50 @@ export default class TracklistCommand implements BaseDiscordCommand {
    * @param {module:discord.js.Message} message
    * @param {string[]} args
    */
-  async run (message: Message, args: string[]): Promise<Message | Message[]> {
-    const [page = 1] = args
+  async run (interaction: CommandInteraction): Promise<void> {
+    const page = interaction.options.getInteger('page') || 1
 
     // Check if the author has the permission to run this command
-    if (!message.member.hasPermission('ADMINISTRATOR')) {
-      return message.reply(
-        'You need to be an Administrator to use this command.'
-      )
+    const member = interaction.member as GuildMember
+    if (!member.permissions.has('ADMINISTRATOR')) {
+      return interaction.reply({
+        content: 'You need to be an Administrator to use this command.',
+        ephemeral: true
+      })
     }
 
     try {
       const { data: trackedUsers, error } = await this.fetchPage(
         Number(page),
-        message.guild.id
+        interaction.guild.id
       )
-      const totalCount = await this.getTotalCount(message.guild.id)
+      const totalCount = await this.getTotalCount(interaction.guild.id)
 
       if (error) {
         console.error(
           'Error at fetching tracklist page',
           error,
-          message.guild.id
+          interaction.guild.id
         )
-        return message.reply(`Error while fetching page ${page}`)
+        return interaction.reply(`Error while fetching page ${page}`)
       }
 
       if (trackedUsers.length === 0) {
         const embed = new MessageEmbed()
           .setTitle('There is no tracked users in this server')
-          .setDescription('Start tracking by typing `!track username`')
+          .setDescription('Start tracking by typing `/track username`')
 
-        return message.channel.send(embed)
+        return interaction.reply({ embeds: [embed] })
       }
 
       const embed = new MessageEmbed()
-        .setTitle(`List of tracked users in ${message.guild.name}`)
-        .setFooter(
-          `${totalCount} tracked users (max: ${maxTrackedUsersInGuild}) | Page ${page}/${this.roundUp(
+        .setTitle(`List of tracked users in ${interaction.guild.name}`)
+        .setFooter({
+          text: `${totalCount} tracked users (max: ${maxTrackedUsersInGuild}) | Page ${page}/${this.roundUp(
             totalCount / 25,
             0
           )}`
-        )
+        })
         .setColor(11279474)
 
       const description = trackedUsers.reduce((description, user) => {
@@ -94,11 +102,11 @@ export default class TracklistCommand implements BaseDiscordCommand {
 
       embed.setDescription(description)
 
-      message.channel.send(embed)
+      interaction.reply({ embeds: [embed] })
     } catch (error) {
       console.error(error)
 
-      return message.reply(
+      return interaction.reply(
         'An error occurred while trying to fetch the list of tracked users.'
       )
     }

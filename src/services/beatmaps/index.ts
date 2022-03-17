@@ -97,7 +97,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
   const job = new CronJob({
     cronTime: EVERY_1_MINUTE,
     onTick: newBeatmaps,
-    timeZone: 'Europe/Paris'
+    timeZone: 'Europe/Paris',
+    runOnInit: process.env.NODE_ENV === 'development'
   })
 
   const sentBeatmaps = new Set()
@@ -147,7 +148,10 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         const embed = new MessageEmbed()
           .setTitle(`${beatmap.artist} - ${beatmap.title}`)
           .setURL(`https://osu.ppy.sh/beatmapsets/${beatmap.id}`)
-          .setAuthor(`${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`, getOsuAvatar(creator.id))
+          .setAuthor({
+            name: `${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`,
+            iconURL: getOsuAvatar(creator.id)
+          })
           .setImage(`https://assets.ppy.sh/beatmaps/${beatmap.id}/covers/cover.jpg`)
 
         if (beatmap.status === 'ranked') {
@@ -191,7 +195,7 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         for (const chan of channels) {
           try {
             const channel = client.channels.cache.get(chan) as TextChannel
-            channel.send(embed)
+            channel.send({ embeds: [embed] })
           } catch (error) {
             console.error('Cannot get channel', chan)
           }

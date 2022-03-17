@@ -19,7 +19,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     const user = await getUser({ message, args })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return message.channel.send({ embeds: [notFoundEmbed] })
     }
 
     const [score] = await osuApiV2.getUserRecentScores({ id: user.id })
@@ -35,13 +35,13 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
         .addField('mods', `+${score.mods.join('')}`, true)
         .setThumbnail(score.beatmapset.covers.list)
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     }
 
     const embed = new MessageEmbed().setDescription(
       `No recent score for ${user.name}`
     )
 
-    return message.channel.send(embed)
+    return message.channel.send({ embeds: [embed] })
   }
 }

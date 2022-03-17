@@ -20,18 +20,18 @@ import trackedUsers from './subscribers/trackedUsers'
 
 // Commands
 import {
-  Track,
-  Peak,
-  Help,
-  Link,
-  Update,
-  Ping,
-  Osu,
-  Untrack,
-  Tracklist,
   Configure,
+  Link,
+  Gifted,
+  Help,
+  Osu,
+  Peak,
+  Ping,
   Score,
-  Gifted
+  Update,
+  Track,
+  Untrack,
+  Tracklist
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -57,18 +57,18 @@ bot.onReady = (client) => {
 }
 
 bot
+  .addCommand(new Configure())
   .addCommand(new Link())
-  .addCommand(new Track())
-  .addCommand(new Update())
+  .addCommand(new Gifted())
+  .addCommand(new Help())
   .addCommand(new Osu())
   .addCommand(new Peak())
+  .addCommand(new Ping(client))
+  .addCommand(new Score())
+  .addCommand(new Update())
+  .addCommand(new Track())
   .addCommand(new Untrack())
   .addCommand(new Tracklist())
-  .addCommand(new Configure())
-  .addCommand(new Ping(bot.client))
-  .addCommand(new Help())
-  .addCommand(new Score())
-  .addCommand(new Gifted())
   .run()
 
 // Run subscribers

@@ -1,5 +1,4 @@
-import { MessageEmbed, Message, TextChannel } from 'discord.js'
-import { MessageButton } from 'discord-buttons'
+import { MessageEmbed, TextChannel, CommandInteraction, GuildMember } from 'discord.js'
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
@@ -8,31 +7,49 @@ import prefixes from '../libs/prefixes'
 import { GuildRow } from '../types/db'
 import { BaseDiscordCommand } from '../types'
 import getOsuAvatar from '../utils/getOsuAvatar'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import getEmoji from '../utils/getEmoji'
 
 export default class TrackCommand implements BaseDiscordCommand {
-  name = 'track'
-  arguments = ['username']
-  description =
-    'Allows you to track top plays and replays. Also enable daily updates of your profile.'
+  data = new SlashCommandBuilder()
+    .setName('track')
+    .setDescription('Allows you to track top plays and replays. Also enable daily updates of your profile.')
+    .addStringOption((option) =>
+      option.setName('username')
+        .setDescription('Your osu! username')
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option.setName('mode')
+        .setDescription('Game mode')
+        .addChoice('Standard', 'osu')
+        .addChoice('Catch The Beat', 'fruits')
+        .addChoice('Taiko', 'taiko')
+        .addChoice('Mania', 'mania')
+        .setRequired(true)
+    )
 
-  category = 'osu'
+  async run (interaction: CommandInteraction): Promise<void> {
+    const username = interaction.options.getString('username')
+    const mode = interaction.options.getString('mode') || 'osu'
 
-  /**
-   * @param {module:discord.js.Message} message
-   * @param {string[]} args
-   */
-  async run (message: Message, args: string[]): Promise<Message | Message[]> {
-    const user = await getUser({ message, args })
+    const user = await getUser({
+      username,
+      discordId: interaction.user.id,
+      mode
+    })
 
     if (!user) {
-      return message.channel.send(notFoundEmbed)
+      return interaction.reply({ embeds: [notFoundEmbed] })
     }
+
+    const member = interaction.member as GuildMember
 
     try {
       const { count } = await supabase
         .from('tracked_users')
         .select('*', { count: 'exact' })
-        .eq('guild_id', message.guild.id)
+        .eq('guild_id', interaction.guild.id)
 
       if (count >= maxTrackedUsersInGuild) {
         const embed = new MessageEmbed()
@@ -42,14 +59,14 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(
             'You can untrack users by typing `!untrack <username>`\nYou can see a list of tracked users by typing `!tracklist <?page>`'
           )
-        return message.channel.send(embed)
+        return interaction.reply({ embeds: [embed] })
       }
 
       const { data: userFound } = await supabase
         .from('tracked_users')
         .select('*')
         .eq('osu_id', user.id)
-        .eq('guild_id', message.guild.id)
+        .eq('guild_id', interaction.guild.id)
         .eq('is_approved', true)
         .single()
 
@@ -60,28 +77,23 @@ export default class TrackCommand implements BaseDiscordCommand {
           .setDescription(`**${user.name}** is already being tracked.`)
           .setThumbnail(getOsuAvatar(user.id))
 
-        const untrackBtn = new MessageButton()
-          .setStyle('red')
-          .setLabel('Untrack')
-          .setID(`untrack_${userFound.id}`)
-
-        return message.channel.send(embed, untrackBtn)
+        return interaction.reply({ embeds: [embed] })
       }
 
       // Check if the guild has set an admin channel.
       const { data: guild } = await supabase
         .from<GuildRow>('guilds')
         .select('*')
-        .eq('guild_id', message.guild.id)
+        .eq('guild_id', interaction.guild.id)
         .single()
 
       if (!guild || !guild.track_channel) {
         const embed = new MessageEmbed()
           .setTitle('You need to set a tracking channel first')
           .setDescription(
-            'Type `!set track` or `!set replay` in the channel of your choice then type `!track <?username>`.'
+            'Type /configure and setup the track channel then retry.'
           )
-        return message.channel.send(embed)
+        return interaction.reply({ embeds: [embed] })
       }
 
       // If the user wants to be tracked and :
@@ -89,10 +101,10 @@ export default class TrackCommand implements BaseDiscordCommand {
       // - The guild didn't set an admin channel
       // That means we need to show an error message to the user.
       if (
-        !message.member.hasPermission('ADMINISTRATOR') &&
+        !member.permissions.has('ADMINISTRATOR') &&
         !guild.admin_channel
       ) {
-        const prefix = prefixes.get(message.guild.id) || defaultPrefix
+        const prefix = prefixes.get(interaction.guild.id) || defaultPrefix
 
         const embed = new MessageEmbed()
           .setDescription(
@@ -101,20 +113,20 @@ export default class TrackCommand implements BaseDiscordCommand {
           )
           .setColor(14504273)
 
-        return message.channel.send(embed)
+        return interaction.reply({ embeds: [embed] })
       }
 
-      const trackChannel = message.guild.channels.cache.get(guild.track_channel)
-      const replayChannel = message.guild.channels.cache.get(
+      const trackChannel = interaction.guild.channels.cache.get(guild.track_channel)
+      const replayChannel = interaction.guild.channels.cache.get(
         guild.replay_channel
       )
 
       if (
         guild.admin_channel &&
         (trackChannel || replayChannel) &&
-        !message.member.hasPermission('ADMINISTRATOR')
+        !member.permissions.has('ADMINISTRATOR')
       ) {
-        const adminChannel: TextChannel = message.guild.channels.cache.get(
+        const adminChannel: TextChannel = interaction.guild.channels.cache.get(
           guild.admin_channel
         ) as TextChannel
 
@@ -122,56 +134,50 @@ export default class TrackCommand implements BaseDiscordCommand {
           .from('tracked_users')
           .select('is_approved')
           .eq('osu_id', user.id)
-          .eq('guild_id', message.guild.id)
+          .eq('guild_id', interaction.guild.id)
           .eq('is_approved', false)
           .single()
 
         if (userPendingApproval) {
-          return message.reply(
+          return interaction.reply(
             'You already have a pending approval for this server.'
           )
         }
 
         // Add the approval request to the database.
-        const { data: approvalRequest } = await supabase
+        await supabase
           .from('tracked_users')
           .upsert({
             id: userFound?.id,
             osu_id: user.id,
             osu_username: user.name,
-            guild_id: message.guild.id,
+            guild_id: interaction.guild.id,
             is_approved: false
           })
-          .eq('guild_id', message.guild.id)
+          .eq('guild_id', interaction.guild.id)
           .single()
 
         const embed = new MessageEmbed()
           .setTitle(`${user.name} requested to be tracked on this server.`)
-          .setAuthor(
-            message.member.nickname
-              ? message.member.nickname
-              : message.member.displayName,
-            message.author.displayAvatarURL()
+          .setAuthor({
+            name: member.nickname
+              ? member.nickname
+              : member.displayName,
+            iconURL: member.displayAvatarURL()
+          }
           )
           .setDescription(
             'If you want this player to be tracked.\nClick on the button below !'
           )
-          .addField('Discord Tag', message.member, true)
+          .addField('Discord Tag', member.toString(), true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)
           .addField('osu! rank', `#${user.pp.rank}`, true)
           .setThumbnail(getOsuAvatar(user.id))
           .setColor(11279474)
 
-        const trackBtn = new MessageButton()
-          .setStyle('green')
-          .setLabel('Accept')
-          .setID(
-            `track_${approvalRequest.id}_${message.member.id}_${message.guild.id}`
-          )
+        await adminChannel.send({ embeds: [embed] })
 
-        await adminChannel.send(embed, trackBtn)
-
-        message.reply(
+        interaction.reply(
           'Your request has been successfully sent to the administrators.'
         )
 
@@ -185,31 +191,34 @@ export default class TrackCommand implements BaseDiscordCommand {
           id: userFound?.id,
           osu_id: user.id,
           osu_username: user.name,
-          guild_id: message.guild.id,
+          guild_id: interaction.guild.id,
           is_approved: true
         })
-        .eq('guild_id', message.guild.id)
+        .eq('guild_id', interaction.guild.id)
 
       if (error) {
         console.log(error)
-        return message.reply('Sorry, there was an error.')
+        return interaction.reply('Sorry, there was an error.')
       }
 
       const embed = new MessageEmbed()
         .setTitle(`Now tracking : ${user.name}`)
         .setThumbnail(getOsuAvatar(user.id))
         .addField('Rank', `#${user.pp.rank}`, true)
-        .addField('mode', 'osu!', true)
+        .addField('mode', `${getEmoji(mode)} ${mode}`, true)
         .setColor(11279474)
 
-      message.channel.send(embed)
+      interaction.reply({ embeds: [embed] })
     } catch (error) {
+      if (error.message === 'Cannot read property \'rank\' of undefined') {
+        return interaction.reply({ embeds: [notFoundEmbed] })
+      }
+
       console.error(error)
       const embed = new MessageEmbed()
-        .setTitle(`Player not found : ${args.join(' ')}`)
-        .setThumbnail('https://a.ppy.sh/')
+        .setDescription(error.message)
 
-      return message.channel.send(embed)
+      return interaction.reply({ embeds: [embed] })
     }
   }
 }

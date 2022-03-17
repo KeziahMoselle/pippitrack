@@ -1,18 +1,15 @@
 import { Client, Intents } from 'discord.js'
-import disbut from 'discord-buttons'
 
 // Declare intents
 const intents = new Intents([
+  // We want the 'guildCreate' event.
   Intents.FLAGS.GUILDS,
-  Intents.FLAGS.GUILD_MESSAGES,
-  Intents.FLAGS.GUILD_MEMBERS
+  // We still want this intent to send errors messages
+  Intents.FLAGS.GUILD_MESSAGES
 ])
 
 const client = new Client({
-  ws: { intents }
+  intents
 })
-
-// Add Discord buttons integration
-disbut(client)
 
 export default client
