@@ -26,7 +26,8 @@ import {
   Help,
   Osu,
   Peak,
-  Ping
+  Ping,
+  Score
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -59,6 +60,7 @@ bot
   .addCommand(new Osu())
   .addCommand(new Peak())
   .addCommand(new Ping(client))
+  .addCommand(new Score())
   .run()
 
 // Run subscribers

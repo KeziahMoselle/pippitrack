@@ -1,4 +1,5 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import { RanksObject, UpdateRecordRow } from '../types/db'
@@ -10,17 +11,21 @@ import notFoundEmbed from '../utils/notFoundEmbed'
 const intl = new Intl.NumberFormat('en-US')
 
 export default class ScoreCommand implements BaseDiscordCommand {
-  name = 'score'
-  arguments = ['username']
-  description = 'Get the old and new score count of a player'
-  category = 'osu'
+  data = new SlashCommandBuilder()
+    .setName('score')
+    .setDescription('Get differences in score/ranks')
 
-  async run (message: Message, args: string[]): Promise<Message> {
+  async run (interaction: CommandInteraction): Promise<void> {
     try {
-      const user = await getUser({ message, args })
+      const username = interaction.options.getString('username')
+
+      const user = await getUser({
+        username,
+        discordId: interaction.user.id
+      })
 
       if (!user) {
-        return message.channel.send({ embeds: [notFoundEmbed] })
+        return interaction.reply({ embeds: [notFoundEmbed] })
       }
 
       let hasData = true
@@ -96,7 +101,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
         .addField('Total score', `${intl.format(user.scores.total)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`, true)
         .setColor(11279474)
 
-      let messageEmbed = 'First update !'
+      let messageEmbed = 'First update! Play a bit and type this command again to see your changes.'
 
       if (hasData) {
         const unixTimestamp = Math.trunc(new Date(data.created_at).getTime() / 1000)
@@ -104,7 +109,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
         messageEmbed = `Last score update <t:${unixTimestamp}:R>`
       }
 
-      message.channel.send({
+      interaction.reply({
         content: messageEmbed,
         embeds: [embed]
       })
@@ -131,7 +136,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setDescription(`Error: ${error}`)
 
-      return message.channel.send({ embeds: [embed] })
+      return interaction.reply({ embeds: [embed] })
     }
   }
 }
