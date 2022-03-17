@@ -22,7 +22,8 @@ import trackedUsers from './subscribers/trackedUsers'
 import {
   Configure,
   Link,
-  Gifted
+  Gifted,
+  Help
 } from './commands'
 
 const api = new Api(apiPort).start()
@@ -51,6 +52,7 @@ bot
   .addCommand(new Configure())
   .addCommand(new Link())
   .addCommand(new Gifted())
+  .addCommand(new Help())
   .run()
 
 // Run subscribers

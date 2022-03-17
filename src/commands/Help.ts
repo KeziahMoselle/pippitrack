@@ -1,13 +1,11 @@
-import { Message, MessageEmbed } from 'discord.js'
-import { defaultPrefix } from '../config'
-import prefixes from '../libs/prefixes'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import { CommandInteraction, Message, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 
 export default class Help implements BaseDiscordCommand {
-  name = 'help'
-  arguments = []
-  description = 'Display a help message'
-  category = 'general'
+  data = new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('Get some information/links about the bot')
 
   embed = new MessageEmbed()
 
@@ -28,15 +26,12 @@ export default class Help implements BaseDiscordCommand {
       .setColor(5814783)
   }
 
-  async run (message: Message): Promise<Message> {
-    const prefix = prefixes.get(message.guild.id) || defaultPrefix
-
+  async run (interaction: CommandInteraction): Promise<void> {
     const description =
-      `**Administrators** can configure the server by typing \`${prefix}config\`.\n` +
-      `**Users** can link their Discord to an osu! profile by typing \`${prefix}link yourUsername\`\n\n` +
-      `Current prefix is \`${prefix}\``
+      '**Administrators** can configure the server by typing `/configure`.\n' +
+      '**Users** can link their Discord to an osu! profile by typing `/link yourUsername`'
 
     this.embed.setDescription(description)
-    return message.channel.send({ embeds: [this.embed] })
+    interaction.reply({ embeds: [this.embed] })
   }
 }
