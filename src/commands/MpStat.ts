@@ -237,8 +237,6 @@ export default class MpStat implements BaseDiscordCommand {
           srList.push(Number(beatmap.difficulty.rating))
           bpmList.push(Number(beatmap.bpm))
         }
-        console.log(beatmap.title)
-        console.log(bpmList)
         const playerFetches = game.scores.map(multiplayerScore => {
           const counts = multiplayerScore['counts']
           return this.updatePlayerList(multiplayerScore['userId'],
