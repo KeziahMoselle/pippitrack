@@ -133,7 +133,7 @@ Tracked players that use [o!rdr](https://ordr.issou.best/) will have their repla
 
 ## Installation
 
-Have [Node.js](https://nodejs.org/) (version 14.8.x or newer) installed.
+Have [Node.js](https://nodejs.org/) (version 16.8.x or newer) installed.
 
 ```bash
 npm install
