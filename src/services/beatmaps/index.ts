@@ -125,7 +125,6 @@ export default function detectNewBeatmaps (client: Client): CronJob {
       }
 
       if (newBeatmapsets.length === 0) {
-        console.timeEnd('newBeatmaps')
         return
       }
 
@@ -147,7 +146,10 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         const embed = new MessageEmbed()
           .setTitle(`${beatmap.artist} - ${beatmap.title}`)
           .setURL(`https://osu.ppy.sh/beatmapsets/${beatmap.id}`)
-          .setAuthor(`${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`, getOsuAvatar(creator.id))
+          .setAuthor({
+            name: `${beatmap.status === 'loved' ? '❤️ ' : ''}New ${beatmap.status} beatmap by ${beatmap.creator}`,
+            iconURL: getOsuAvatar(creator.id)
+          })
           .setImage(`https://assets.ppy.sh/beatmaps/${beatmap.id}/covers/cover.jpg`)
 
         if (beatmap.status === 'ranked') {

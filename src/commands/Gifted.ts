@@ -31,7 +31,10 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     )
 
     const embed = new MessageEmbed()
-      .setAuthor(user.name, getOsuAvatar(user.id))
+      .setAuthor({
+        name: user.name,
+        iconURL: getOsuAvatar(user.id)
+      })
       .setURL(`https://osu.ppy.sh/users/${user.id}`)
 
     if (score <= 0.5) {

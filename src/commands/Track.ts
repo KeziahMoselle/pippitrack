@@ -159,11 +159,12 @@ export default class TrackCommand implements BaseDiscordCommand {
 
         const embed = new MessageEmbed()
           .setTitle(`${user.name} requested to be tracked on this server.`)
-          .setAuthor(
-            member.nickname
+          .setAuthor({
+            name: member.nickname
               ? member.nickname
               : member.displayName,
-            member.displayAvatarURL()
+            iconURL: member.displayAvatarURL()
+          }
           )
           .setDescription(
             'If you want this player to be tracked.\nClick on the button below !'

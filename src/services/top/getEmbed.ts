@@ -21,10 +21,10 @@ export default async function getEmbed ({
   }
 
   const embed = new MessageEmbed()
-    .setAuthor(
-      `New #${play.personalBestIndex} for ${player.osu_username} in ${play.mode}!`,
-      play.user.avatar_url
-    )
+    .setAuthor({
+      name: `New #${play.personalBestIndex} for ${player.osu_username} in ${play.mode}!`,
+      iconURL: play.user.avatar_url
+    })
     .setThumbnail(play.beatmapset.covers.list)
     .setDescription(
       `**[${play.beatmapset.title}](${play.beatmap.url})** \`[${play.beatmap.version}]\`\n` +
