@@ -3,6 +3,7 @@ import getToken from './getToken'
 import topPlays from './topPlays'
 import totalUsers from './totalUsers'
 import userTracked from './userTracked'
+import stats from './stats'
 
 class Api {
   server = fastify()
@@ -28,6 +29,7 @@ class Api {
 
     this.server.get('/v1/user_tracked', userTracked)
     this.server.get('/v1/total_users', totalUsers)
+    this.server.get('/v1/stats', stats)
     this.server.post('/v1/top_plays', topPlays)
     this.server.post('/v1/get_token', getToken)
   }

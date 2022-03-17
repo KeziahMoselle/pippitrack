@@ -15,7 +15,8 @@ export default function update (client: Client): CronJob {
   const job = new CronJob({
     cronTime: EVERY_30_MINUTES,
     onTick: diffTopPlays,
-    timeZone: 'Europe/Paris'
+    timeZone: 'Europe/Paris',
+    runOnInit: process.env.NODE_ENV === 'development'
   })
 
   async function diffTopPlays () {

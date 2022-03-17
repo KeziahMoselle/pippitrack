@@ -97,7 +97,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
   const job = new CronJob({
     cronTime: EVERY_1_MINUTE,
     onTick: newBeatmaps,
-    timeZone: 'Europe/Paris'
+    timeZone: 'Europe/Paris',
+    runOnInit: process.env.NODE_ENV === 'development'
   })
 
   const sentBeatmaps = new Set()

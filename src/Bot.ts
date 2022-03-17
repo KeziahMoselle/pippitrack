@@ -55,7 +55,17 @@ export default class Bot {
 
     if (!message.content.startsWith(prefix)) return
 
-    this.runCommand(message, prefix)
+    const embed = new MessageEmbed()
+      .setTitle('Migrating to slash commands')
+      .setDescription(
+        'Discord is enforcing / commands, please use them instead.\n' +
+        '`/configure` | `/link` | `/update` | `/score` | `/gifted` | `/help` | `/osu` | `/peak` | `/track` | `/untrack` | `/tracklist`'
+      )
+      .setColor(14504273)
+
+    message.reply({
+      embeds: [embed]
+    })
   }
 
   /**
@@ -158,10 +168,10 @@ export default class Bot {
         .setTitle('Thank you for inviting me ! :blush:')
         .setDescription(
           '**Here some instructions to get you started**\n' +
-            'Administrators can configure the server by typing `!config`.\n' +
-            'Users can link their Discord to an osu! profile by typing `!u yourUsername`\n' +
-            'And you can find the documentation by typing the `!help` command !\n' +
-            'If you need help you can [join the support server](https://discord.gg/bNQUZeHFdR) and ask for help there !'
+            'Administrators can configure the server by typing `/configure`.\n' +
+            'Users can link their Discord to an osu! profile by typing `/link username`\n' +
+            'And you can find the documentation by typing the `/help` command !\n' +
+            'If you need help you can [join the support server](http://discord.pippitrack.com/) and ask for help there !'
         )
         .setFooter({
           text: 'Happy tracking !'
@@ -182,30 +192,6 @@ export default class Bot {
   addCommand = (command: BaseDiscordCommand): this => {
     this.commands.set(command.data.name, command)
     return this
-  }
-
-  /**
-   * Run the right command according to the message
-   *
-   * @param {Message} message
-   * @memberof Bot
-   */
-  runCommand = async (message: Message, prefix: string): Promise<void> => {
-    const content = message.content.toLowerCase()
-    const parts = content.split(' ')
-    const args = parts.slice(1)
-    const commandName = parts[0].replace(prefix, '').toLowerCase()
-    const command = this.commands.get(commandName)
-
-    if (!command) return
-
-    try {
-      await message.channel.sendTyping()
-      await command.run(message, args)
-    } catch (error) {
-      console.error('Error catched Bot.js:', error, JSON.stringify(error))
-      message.channel.send('Sorry there was an error with an external service.')
-    }
   }
 
   fetchPrefixes = async (): Promise<void> => {
