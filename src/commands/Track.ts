@@ -77,7 +77,7 @@ export default class TrackCommand implements BaseDiscordCommand {
         .eq('guild_id', interaction.guild.id)
         .single()
 
-      if (!guild || !guild.track_channel) {
+      if (!guild || !guild.track_channel || !guild.updates_channel) {
         const embed = new MessageEmbed()
           .setTitle('You need to set a tracking channel first')
           .setDescription(
