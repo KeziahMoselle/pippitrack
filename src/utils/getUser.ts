@@ -1,5 +1,5 @@
 import supabase from '../libs/supabase'
-import { osu, osuApiV2 } from '../libs/osu'
+import { osuApiV2 } from '../libs/osu'
 import { Message } from 'discord.js'
 import { User } from '../types/osu'
 import { UsersRow } from '../types/db'

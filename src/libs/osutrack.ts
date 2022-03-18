@@ -1,7 +1,6 @@
 import { MessageEmbed } from 'discord.js'
 import axios from 'axios'
 import supabase from '../libs/supabase'
-import getUser from '../utils/getUser'
 import getEmoji from '../utils/getEmoji'
 import { User } from '../types/osu'
 import { osuApiV2 } from './osu'
