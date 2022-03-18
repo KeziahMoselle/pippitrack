@@ -18,7 +18,8 @@ export default function update (client: Client): CronJob {
   const job = new CronJob({
     cronTime: EVERY_DAY_AT_MIDNIGHT,
     onTick: massUpdatePlayers,
-    timeZone: 'Europe/Paris'
+    timeZone: 'Europe/Paris',
+    runOnInit: process.env.NODE_ENV === 'development'
   })
 
   async function massUpdatePlayers () {
@@ -85,7 +86,8 @@ export default function update (client: Client): CronJob {
 
 async function updatePlayer (player: TrackedPlayer) {
   const { status, embed } = await osuTrack.update({
-    id: player.osu_id
+    id: player.osu_id,
+    mode: player.osu_mode
   })
 
   return {
