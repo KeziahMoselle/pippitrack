@@ -354,10 +354,36 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       .eq('guild_id', guild.id)
       .single()
 
+    // First time using this command in a guild
     if (error) {
-      console.error('getSettingsEmbed error', error)
-      return new MessageEmbed()
-        .setDescription(error.message)
+      const embed = new MessageEmbed()
+        .setTitle(`${guild.name}'s settings`)
+        .addField(
+          'Track Top Plays',
+          'N/A',
+          true
+        )
+        .addField(
+          'Track Beatmaps',
+          'N/A',
+          true
+        )
+        .addField(
+          'Daily Updates',
+          'N/A',
+          true
+        )
+        .addField(
+          'Track o!rdr replays',
+          'N/A',
+          true
+        )
+        .addField(
+          'Track requests',
+          'N/A',
+          true
+        )
+      return embed
     }
 
     if (!error) {
