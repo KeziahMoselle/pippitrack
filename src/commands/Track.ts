@@ -56,7 +56,7 @@ export default class TrackCommand implements BaseDiscordCommand {
             `You reached the limit of tracked users ! (${count}/${maxTrackedUsersInGuild})`
           )
           .setDescription(
-            'You can untrack users by typing `!untrack <username>`\nYou can see a list of tracked users by typing `!tracklist <?page>`'
+            'You can untrack users by typing `/untrack <username>`\nYou can see a list of tracked users by typing `/tracklist <?page>`'
           )
         return interaction.reply({ embeds: [embed] })
       }
@@ -68,16 +68,6 @@ export default class TrackCommand implements BaseDiscordCommand {
         .eq('guild_id', interaction.guild.id)
         .eq('is_approved', true)
         .single()
-
-      // If we find a result there is already a player tracked.
-      if (userFound) {
-        const embed = new MessageEmbed()
-          .setTitle('Player already tracked')
-          .setDescription(`**${user.username}** is already being tracked.`)
-          .setThumbnail(user.avatar_url)
-
-        return interaction.reply({ embeds: [embed] })
-      }
 
       // Check if the guild has set an admin channel.
       const { data: guild } = await supabase
@@ -190,6 +180,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           id: userFound?.id,
           osu_id: user.id,
           osu_username: user.username,
+          osu_mode: mode,
           guild_id: interaction.guild.id,
           is_approved: true
         })

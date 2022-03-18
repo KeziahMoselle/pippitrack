@@ -14,6 +14,7 @@ export interface UsersStateRow {
 export interface TrackedUsersRow {
   id: number
   osu_id: string
+  osu_mode: 'osu' | 'fruits' | 'taiko' | 'mania'
   osu_username: string
   guild_id: string
   is_approved: boolean

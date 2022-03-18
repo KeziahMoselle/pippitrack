@@ -5,6 +5,7 @@ export interface TrackedPlayer {
   guild_id: string
   id: number
   osu_id: string
+  osu_mode: 'osu' | 'fruits' | 'taiko' | 'mania'
   osu_username: string
   trackChannels?: TextChannel[]
   updatesChannels?: TextChannel[]
