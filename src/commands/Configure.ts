@@ -360,27 +360,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setTitle(`${guild.name}'s settings`)
         .addField(
           'Track Top Plays',
-          'N/A',
+          '❌ No channel set.',
           true
         )
         .addField(
           'Track Beatmaps',
-          'N/A',
+          '❌ No channel set.',
           true
         )
         .addField(
           'Daily Updates',
-          'N/A',
+          '❌ No channel set.',
           true
         )
         .addField(
           'Track o!rdr replays',
-          'N/A',
+          '❌ No channel set.',
           true
         )
         .addField(
           'Track requests',
-          'N/A',
+          '❌ No channel set.',
           true
         )
       return embed

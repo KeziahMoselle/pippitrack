@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
+import getModeInt from '../utils/getModeInt'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
@@ -12,14 +13,23 @@ export default class OsuProfileCommand implements BaseDiscordCommand {
       option.setName('username')
         .setDescription('Your osu! username')
     )
+    .addStringOption((option) =>
+      option.setName('mode')
+        .setDescription('Game mode')
+        .addChoice('Standard', 'osu')
+        .addChoice('Catch The Beat', 'fruits')
+        .addChoice('Taiko', 'taiko')
+        .addChoice('Mania', 'mania')
+    )
 
-  IMAGE_ENDPOINT = (id: string | number): string =>
-    `https://lemmmy.pw/osusig/sig.php?colour=pink&uname=${id}&pp=1&darktriangles&onlineindicator=undefined&xpbar&xpbarhex`
+  IMAGE_ENDPOINT = (id: string | number, mode = 'osu'): string =>
+    `https://lemmmy.pw/osusig/sig.php?colour=pink&uname=${id}&pp=1&darktriangles&onlineindicator=undefined&xpbar&xpbarhex&mode=${getModeInt(mode)}`
 
   async run (interaction: CommandInteraction): Promise<void> {
     const username = interaction.options.getString('username')
+    const selectedMode = interaction.options.getString('mode')
 
-    const user = await getUser({
+    const { user } = await getUser({
       username,
       discordId: interaction.user.id
     })
@@ -28,6 +38,6 @@ export default class OsuProfileCommand implements BaseDiscordCommand {
       return interaction.reply({ embeds: [notFoundEmbed] })
     }
 
-    return interaction.reply(this.IMAGE_ENDPOINT(user.id))
+    return interaction.reply(this.IMAGE_ENDPOINT(user.id, selectedMode || user.playmode))
   }
 }

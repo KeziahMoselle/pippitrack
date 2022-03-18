@@ -6,7 +6,6 @@ import { defaultPrefix, maxTrackedUsersInGuild } from '../config'
 import prefixes from '../libs/prefixes'
 import { GuildRow } from '../types/db'
 import { BaseDiscordCommand } from '../types'
-import getOsuAvatar from '../utils/getOsuAvatar'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import getEmoji from '../utils/getEmoji'
 
@@ -33,7 +32,7 @@ export default class TrackCommand implements BaseDiscordCommand {
     const username = interaction.options.getString('username')
     const mode = interaction.options.getString('mode') || 'osu'
 
-    const user = await getUser({
+    const { user } = await getUser({
       username,
       discordId: interaction.user.id,
       mode
@@ -74,8 +73,8 @@ export default class TrackCommand implements BaseDiscordCommand {
       if (userFound) {
         const embed = new MessageEmbed()
           .setTitle('Player already tracked')
-          .setDescription(`**${user.name}** is already being tracked.`)
-          .setThumbnail(getOsuAvatar(user.id))
+          .setDescription(`**${user.username}** is already being tracked.`)
+          .setThumbnail(user.avatar_url)
 
         return interaction.reply({ embeds: [embed] })
       }
@@ -150,7 +149,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           .upsert({
             id: userFound?.id,
             osu_id: user.id,
-            osu_username: user.name,
+            osu_username: user.username,
             guild_id: interaction.guild.id,
             is_approved: false
           })
@@ -158,7 +157,7 @@ export default class TrackCommand implements BaseDiscordCommand {
           .single()
 
         const embed = new MessageEmbed()
-          .setTitle(`${user.name} requested to be tracked on this server.`)
+          .setTitle(`${user.username} requested to be tracked on this server.`)
           .setAuthor({
             name: member.nickname
               ? member.nickname
@@ -171,8 +170,8 @@ export default class TrackCommand implements BaseDiscordCommand {
           )
           .addField('Discord Tag', member.toString(), true)
           .addField('osu! profile', `https://osu.ppy.sh/users/${user.id}`, true)
-          .addField('osu! rank', `#${user.pp.rank}`, true)
-          .setThumbnail(getOsuAvatar(user.id))
+          .addField('osu! rank', `#${user.statistics.global_rank}`, true)
+          .setThumbnail(user.avatar_url)
           .setColor(11279474)
 
         await adminChannel.send({ embeds: [embed] })
@@ -190,7 +189,7 @@ export default class TrackCommand implements BaseDiscordCommand {
         .upsert({
           id: userFound?.id,
           osu_id: user.id,
-          osu_username: user.name,
+          osu_username: user.username,
           guild_id: interaction.guild.id,
           is_approved: true
         })
@@ -202,9 +201,9 @@ export default class TrackCommand implements BaseDiscordCommand {
       }
 
       const embed = new MessageEmbed()
-        .setTitle(`Now tracking : ${user.name}`)
-        .setThumbnail(getOsuAvatar(user.id))
-        .addField('Rank', `#${user.pp.rank}`, true)
+        .setTitle(`Now tracking : ${user.username}`)
+        .setThumbnail(user.avatar_url)
+        .addField('Rank', `#${user.statistics.global_rank}`, true)
         .addField('mode', `${getEmoji(mode)} ${mode}`, true)
         .setColor(11279474)
 

@@ -3,7 +3,6 @@ import { CommandInteraction, MessageEmbed } from 'discord.js'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import getEmoji from '../utils/getEmoji'
-import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
 
 export default class LinkCommand implements BaseDiscordCommand {
@@ -29,12 +28,12 @@ export default class LinkCommand implements BaseDiscordCommand {
       const username = interaction.options.getString('username')
       const mode = interaction.options.getString('mode') || 'osu'
 
-      const user = await getUser({ username, mode })
+      const { user } = await getUser({ username, mode })
 
       const embed = new MessageEmbed()
-        .setTitle(`${interaction.user.username} has been set to ${user.name}`)
-        .setThumbnail(getOsuAvatar(user.id))
-        .addField('Rank', `#${user.pp.rank}`, true)
+        .setTitle(`${interaction.user.username} has been set to ${user.username}`)
+        .setThumbnail(user.avatar_url)
+        .addField('Rank', `#${user.statistics.global_rank}`, true)
         .addField('Mode', `${getEmoji(mode)} ${mode}`, true)
         .setColor(11279474)
 

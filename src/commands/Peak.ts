@@ -5,7 +5,6 @@ import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import getRankAchievements from '../utils/getRankAchievements'
 import { BaseDiscordCommand } from '../types'
-import getOsuAvatar from '../utils/getOsuAvatar'
 import { SlashCommandBuilder } from '@discordjs/builders'
 
 export default class PeakCommand implements BaseDiscordCommand {
@@ -23,7 +22,7 @@ export default class PeakCommand implements BaseDiscordCommand {
   async run (interaction: CommandInteraction): Promise<void> {
     const username = interaction.options.getString('username')
 
-    const user = await getUser({
+    const { user } = await getUser({
       username,
       discordId: interaction.user.id
     })
@@ -45,15 +44,15 @@ export default class PeakCommand implements BaseDiscordCommand {
       const bestAccuracy = peak.best_accuracy.toFixed(2)
 
       const embed = new MessageEmbed()
-        .setTitle(`Peak stats for : ${user.name}`)
-        .setThumbnail(getOsuAvatar(user.id))
+        .setTitle(`Peak stats for : ${user.username}`)
+        .setThumbnail(user.avatar_url)
         .addField('Max rank', `#${rank}`, true)
         .addField('Best accuracy', `${bestAccuracy}%`, true)
         .setFooter(
           'These data may be incorrect if the profile has not yet been tracked on https://ameobea.me/osutrack/'
         )
         .setURL(
-          `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
+          `https://ameobea.me/osutrack/user/${encodeURIComponent(user.username)}`
         )
         .setColor(11279474)
 

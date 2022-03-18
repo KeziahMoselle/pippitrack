@@ -1,6 +1,6 @@
 import axios from 'axios'
 import osuClient from 'node-osu'
-import { Score, Mode } from '../types/osu'
+import { Score, Mode, User } from '../types/osu'
 
 export const osu = new osuClient.Api(process.env.OSU_API_KEY, {
   completeScores: true,
@@ -64,6 +64,19 @@ class OsuApiv2 {
     } catch (error) {
       console.error(url, error)
     }
+  }
+
+  async getUser ({
+    id,
+    username,
+    mode
+  }: {
+    id?: number | string
+    username?: string
+    mode?: 'osu' | 'fruits' | 'mania' | 'taiko' | string
+  }): Promise<User> {
+    const user = await this.fetch(`users/${id || username}/${mode || ''}`)
+    return user
   }
 
   async getUserAchievements ({

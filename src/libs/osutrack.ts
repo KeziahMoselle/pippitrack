@@ -3,8 +3,9 @@ import axios from 'axios'
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import getEmoji from '../utils/getEmoji'
-import { User } from 'node-osu'
-import getOsuAvatar from '../utils/getOsuAvatar'
+import { User } from '../types/osu'
+import { osuApiV2 } from './osu'
+import getModeInt from '../utils/getModeInt'
 
 interface UpdateData {
   embed: MessageEmbed
@@ -15,17 +16,27 @@ interface UpdateData {
 class OsuTrack {
   baseUrl = 'https://ameobea.me/osutrack/api'
 
-  async update (osuUser?: User, id?: string): Promise<UpdateData> {
-    const user = osuUser || (await getUser({ id }))
+  async update ({
+    osuUser,
+    id,
+    mode = 'osu'
+  }: {
+    osuUser?: User,
+    id?: string
+    mode?: string
+  }): Promise<UpdateData> {
+    const user = osuUser || (await osuApiV2.getUser({ id }))
     const embed = new MessageEmbed()
 
-    if (!user.pp.rank) {
+    if (!user.statistics.pp) {
       return
     }
 
     try {
+      const modeInt = getModeInt(mode)
+
       const { data: difference } = await axios.post(
-        `${this.baseUrl}/get_changes.php?mode=0&user=${user.name}`
+        `${this.baseUrl}/get_changes.php?mode=${modeInt}&user=${user.username}`
       )
 
       const { data } = await supabase
@@ -46,12 +57,12 @@ class OsuTrack {
       // This player hasn't been tracked
       if (difference.first) {
         embed
-          .setTitle(`${user.name} is now tracked on osu!track`)
+          .setTitle(`${user.username} has been added on osu!track!`)
           .setDescription(
             'Play a bit and update again to see difference in stats since the last update.'
           )
           .setURL(
-            `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
+            `https://ameobea.me/osutrack/user/${encodeURIComponent(user.username)}`
           )
 
         return {
@@ -62,10 +73,10 @@ class OsuTrack {
       }
 
       embed
-        .setTitle(`Changes since last update for ${user.name}`)
-        .setThumbnail(getOsuAvatar(user.id))
+        .setTitle(`${getEmoji(mode)} Changes since last update for ${user.username}`)
+        .setThumbnail(user.avatar_url)
         .setURL(
-          `https://ameobea.me/osutrack/user/${encodeURIComponent(user.name)}`
+          `https://ameobea.me/osutrack/user/${encodeURIComponent(user.username)}`
         )
 
       let description = ''
@@ -77,13 +88,13 @@ class OsuTrack {
 
       // The player is losing ranks
       if (ppRankNumber > 0) {
-        ppRankDiff = Number(user.pp.rank) - ppRankNumber
+        ppRankDiff = Number(user.statistics.rank) - ppRankNumber
         embed.addField('Rank lost', `-${ppRankNumber}`, true).setColor(14504273)
       }
 
       // The player is gaining ranks
       if (ppRankNumber < 0) {
-        ppRankDiff = Number(user.pp.rank) - ppRankNumber
+        ppRankDiff = Number(user.statistics.rank) - ppRankNumber
         embed
           .addField(
             'Rank gained',
@@ -127,16 +138,16 @@ class OsuTrack {
       embed.addField('Playcount', `+${difference.playcount}`, true)
 
       if (Math.abs(ppRaw) >= 0.1) {
-        const currentNetPp = Number(Number(user.pp.raw).toFixed(2))
+        const currentNetPp = Number(Number(user.statistics.pp).toFixed(2))
         const previousNetPp = (currentNetPp - ppRaw).toFixed(2)
 
         embed.addField('PP', `${ppRaw > 0 ? '+' : ''}${ppRaw}pp`, true)
-        description += `\n**Net pp:**\n${previousNetPp}pp 🠖 ${currentNetPp}pp`
+        description += `\n**Net pp:**\n${previousNetPp}pp → ${currentNetPp}pp`
       }
 
       if (ppRankDiff) {
         embed.addField('Previous Rank', `#${ppRankDiff}`, true)
-        embed.addField('Current rank', `#${user.pp.rank}`, true)
+        embed.addField('Current rank', `#${user.statistics.global_rank}`, true)
       }
 
       if (Math.abs(accuracy) >= 0.01) {

@@ -4,7 +4,6 @@ import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import { RanksObject, UpdateRecordRow } from '../types/db'
 import getEmoji from '../utils/getEmoji'
-import getOsuAvatar from '../utils/getOsuAvatar'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 
@@ -23,7 +22,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
     try {
       const username = interaction.options.getString('username')
 
-      const user = await getUser({
+      const { user } = await getUser({
         username,
         discordId: interaction.user.id
       })
@@ -43,6 +42,7 @@ export default class ScoreCommand implements BaseDiscordCommand {
         S: 0,
         A: 0
       }
+      const level = Number(`${user.statistics.level.current}.${user.statistics.level.progress}`)
 
       const { data } = await supabase
         .from<UpdateRecordRow>('updates_records')
@@ -61,34 +61,34 @@ export default class ScoreCommand implements BaseDiscordCommand {
 
       if (hasData) {
         // Diff score
-        deltaRankedScore = user.scores.ranked - data.ranked_score
-        deltaTotalScore = user.scores.total - data.total_score
+        deltaRankedScore = user.statistics.ranked_score - data.ranked_score
+        deltaTotalScore = user.statistics.total_score - data.total_score
 
         // Diff level
-        deltaLevel = Number((user.level - data.level).toFixed(3))
+        deltaLevel = Number((level - data.level).toFixed(3))
 
         // Diff ranks
         const ranks: RanksObject = data.ranks as RanksObject
 
         deltaRanks = {
-          SSH: user.counts.SSH - ranks.SSH,
-          SS: user.counts.SS - ranks.SS,
-          SH: user.counts.SH - ranks.SH,
-          S: user.counts.S - ranks.S,
-          A: user.counts.A - ranks.A
+          SSH: user.statistics.grade_counts.ssh - ranks.SSH,
+          SS: user.statistics.grade_counts.ss - ranks.SS,
+          SH: user.statistics.grade_counts.sh - ranks.SH,
+          S: user.statistics.grade_counts.s - ranks.S,
+          A: user.statistics.grade_counts.a - ranks.A
         }
       }
 
       let description = ''
 
-      description += `**▸ Level:** ${user.level} ${deltaLevel ? `\`(+${deltaLevel})\`` : ''}\n`
+      description += `**▸ Level:** ${level} ${deltaLevel ? `\`(+${deltaLevel})\`` : ''}\n`
 
       description += '**▸ Ranks:**'
-      description += ` ${getEmoji('xh')} ${user.counts.SSH}`
-      description += ` ${getEmoji('x')} ${user.counts.SS}`
-      description += ` ${getEmoji('sh')} ${user.counts.SH}`
-      description += ` ${getEmoji('s')} ${user.counts.S}`
-      description += ` ${getEmoji('a')} ${user.counts.A}`
+      description += ` ${getEmoji('xh')} ${user.statistics.grade_counts.ssh}`
+      description += ` ${getEmoji('x')} ${user.statistics.grade_counts.ss}`
+      description += ` ${getEmoji('sh')} ${user.statistics.grade_counts.sh}`
+      description += ` ${getEmoji('s')} ${user.statistics.grade_counts.s}`
+      description += ` ${getEmoji('a')} ${user.statistics.grade_counts.a}`
 
       description += '\n**▸ New ranks:**'
       description += ` ${getEmoji('xh')} \`${deltaRanks.SSH < 0 ? '' : '+'}${deltaRanks.SSH}\``
@@ -98,11 +98,11 @@ export default class ScoreCommand implements BaseDiscordCommand {
       description += ` ${getEmoji('a')} \`${deltaRanks.A < 0 ? '' : '+'}${deltaRanks.A}\``
 
       const embed = new MessageEmbed()
-        .setTitle(`Changes since last update for ${user.name}'s scores`)
-        .setThumbnail(getOsuAvatar(user.id))
+        .setTitle(`Changes since last update for ${user.username}'s scores`)
+        .setThumbnail(user.avatar_url)
         .setDescription(description)
-        .addField('Ranked score', `${intl.format(user.scores.ranked)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}`, true)
-        .addField('Total score', `${intl.format(user.scores.total)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`, true)
+        .addField('Ranked score', `${intl.format(user.statistics.ranked_score)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaRankedScore)})\`` : ''}`, true)
+        .addField('Total score', `${intl.format(user.statistics.total_score)}\n${deltaRankedScore > 0 ? `\`(+${intl.format(deltaTotalScore)})\`` : ''}`, true)
         .setColor(11279474)
 
       let messageEmbed = 'First update! Play a bit and type this command again to see your changes.'
@@ -122,15 +122,15 @@ export default class ScoreCommand implements BaseDiscordCommand {
         .from<UpdateRecordRow>('updates_records')
         .insert({
           osu_id: user.id.toString(),
-          ranked_score: user.scores.ranked,
-          total_score: user.scores.total,
-          level: user.level,
+          ranked_score: user.statistics.ranked_score,
+          total_score: user.statistics.total_score,
+          level,
           ranks: {
-            SSH: user.counts.SSH,
-            SS: user.counts.SS,
-            SH: user.counts.SH,
-            S: user.counts.S,
-            A: user.counts.A
+            SSH: user.statistics.grade_counts.ssh,
+            SS: user.statistics.grade_counts.ss,
+            SH: user.statistics.grade_counts.sh,
+            S: user.statistics.grade_counts.s,
+            A: user.statistics.grade_counts.a
           },
           is_score_only: true,
           created_at: new Date()

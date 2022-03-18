@@ -84,7 +84,9 @@ export default function update (client: Client): CronJob {
 }
 
 async function updatePlayer (player: TrackedPlayer) {
-  const { status, embed } = await osuTrack.update(null, player.osu_id)
+  const { status, embed } = await osuTrack.update({
+    id: player.osu_id
+  })
 
   return {
     player,

@@ -16,7 +16,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
    * @param {string[]} args
    */
   async run (message: Message, args: string[]): Promise<Message> {
-    const user = await getUser({ message, args })
+    const { user } = await getUser({ message, args })
 
     if (!user) {
       return message.channel.send({ embeds: [notFoundEmbed] })
@@ -26,7 +26,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
 
     if (score) {
       const embed = new MessageEmbed()
-        .setTitle(`${user.name}'s recent score`)
+        .setTitle(`${user.username}'s recent score`)
         .setDescription(
           `${getEmoji(score.rank)} | ${score.beatmapset.artist} - ${
             score.beatmapset.title
@@ -39,7 +39,7 @@ export default class RecentScoreCommand implements BaseDiscordCommand {
     }
 
     const embed = new MessageEmbed().setDescription(
-      `No recent score for ${user.name}`
+      `No recent score for ${user.username}`
     )
 
     return message.channel.send({ embeds: [embed] })

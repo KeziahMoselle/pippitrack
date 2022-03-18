@@ -13,11 +13,20 @@ export default class UpdateCommand implements BaseDiscordCommand {
       option.setName('username')
         .setDescription('Your osu! username')
     )
+    .addStringOption((option) =>
+      option.setName('mode')
+        .setDescription('Game mode')
+        .addChoice('Standard', 'osu')
+        .addChoice('Catch The Beat', 'fruits')
+        .addChoice('Taiko', 'taiko')
+        .addChoice('Mania', 'mania')
+    )
 
   async run (interaction: CommandInteraction): Promise<void> {
     const username = interaction.options.getString('username')
+    const selectedMode = interaction.options.getString('mode')
 
-    const user = await getUser({
+    const { user, mode } = await getUser({
       username,
       discordId: interaction.user.id
     })
@@ -27,7 +36,10 @@ export default class UpdateCommand implements BaseDiscordCommand {
     }
 
     try {
-      const { embed, embedMessage } = await osuTrack.update(user)
+      const { embed, embedMessage } = await osuTrack.update({
+        osuUser: user,
+        mode: selectedMode || mode
+      })
 
       return interaction.reply({
         content: embedMessage,
@@ -37,8 +49,10 @@ export default class UpdateCommand implements BaseDiscordCommand {
       if (error.message === 'Cannot read property \'rank\' of undefined') {
         return interaction.reply({ embeds: [notFoundEmbed] })
       }
-      console.error(error)
-      interaction.reply(error.message)
+
+      return interaction.reply({
+        content: error.message
+      })
     }
   }
 }

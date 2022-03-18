@@ -12,7 +12,7 @@ export default class Help implements BaseDiscordCommand {
   constructor () {
     this.embed
       .setTitle('Click to see the documentation')
-      .setURL('https://pippitrack.com/')
+      .setURL('https://github.com/KeziahMoselle/pippi-track')
       .addField(
         'Support Server',
         '[Join the support server](http://discord.pippitrack.com/)',
@@ -20,7 +20,7 @@ export default class Help implements BaseDiscordCommand {
       )
       .addField(
         'Source Code',
-        '[GitHub repository](https://github.com/KeziahMoselle/osu-track/)',
+        '[GitHub repository](https://github.com/KeziahMoselle/pippi-track)',
         true
       )
       .setColor(5814783)
