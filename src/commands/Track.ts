@@ -8,6 +8,7 @@ import { GuildRow } from '../types/db'
 import { BaseDiscordCommand } from '../types'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import getEmoji from '../utils/getEmoji'
+import updatePlayerState from '../services/top/updatePlayerState'
 
 export default class TrackCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
@@ -190,6 +191,10 @@ export default class TrackCommand implements BaseDiscordCommand {
         console.log(error)
         return interaction.reply('Sorry, there was an error.')
       }
+
+      updatePlayerState({
+        osu_id: `${user.id}`
+      })
 
       const embed = new MessageEmbed()
         .setTitle(`Now tracking : ${user.username}`)
