@@ -181,8 +181,12 @@ export default function detectNewBeatmaps (client: Client): CronJob {
           diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - [${diff.version}](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})`
 
           // Only add AR and CS for osu gamemode
-          if (diff.mode === 'osu') {
+          if (diff.mode === 'osu' || diff.mode === 'fruits') {
             diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
+          }
+
+          if (diff.mode === 'mania' || diff.mode === 'taiko') {
+            diffDescription += ` \`OD${diff.accuracy}\``
           }
 
           diffDescription += '\n'
