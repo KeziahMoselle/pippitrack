@@ -23,19 +23,19 @@ export default class UpdateCommand implements BaseDiscordCommand {
     )
 
   async run (interaction: CommandInteraction): Promise<void> {
-    const username = interaction.options.getString('username')
-    const selectedMode = interaction.options.getString('mode')
-
-    const { user, mode } = await getUser({
-      username,
-      discordId: interaction.user.id
-    })
-
-    if (!user) {
-      return interaction.reply({ embeds: [notFoundEmbed] })
-    }
-
     try {
+      const username = interaction.options.getString('username')
+      const selectedMode = interaction.options.getString('mode')
+
+      const { user, mode } = await getUser({
+        username,
+        discordId: interaction.user.id
+      })
+
+      if (!user) {
+        return interaction.reply({ embeds: [notFoundEmbed] })
+      }
+
       const { embed, embedMessage } = await osuTrack.update({
         osuUser: user,
         mode: selectedMode || mode

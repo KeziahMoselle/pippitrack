@@ -54,12 +54,12 @@ export default async function getUser ({
     if (savedUsername) {
       const user = await osuApiV2.getUser({
         id: savedUsername.osu_id,
-        mode: savedUsername.mode
+        mode: mode || savedUsername.mode
       })
 
       return {
         user,
-        mode: savedUsername.mode
+        mode: mode || savedUsername.mode
       }
     }
   }

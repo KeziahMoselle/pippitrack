@@ -97,11 +97,13 @@ class OsuTrack {
         embed
           .addField(
             'Rank gained',
-            `+${ppRankNumber.toString().replace('-', '')}`,
-            true
+          `+${ppRankNumber.toString().replace('-', '')}`,
+          true
           )
           .setColor(6867286)
       }
+
+      console.log(ppRankDiff)
 
       if (difference.playcount === 0 && !ppRankDiff) {
         embed.setDescription(
