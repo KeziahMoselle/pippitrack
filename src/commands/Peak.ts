@@ -13,7 +13,7 @@ const intl = new Intl.DateTimeFormat('en-US')
 export default class PeakCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
     .setName('peak')
-    .setDescription('Display peak rank and accuracy of a player')
+    .setDescription('Display peak rank, accuracy, playcount, replay watched and recent rank.')
     .addStringOption((option) =>
       option.setName('username')
         .setDescription('Your osu! username')

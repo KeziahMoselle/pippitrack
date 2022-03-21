@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { MessageEmbed, Message, GuildMember, CommandInteraction, MessageActionRow, MessageSelectMenu, Guild, SelectMenuInteraction } from 'discord.js'
+import { MessageEmbed, Message, GuildMember, CommandInteraction, MessageActionRow, MessageSelectMenu, Guild, SelectMenuInteraction, TextChannel } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { defaultPrefix } from '../config'
 import prefixes from '../libs/prefixes'
@@ -16,17 +16,17 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
   choices = [
     {
-      label: 'Top plays tracking',
-      value: 'enable_track',
-      emoji: '👀',
-      description: 'Set a channel to track top plays',
+      label: 'Daily osu!track updates',
+      value: 'enable_updates',
+      emoji: '🆕',
+      description: 'Set a channel for daily updates',
       embed: new MessageEmbed()
-        .setTitle('👀 Top plays tracking')
+        .setTitle('🆕 Daily osu!track updates')
         .setDescription(
-          'To enable top plays tracking mention the channel you want to send the top plays to.\nExample : `#track`\nDeactivate top plays tracking : `false`'
+          'To enable daily osu!track updates mention the channel you want to send the updates to.\nExample : `#updates`\nDeactivate daily updates : `false`'
         )
         .setFooter({
-          text: 'Please mention the track #channel or  `false` to deactivate'
+          text: 'Please mention the updates #channel or  `false` to deactivate'
         })
     },
     {
@@ -44,17 +44,17 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         })
     },
     {
-      label: 'Daily osu!track updates',
-      value: 'enable_updates',
-      emoji: '🆕',
-      description: 'Set a channel for daily updates',
+      label: 'Top plays tracking',
+      value: 'enable_track',
+      emoji: '👀',
+      description: 'Set a channel to track top plays',
       embed: new MessageEmbed()
-        .setTitle('🆕 Daily osu!track updates')
+        .setTitle('👀 Top plays tracking')
         .setDescription(
-          'To enable daily osu!track updates mention the channel you want to send the updates to.\nExample : `#updates`\nDeactivate daily updates : `false`'
+          'To enable top plays tracking mention the channel you want to send the top plays to.\nExample : `#track`\nDeactivate top plays tracking : `false`'
         )
         .setFooter({
-          text: 'Please mention the updates #channel or  `false` to deactivate'
+          text: 'Please mention the track #channel or  `false` to deactivate'
         })
     },
     {
@@ -72,12 +72,12 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         })
     },
     {
-      label: 'Bot prefix',
+      label: 'Bot prefix (will be deprecated)',
       value: 'change_prefix',
       emoji: '❗',
       description: 'Custom prefix for your server',
       embed: new MessageEmbed()
-        .setTitle('❗ Bot prefix')
+        .setTitle('❗ Bot prefix (will be deprecated)')
         .setDescription(
           'To set a new prefix type the prefix you want to use.\nExample : `>`'
         )
@@ -96,12 +96,6 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         .setFooter({
           text: 'Please type either a #channel or  `false` to deactivate requests'
         })
-    },
-    {
-      label: 'I am done !',
-      value: 'finished',
-      emoji: '👍',
-      description: "I'm done editing my server settings"
     }
   ]
 
@@ -143,6 +137,16 @@ export default class ConfigureCommand implements BaseDiscordCommand {
   async handleSelect (interaction: SelectMenuInteraction): Promise<void> {
     try {
       await interaction.deferUpdate()
+
+      const member = interaction.member as GuildMember
+
+      if (!member.permissions.has('ADMINISTRATOR')) {
+        return interaction.reply({
+          content: 'You need to be an Administrator to use this command.',
+          ephemeral: true
+        })
+      }
+
       const [value] = interaction.values
       const choice = this.choices.find((c) => c.value === value)
 
@@ -183,7 +187,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
         if (value === 'enable_track') {
           if (message.mentions.channels.size > 0) {
-            const channel = message.mentions.channels.first()
+            const channel = message.mentions.channels.first() as TextChannel
+
+            try {
+              const embed = new MessageEmbed()
+                .setDescription('✅ I will send new top plays here!')
+                .setColor(6867286)
+
+              await channel.send({
+                embeds: [embed]
+              })
+            } catch (error) {
+              const embed = new MessageEmbed()
+                .setDescription(`❌ Can't send messages to <#${channel}>`)
+                .setColor(14504273)
+
+              interaction.channel.send({
+                embeds: [embed]
+              })
+
+              return
+            }
 
             await this.updateGuildSetting(
               'track_channel',
@@ -206,7 +230,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
         if (value === 'enable_beatmaps_track') {
           if (message.mentions.channels.size > 0) {
-            const channel = message.mentions.channels.first()
+            const channel = message.mentions.channels.first() as TextChannel
+
+            try {
+              const embed = new MessageEmbed()
+                .setDescription('✅ I will send new beatmaps here!')
+                .setColor(6867286)
+
+              await channel.send({
+                embeds: [embed]
+              })
+            } catch (error) {
+              const embed = new MessageEmbed()
+                .setDescription(`❌ Can't send messages to <#${channel}>`)
+                .setColor(14504273)
+
+              interaction.channel.send({
+                embeds: [embed]
+              })
+
+              return
+            }
 
             await this.updateGuildSetting(
               'beatmaps_channel',
@@ -229,7 +273,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
         if (value === 'enable_updates') {
           if (message.mentions.channels.size > 0) {
-            const channel = message.mentions.channels.first()
+            const channel = message.mentions.channels.first() as TextChannel
+
+            try {
+              const embed = new MessageEmbed()
+                .setDescription('✅ I will send daily updates here!')
+                .setColor(6867286)
+
+              await channel.send({
+                embeds: [embed]
+              })
+            } catch (error) {
+              const embed = new MessageEmbed()
+                .setDescription(`❌ Can't send messages to <#${channel}>`)
+                .setColor(14504273)
+
+              interaction.channel.send({
+                embeds: [embed]
+              })
+
+              return
+            }
 
             await this.updateGuildSetting(
               'updates_channel',
@@ -256,7 +320,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
         if (value === 'enable_replay') {
           if (message.mentions.channels.size > 0) {
-            const channel = message.mentions.channels.first()
+            const channel = message.mentions.channels.first() as TextChannel
+
+            try {
+              const embed = new MessageEmbed()
+                .setDescription('✅ I will send tracked users o!rdr replays here!')
+                .setColor(6867286)
+
+              await channel.send({
+                embeds: [embed]
+              })
+            } catch (error) {
+              const embed = new MessageEmbed()
+                .setDescription(`❌ Can't send messages to <#${channel}>`)
+                .setColor(14504273)
+
+              interaction.channel.send({
+                embeds: [embed]
+              })
+
+              return
+            }
 
             await this.updateGuildSetting(
               'replay_channel',
@@ -296,7 +380,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         if (value === 'enable_track_requests') {
           // if a channel is provided, enable track requests
           if (message.mentions.channels.size > 0) {
-            const channel = message.mentions.channels.first()
+            const channel = message.mentions.channels.first() as TextChannel
+
+            try {
+              const embed = new MessageEmbed()
+                .setDescription('✅ I will send new track requests here!')
+                .setColor(6867286)
+
+              await channel.send({
+                embeds: [embed]
+              })
+            } catch (error) {
+              const embed = new MessageEmbed()
+                .setDescription(`❌ Can't send messages to <#${channel}>`)
+                .setColor(14504273)
+
+              interaction.channel.send({
+                embeds: [embed]
+              })
+
+              return
+            }
 
             await this.updateGuildSetting(
               'admin_channel',
@@ -325,7 +429,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       } catch {
         // User did not send a value
         const embed = new MessageEmbed()
-          .setTitle(`❌ Error : ${choice.label}`)
+          .setTitle(`⭕ Canceled operation for: ${choice.label}`)
           .setDescription(
             'You did not type a correct value. This operation has been canceled.'
           )
@@ -359,7 +463,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setTitle(`${guild.name}'s settings`)
         .addField(
-          'Track Top Plays',
+          'Daily Updates',
           '❌ No channel set.',
           true
         )
@@ -369,17 +473,12 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           true
         )
         .addField(
-          'Daily Updates',
+          'Track Top Plays',
           '❌ No channel set.',
           true
         )
         .addField(
           'Track o!rdr replays',
-          '❌ No channel set.',
-          true
-        )
-        .addField(
-          'Track requests',
           '❌ No channel set.',
           true
         )
@@ -391,7 +490,6 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         track_channel,
         updates_channel,
         replay_channel,
-        admin_channel,
         beatmaps_channel,
         prefix
       } = guildData
@@ -399,9 +497,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setTitle(`${guild.name}'s settings`)
         .addField(
-          'Track Top Plays',
-          `${track_channel ? '✅' : '❌'} ${
-            track_channel ? `<#${track_channel}>` : 'No channel set.'
+          'Daily Updates',
+          `${updates_channel ? '✅' : '❌'} ${
+            updates_channel ? `<#${updates_channel}>` : 'No channel set.'
           }`,
           true
         )
@@ -413,9 +511,9 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           true
         )
         .addField(
-          'Daily Updates',
-          `${updates_channel ? '✅' : '❌'} ${
-            updates_channel ? `<#${updates_channel}>` : 'No channel set.'
+          'Track Top Plays',
+          `${track_channel ? '✅' : '❌'} ${
+            track_channel ? `<#${track_channel}>` : 'No channel set.'
           }`,
           true
         )
@@ -426,14 +524,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           }`,
           true
         )
-        .addField(
-          'Track requests',
-          `${admin_channel ? '✅' : '❌'} ${
-            admin_channel ? `<#${admin_channel}>` : 'No channel set.'
-          }`,
-          true
-        )
-        .addField('Prefix', `${prefix || defaultPrefix}`)
+        .addField('Prefix (will be deprecated)', `${prefix || defaultPrefix}`)
 
       return embed
     }
