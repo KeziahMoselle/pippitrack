@@ -94,7 +94,7 @@ export default class MpStat implements BaseDiscordCommand {
       .setColor('#9300ff')
       .setTitle('Most performant players')
       .addFields(
-        { name: 'Best accuracy player', value: `**${stats.mostAccuratePlayer}**${stats.bestAvgAccuracy}%`, inline: true },
+        { name: 'Best accuracy player', value: `**${stats.mostAccuratePlayer}** ${stats.bestAvgAccuracy}%`, inline: true },
         { name: 'Most consistent player', value: `**${stats.mostConsistentPlayer}** with a ${stats.bestConsistencyRate}% combo rate`, inline: true }
       )
     await interaction.channel.send({ embeds: [generalEmbed] })
@@ -159,7 +159,6 @@ export default class MpStat implements BaseDiscordCommand {
       averageConsistencyList: [],
       mostConsistentPlayer: '',
       bestConsistencyRate: 0,
-      mostWellPlayedMap: '',
       playersList: [],
       avgPlayersMiss: [],
       avgMissOverall: 0,
