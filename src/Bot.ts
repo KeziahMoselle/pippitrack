@@ -5,6 +5,7 @@ import getPrefixes from './utils/getPrefixes'
 import { defaultPrefix } from './config'
 import prefixes from './libs/prefixes'
 import { BaseDiscordCommand } from './types'
+import MpStat from './commands/MpStat'
 
 export default class Bot {
   apiKey = '' // Discord API Key
@@ -15,6 +16,8 @@ export default class Bot {
   commands = new Collection<string, BaseDiscordCommand>()
 
   onReady = null
+
+  MpStat = new MpStat()
 
   constructor (client: Client, apiKey: string) {
     this.client = client
@@ -53,7 +56,9 @@ export default class Bot {
 
     const prefix = prefixes.get(message.guild.id) || defaultPrefix
 
-    if (!message.content.startsWith(prefix)) return
+    if (!message.content.startsWith(prefix)) {
+      return
+    }
 
     const commandName = message.content.split(prefix)[1]
 
@@ -229,5 +234,24 @@ export default class Bot {
     } catch (error) {
       console.error('Error while connecting to Discord :', error)
     }
+  }
+
+  parseFlaggedArgs (args: string[]) {
+    const parsedArgs = {}
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith('-')) {
+        const nextArg = args[i + 1]
+        if (nextArg) {
+          if (nextArg.startsWith('-')) {
+            parsedArgs[args[i].slice(1)] = args[i]
+          } else {
+            parsedArgs[args[i].slice(1)] = args[i + 1]
+          }
+        } else {
+          parsedArgs[args[i].slice(1)] = args[i]
+        }
+      }
+    }
+    return parsedArgs
   }
 }
