@@ -167,7 +167,7 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         let diffDescription = ''
 
         // Additional info like length, circle counts..
-        diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
+        diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].total_length)}\``
         diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
         diffDescription += `**Direct download**: [Beatconnect](https://beatconnect.io/b/${beatmap.id}) • [Nerina](https://nerina.pw/d/${beatmap.id})\n\n`
 

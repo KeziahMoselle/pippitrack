@@ -85,6 +85,9 @@ class OsuTrack {
       const ppRaw = Number(Number.parseFloat(difference.pp_raw).toFixed(4))
       const accuracy = Number(Number.parseFloat(difference.accuracy).toFixed(4))
 
+      console.log(difference)
+      console.log(ppRankNumber, ppRankDiff, ppRaw, accuracy)
+
       // The player is losing ranks
       if (ppRankNumber > 0) {
         ppRankDiff = Number(user.statistics.rank) - ppRankNumber
