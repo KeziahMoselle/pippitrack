@@ -85,18 +85,15 @@ class OsuTrack {
       const ppRaw = Number(Number.parseFloat(difference.pp_raw).toFixed(4))
       const accuracy = Number(Number.parseFloat(difference.accuracy).toFixed(4))
 
-      console.log(difference)
-      console.log(ppRankNumber, ppRankDiff, ppRaw, accuracy)
-
       // The player is losing ranks
       if (ppRankNumber > 0) {
-        ppRankDiff = Number(user.statistics.rank) - ppRankNumber
+        ppRankDiff = Number(user.statistics.global_rank) - ppRankNumber
         embed.addField('Rank lost', `-${ppRankNumber}`, true).setColor(14504273)
       }
 
       // The player is gaining ranks
       if (ppRankNumber < 0) {
-        ppRankDiff = Number(user.statistics.rank) - ppRankNumber
+        ppRankDiff = Number(user.statistics.global_rank) - ppRankNumber
         embed
           .addField(
             'Rank gained',
@@ -105,8 +102,6 @@ class OsuTrack {
           )
           .setColor(6867286)
       }
-
-      console.log(ppRankDiff)
 
       if (difference.playcount === 0 && !ppRankDiff) {
         embed.setDescription(
