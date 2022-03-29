@@ -24,6 +24,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
 
   async run (interaction: CommandInteraction): Promise<void> {
     try {
+      await interaction.deferReply()
       const username = interaction.options.getString('username')
       const selectedMode = interaction.options.getString('mode')
 
@@ -33,7 +34,8 @@ export default class UpdateCommand implements BaseDiscordCommand {
       })
 
       if (!user) {
-        return interaction.reply({ embeds: [notFoundEmbed] })
+        interaction.editReply({ embeds: [notFoundEmbed] })
+        return
       }
 
       const { embed, embedMessage } = await osuTrack.update({
@@ -41,16 +43,16 @@ export default class UpdateCommand implements BaseDiscordCommand {
         mode: selectedMode || mode
       })
 
-      return interaction.reply({
+      interaction.editReply({
         content: embedMessage,
         embeds: [embed]
       })
     } catch (error) {
       if (error.message === 'Cannot read property \'rank\' of undefined') {
-        return interaction.reply({ embeds: [notFoundEmbed] })
+        interaction.editReply({ embeds: [notFoundEmbed] })
       }
 
-      return interaction.reply({
+      interaction.editReply({
         content: error.message
       })
     }

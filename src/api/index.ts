@@ -1,12 +1,13 @@
-import fastify from 'fastify'
+import Fastify from 'fastify'
 import getToken from './getToken'
 import topPlays from './topPlays'
 import totalUsers from './totalUsers'
 import userTracked from './userTracked'
 import stats from './stats'
+import { apiPort } from '../config'
 
 class Api {
-  server = fastify()
+  server = Fastify()
   port = null
 
   constructor (port: number | string) {
@@ -56,4 +57,6 @@ class Api {
   }
 }
 
-export default Api
+const api = new Api(apiPort)
+
+export default api

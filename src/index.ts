@@ -1,8 +1,8 @@
-import './utils/setup'
-import { apiPort } from './config'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // API
-import Api from './api'
+import api from './api/index'
 
 // Setup Discord
 import Bot from './Bot'
@@ -35,7 +35,7 @@ import {
   MpStat
 } from './commands'
 
-const api = new Api(apiPort).start()
+api.start()
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
