@@ -24,7 +24,7 @@ export default class MpStat implements BaseDiscordCommand {
     )
 
   MP_REGEX = /\/matches\/(?<matchId>\d*)/
-
+  WRONG_ID_OR_LINK = 'Match can\'t be found, you may have provided a wrong mp-link or ID'
   async run (interaction: CommandInteraction): Promise<void> {
     await interaction.deferReply()
     const mplink = interaction.options.getString('mp-link')
@@ -40,10 +40,17 @@ export default class MpStat implements BaseDiscordCommand {
     }
 
     const matchId = mpId == null ? this.parseMatchId(mplink) : mpId
+    if (!matchId) {
+      await interaction.editReply({
+        content: this.WRONG_ID_OR_LINK,
+        embeds: []
+      })
+      return
+    }
     const match = (await osu.getMatch({ mp: matchId.toString() }))
     if (!match.games.length) {
       await interaction.editReply({
-        content: "Match can't be found, you may have provided a wrong mp-link or ID",
+        content: this.WRONG_ID_OR_LINK,
         embeds: []
       })
     } else {
