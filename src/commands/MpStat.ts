@@ -11,98 +11,118 @@ export default class MpStat implements BaseDiscordCommand {
     .setDescription('Analyze and show useful information about an osu!multiplayer match')
     .addStringOption(option =>
       option.setName('mp-link')
-        .setDescription('The multiplayer match link')
-        .setRequired(true)
+        .setDescription('The multiplayer match link, not needed if mp id is provided')
     )
     .addIntegerOption((option) =>
       option.setName('warmup')
         .setDescription('Number of maps player as warm up (to ignore)')
         .setMinValue(0)
     )
+    .addIntegerOption((option) =>
+      option.setName('id')
+        .setDescription('id of the multiplayer match, not needed if mp-link is provided')
+    )
 
   MP_REGEX = /\/matches\/(?<matchId>\d*)/
-
+  WRONG_ID_OR_LINK = 'Match can\'t be found, you may have provided a wrong mp-link or ID'
   async run (interaction: CommandInteraction): Promise<void> {
-    await interaction.reply({
-      content: 'Analyzing...'
-    })
+    await interaction.deferReply()
     const mplink = interaction.options.getString('mp-link')
     const wu = interaction.options.getInteger('warmup') || 0
+    const mpId = interaction.options.getInteger('id')
 
-    const matchId = this.parseMatchId(mplink)
-    const match = (await osu.getMatch({ mp: matchId }))
-
-    const matchLength = this.getMatchLength(match.start, match.end)
-    const stats = await this.getStatsFromGames(match.games, wu)
-    const formattedPlayerList = this.formatPlayerList(stats.playersList)
-    const mpStartDate = new Date(match.raw_start)
-    const dateAccordingToTimezone = (mpStartDate.getTime() / 1000) + mpStartDate.getTimezoneOffset() * 60
-
-    const generalEmbed = new MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle('MP Link Analyzed')
-      .setURL(mplink)
-      .setDescription('Match played <t:' + dateAccordingToTimezone.toString() + ':R>')
-      .addField('Duration', matchLength, false)
-    if (stats.deletedMaps > 0) {
-      generalEmbed.addField('Disclaimer', stats.deletedMaps + (stats.deletedMaps === 1 ? ' map has' : ' maps have') + ' been deleted since the multiplayer lobby and therefore not counted', false)
-    }
-    generalEmbed.addFields(
-      { name: 'Players', value: formattedPlayerList, inline: true },
-      { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList), inline: true }
-    )
-    const SREmbed = new MessageEmbed()
-      .setColor('#33ff3f')
-      .setTitle('Star Rating')
-      .addFields(
-        { name: 'Average SR', value: `${stats.avgSR} :star:`, inline: true },
-        { name: 'Min SR', value: `${stats.minSR} :star:`, inline: true },
-        { name: 'Max SR', value: `${stats.maxSR} :star:`, inline: true }
-      )
-
-    const BPMEmbed = new MessageEmbed()
-      .setColor('#ff0000')
-      .setTitle('BPM :musical_note:')
-      .addFields(
-        { name: 'Average BPM', value: `${stats.avgBPM}`, inline: true },
-        { name: 'Min BPM ', value: `${stats.minBPM}`, inline: true },
-        { name: 'Max BPM', value: `${stats.maxBPM}`, inline: true }
-      )
-
-    const performanceEmbed = new MessageEmbed()
-      .setColor('#f700ff')
-      .setTitle("Lobby's performance (1)")
-      .addFields(
-        { name: 'Players', value: `${formattedPlayerList}`, inline: true },
-        { name: 'Average Accuracy', value: `${this.formatPercentage(stats.averageAccuracyList)}`, inline: true },
-        { name: 'Consistency Rate*', value: `${this.formatPercentage(stats.averageConsistencyList)}`, inline: true }
-      )
-      .setFooter({
-        text: '* Consistency Rate is about how well you got combo on a map.\nThe value shown is the average of every consistency rates you got.'
+    if (mplink == null && mpId == null) {
+      await interaction.editReply({
+        content: 'You must at least provided either a multiplayer link or its id',
+        embeds: []
       })
+      return
+    }
 
-    const missEmbed = new MessageEmbed()
-      .setColor('#f700ff')
-      .setTitle("Lobby's performance (2)")
-      .addFields(
-        { name: 'Average misses during the lobby', value: `${stats.avgMissOverall}` },
-        { name: 'Player', value: `${formattedPlayerList}`, inline: true },
-        { name: 'Average misses', value: `${this.formatAvgMiss(stats.avgPlayersMiss)}`, inline: true }
-      )
+    const matchId = mpId == null ? this.parseMatchId(mplink) : mpId
+    if (!matchId) {
+      await interaction.editReply({
+        content: this.WRONG_ID_OR_LINK,
+        embeds: []
+      })
+      return
+    }
+    const match = (await osu.getMatch({ mp: matchId.toString() }))
+    if (!match.games.length) {
+      await interaction.editReply({
+        content: this.WRONG_ID_OR_LINK,
+        embeds: []
+      })
+    } else {
+      const matchLength = this.getMatchLength(match.start, match.end)
+      const stats = await this.getStatsFromGames(match.games, wu)
+      const formattedPlayerList = this.formatPlayerList(stats.playersList)
+      const mpStartDate = new Date(match.raw_start)
+      const dateAccordingToTimezone = (mpStartDate.getTime() / 1000) + mpStartDate.getTimezoneOffset() * 60
 
-    const mostPerformEmbed = new MessageEmbed()
-      .setColor('#9300ff')
-      .setTitle('Most performant players')
-      .addFields(
-        { name: 'Best accuracy player', value: `**${stats.mostAccuratePlayer}** ${stats.bestAvgAccuracy}%`, inline: true },
-        { name: 'Most consistent player', value: `**${stats.mostConsistentPlayer}** with a ${stats.bestConsistencyRate}% combo rate`, inline: true }
+      const generalEmbed = new MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle('Analysis result')
+        .setURL(mplink)
+        .setDescription('Match played <t:' + dateAccordingToTimezone.toString() + ':R>')
+        .addField('Duration', matchLength, false)
+      if (stats.deletedMaps > 0) {
+        generalEmbed.addField('Disclaimer', stats.deletedMaps + (stats.deletedMaps === 1 ? ' map has' : ' maps have') + ' been deleted since the multiplayer lobby and therefore not counted', false)
+      }
+      generalEmbed.addFields(
+        { name: 'Players', value: formattedPlayerList, inline: true },
+        { name: 'Map played', value: this.formatMapPlayedCounterlist(stats.playersList), inline: true }
       )
-    await interaction.channel.send({ embeds: [generalEmbed] })
-    await interaction.channel.send({ embeds: [SREmbed] })
-    await interaction.channel.send({ embeds: [BPMEmbed] })
-    await interaction.channel.send({ embeds: [performanceEmbed] })
-    await interaction.channel.send({ embeds: [missEmbed] })
-    await interaction.channel.send({ embeds: [mostPerformEmbed] })
+      const SREmbed = new MessageEmbed()
+        .setColor('#33ff3f')
+        .setTitle('Star Rating')
+        .addFields(
+          { name: 'Average SR', value: `${stats.avgSR} :star:`, inline: true },
+          { name: 'Min SR', value: `${stats.minSR} :star:`, inline: true },
+          { name: 'Max SR', value: `${stats.maxSR} :star:`, inline: true }
+        )
+
+      const BPMEmbed = new MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle('BPM :musical_note:')
+        .addFields(
+          { name: 'Average BPM', value: `${stats.avgBPM}`, inline: true },
+          { name: 'Min BPM ', value: `${stats.minBPM}`, inline: true },
+          { name: 'Max BPM', value: `${stats.maxBPM}`, inline: true }
+        )
+
+      const performanceEmbed = new MessageEmbed()
+        .setColor('#f700ff')
+        .setTitle("Lobby's performance (1)")
+        .addFields(
+          { name: 'Players', value: `${formattedPlayerList}`, inline: true },
+          { name: 'Average Accuracy', value: `${this.formatPercentage(stats.averageAccuracyList)}`, inline: true },
+          { name: 'Consistency Rate*', value: `${this.formatPercentage(stats.averageConsistencyList)}`, inline: true }
+        )
+        .setFooter({
+          text: '* Consistency Rate is about how well you got combo on a map.\nThe value shown is the average of every consistency rates you got.'
+        })
+
+      const missEmbed = new MessageEmbed()
+        .setColor('#f700ff')
+        .setTitle("Lobby's performance (2)")
+        .addFields(
+          { name: 'Average misses during the lobby', value: `${stats.avgMissOverall}` },
+          { name: 'Player', value: `${formattedPlayerList}`, inline: true },
+          { name: 'Average misses', value: `${this.formatAvgMiss(stats.avgPlayersMiss)}`, inline: true }
+        )
+
+      const mostPerformEmbed = new MessageEmbed()
+        .setColor('#9300ff')
+        .setTitle('Most performant players')
+        .addFields(
+          { name: 'Best accuracy player', value: `**${stats.mostAccuratePlayer}** ${stats.bestAvgAccuracy}%`, inline: true },
+          { name: 'Most consistent player', value: `**${stats.mostConsistentPlayer}** with a ${stats.bestConsistencyRate}% combo rate`, inline: true }
+        )
+      await interaction.editReply({
+        embeds: [generalEmbed, SREmbed, BPMEmbed, performanceEmbed, missEmbed, mostPerformEmbed]
+      })
+    }
   }
 
   formatPercentage (percentageList) {
@@ -138,8 +158,12 @@ export default class MpStat implements BaseDiscordCommand {
   }
 
   parseMatchId (matchUrl: string) {
-    const { groups } = matchUrl.match(this.MP_REGEX)
-    return groups.matchId
+    try {
+      const { groups } = matchUrl.match(this.MP_REGEX)
+      return groups.matchId
+    } catch {
+      return null
+    }
   }
 
   getMatchLength (startTime: Date, endTime: Date) {

@@ -21,5 +21,4 @@ module.exports = {
     'camelcase': 'off',
     'no-use-before-define': 'off'
   },
-  "sort-imports": "off",
 }

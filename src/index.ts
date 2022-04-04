@@ -1,5 +1,4 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
+import 'dotenv/config'
 
 // API
 import api from './api/index'
