@@ -18,6 +18,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    'camelcase': 'off'
-  }
+    'camelcase': 'off',
+    'no-use-before-define': 'off'
+  },
+  "sort-imports": "off",
 }

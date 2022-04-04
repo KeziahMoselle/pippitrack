@@ -11,39 +11,39 @@
     "fix": "eslint src/. --fix"
   },
   "dependencies": {
-    "@discordjs/builders": "^0.12.0",
-    "@discordjs/rest": "^0.3.0",
-    "@supabase/supabase-js": "^1.18.1",
-    "axios": "^0.21.1",
-    "cron": "^1.8.2",
-    "discord-api-types": "^0.29.0",
-    "discord.js": "^13.6.0",
-    "dotenv": "^10.0.0",
-    "fastify": "^3.20.0",
-    "node-osu": "^2.2.1",
-    "ordr.js": "^3.2.0",
-    "osu-api-extended": "^2.0.8",
-    "p-memoize": "^4.0.1",
-    "typescript": "^4.3.5"
+    "@discordjs/builders": "0.12.0",
+    "@discordjs/rest": "0.3.0",
+    "@supabase/supabase-js": "1.18.1",
+    "axios": "0.21.1",
+    "cron": "1.8.2",
+    "discord-api-types": "0.29.0",
+    "discord.js": "13.6.0",
+    "dotenv": "10.0.0",
+    "fastify": "3.20.0",
+    "node-osu": "2.2.1",
+    "ordr.js": "3.2.0",
+    "osu-api-extended": "2.0.8",
+    "p-memoize": "4.0.1",
+    "typescript": "4.3.5"
   },
   "devDependencies": {
-    "@types/node": "^16.3.3",
-    "@typescript-eslint/eslint-plugin": "^4.28.3",
-    "@typescript-eslint/parser": "^4.28.3",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.31.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard": "^16.0.3",
-    "nodemon": "^2.0.12",
+    "@types/node": "16.3.3",
+    "@typescript-eslint/eslint-plugin": "4.28.3",
+    "@typescript-eslint/parser": "4.28.3",
+    "babel-eslint": "10.1.0",
+    "eslint": "7.31.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-standard": "16.0.3",
+    "nodemon": "2.0.12",
     "prettier": "2.3.2",
-    "ts-node": "^10.1.0",
-    "ts-standard": "^10.0.0"
+    "ts-node": "10.1.0",
+    "ts-standard": "10.0.0"
   },
   "standard": {
     "parser": "babel-eslint"
   },
   "engines": {
-    "node": ">=14.8.0"
+    "node": "16.9.0"
   },
   "repository": {
     "type": "git",

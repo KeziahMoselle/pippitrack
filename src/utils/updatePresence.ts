@@ -9,7 +9,6 @@ const presences: Presences[] = [
   getCountOfTrackedUsers,
   () => 'OwO',
   () => 'Bouf <3',
-  () => 'UwU',
   () => '>w<'
 ]
 
@@ -27,7 +26,7 @@ export default async function updatePresence (client: Client): Promise<void> {
 
   client.user.setPresence({
     activities: [{
-      name: `${result} | !help`,
+      name: `${result} | /help`,
       type: 'WATCHING'
     }]
   })

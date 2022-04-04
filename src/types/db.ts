@@ -1,3 +1,9 @@
+export interface UsersRow {
+  discord_id: string
+  osu_id: string
+  mode: 'osu' | 'fruits' | 'taiko' | 'mania'
+}
+
 export interface UsersStateRow {
   osu_id: string
   last_updated: string | Date
@@ -8,6 +14,7 @@ export interface UsersStateRow {
 export interface TrackedUsersRow {
   id: number
   osu_id: string
+  osu_mode: 'osu' | 'fruits' | 'taiko' | 'mania'
   osu_username: string
   guild_id: string
   is_approved: boolean

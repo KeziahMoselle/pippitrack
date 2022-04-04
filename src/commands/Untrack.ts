@@ -70,7 +70,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
       return interaction.reply({ embeds: [notFoundEmbed] })
     }
 
-    const user = await getUser({
+    const { user } = await getUser({
       username
     })
 
@@ -94,7 +94,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
 
       if (!userFound) {
         const embed = new MessageEmbed().setTitle(
-          `${user.name} is not tracked.`
+          `${user.username} is not tracked.`
         )
 
         return interaction.reply({ embeds: [embed] })
@@ -103,7 +103,7 @@ export default class UntrackCommand implements BaseDiscordCommand {
       await untrackUser(userFound.id)
 
       const embed = new MessageEmbed().setTitle(
-        `${user.name} is no longer being tracked.`
+        `${user.username} is no longer being tracked.`
       )
 
       interaction.reply({ embeds: [embed] })

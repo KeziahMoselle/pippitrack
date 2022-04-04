@@ -62,7 +62,7 @@ interface Beatmapset {
     'difficulty_rating': number,
     'id': number,
     'mode': 'osu' | 'taiko' | 'fruits' | 'mania',
-    'status': string,
+    'status': 'loved' | 'ranked',
     'total_length': number,
     'user_id': number,
     'version': string,
@@ -108,7 +108,8 @@ export default function detectNewBeatmaps (client: Client): CronJob {
     try {
       const { data } = await axios.get(ENDPOINT, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.15.667.221 Safari/537.36',
+          cookie: process.env.OSU_HEADER_COOKIE || ''
         }
       })
 
@@ -166,7 +167,7 @@ export default function detectNewBeatmaps (client: Client): CronJob {
         let diffDescription = ''
 
         // Additional info like length, circle counts..
-        diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].hit_length)}\``
+        diffDescription += `${getEmoji('total_length')} Length \`${displayDuration(beatmap.beatmaps[0].total_length)}\``
         diffDescription += ` ${getEmoji('bpm')} BPM \`${beatmap.bpm}\`\n`
         diffDescription += `**Direct download**: [Beatconnect](https://beatconnect.io/b/${beatmap.id}) • [Nerina](https://nerina.pw/d/${beatmap.id})\n\n`
 
@@ -180,8 +181,12 @@ export default function detectNewBeatmaps (client: Client): CronJob {
           diffDescription += `${getDiffEmoji(diff.difficulty_rating)} \`${diff.difficulty_rating}⭐\` - [${diff.version}](https://osu.ppy.sh/beatmapsets/${diff.beatmapset_id}#${diff.mode}/${diff.id})`
 
           // Only add AR and CS for osu gamemode
-          if (diff.mode === 'osu') {
+          if (diff.mode === 'osu' || diff.mode === 'fruits') {
             diffDescription += ` \`AR${diff.ar}\` \`CS${diff.cs}\``
+          }
+
+          if (diff.mode === 'mania' || diff.mode === 'taiko') {
+            diffDescription += ` \`OD${diff.accuracy}\``
           }
 
           diffDescription += '\n'

@@ -2,10 +2,11 @@ import { SlashCommandBuilder } from '@discordjs/builders'
 import { Message, TextChannel } from 'discord.js'
 
 export interface TrackedPlayer {
-  guild_id: string
-  id: number
-  osu_id: string
-  osu_username: string
+  guild_id?: string
+  id?: number
+  osu_id?: string
+  osu_mode?: 'osu' | 'fruits' | 'taiko' | 'mania'
+  osu_username?: string
   trackChannels?: TextChannel[]
   updatesChannels?: TextChannel[]
   replayChannels?: TextChannel[]
