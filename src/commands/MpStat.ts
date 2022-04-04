@@ -3,7 +3,7 @@ import { BaseDiscordCommand } from '../types'
 import { osu } from '../libs/osu'
 import { Game } from 'node-osu'
 import { mods, tools } from 'osu-api-extended'
-import { Embed, SlashCommandBuilder } from '@discordjs/builders'
+import { SlashCommandBuilder } from '@discordjs/builders'
 
 export default class MpStat implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
