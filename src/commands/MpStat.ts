@@ -120,7 +120,6 @@ export default class MpStat implements BaseDiscordCommand {
           { name: 'Most consistent player', value: `**${stats.mostConsistentPlayer}** with a ${stats.bestConsistencyRate}% combo rate`, inline: true }
         )
       await interaction.editReply({
-        content: 'MP analysis finished',
         embeds: [generalEmbed, SREmbed, BPMEmbed, performanceEmbed, missEmbed, mostPerformEmbed]
       })
     }
