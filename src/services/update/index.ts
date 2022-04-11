@@ -10,7 +10,7 @@ import { Client, MessageEmbed } from 'discord.js'
 import { TrackedPlayer } from '../../types'
 
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
-const TEN_SECONDS = 10 * 1000
+const THIRTY_SECONDS = 30 * 1000
 
 export default function update (client: Client): CronJob {
   console.log('Service started : update players every day')
@@ -35,11 +35,14 @@ export default function update (client: Client): CronJob {
       let batchNumber = 0
       let updatedPlayers = 0
 
+      const updates: Update[] = []
+      const errored: Update[] = []
+
       // Update all the players
       while (uniqueTrackedPlayers.length > 0) {
         if (updatedPlayers >= maxRequestsBeforeSleep) {
           // wait to avoid too many requests
-          await wait(TEN_SECONDS)
+          await wait(THIRTY_SECONDS)
           updatedPlayers = 0
         }
 
@@ -57,17 +60,31 @@ export default function update (client: Client): CronJob {
         // Batch updates of players
         let results = null
         try {
-          results = await Promise.all(fetches)
+          results = await Promise.allSettled(fetches)
         } catch (error) {
           console.error('massUpdatePlayers, Promise.all error', error)
         }
 
-        // Send embeds without waiting for the response
-        sendEmbeds(results)
+        const hasChanges = results
+          .filter(res => res.status === 'fulfilled')
+          .map(res => res.value)
+
+        const hasErrored = results
+          .filter(res => res.status === 'rejected')
+          .map(res => res.value)
+
+        updates.push(...hasChanges)
+        errored.push(...hasErrored)
 
         batchNumber++
         updatedPlayers += batchOfPlayers.length
       }
+
+      if (errored.length > 0) {
+        console.error('massUpdatePlayers errored update:', errored)
+      }
+
+      await sendEmbeds(updates)
 
       console.log(
         `Update service: Total batch ${batchNumber} (${maxUsersUpdatedSimultaneously} users per batch) => ${
@@ -98,16 +115,15 @@ async function updatePlayer (player: TrackedPlayer) {
 }
 
 async function sendEmbeds (
-  updates: {
-    player: TrackedPlayer
-    embed: MessageEmbed
-    status: 'first' | 'no_change' | 'update'
-  }[]
+  updates: Update[]
 ) {
   for (const update of updates) {
+    if (!update) {
+      continue
+    }
+
     if (update.status === 'no_change') {
       console.log(`${update.player.osu_username} has no changes.`)
-      continue
     }
 
     for (const channel of update.player.updatesChannels) {
@@ -115,8 +131,19 @@ async function sendEmbeds (
         await channel.send({ embeds: [update.embed] })
         console.info(`${update.player.osu_username} in #${channel.name}`)
       } catch (error) {
-        console.error('sendEmbeds error:', error, update, channel)
+        if (error.code === 50001) {
+          console.error(`channel not found for ${update.player.osu_username} in #${channel.name} [guild:${channel.guildId}]`)
+          continue
+        }
+
+        console.error('sendEmbeds: ', error)
       }
     }
   }
+}
+
+interface Update {
+  player: TrackedPlayer
+  embed: MessageEmbed
+  status: 'first' | 'no_change' | 'update'
 }

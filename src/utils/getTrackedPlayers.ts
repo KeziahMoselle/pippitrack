@@ -13,7 +13,7 @@ type TrackType = 'track' | 'updates' | 'replay'
  */
 export default async function getTrackedPlayers (
   client: Client,
-  type: TrackType,
+  type?: TrackType,
   osuId?: string
 ): Promise<GetTrackedPlayersData> {
   // @TODO Paginate them if there is too much to fetch
@@ -40,9 +40,11 @@ export default async function getTrackedPlayers (
   // Merge same osu_id in the same object so we don't iterate over them 2 times
   // It allows us to do only one request for the update, then send the embed to multiple channels if needed
   const uniqueTrackedPlayers: TrackedPlayers = {}
+  const inactiveGuilds = []
 
   for (const player of trackedPlayers) {
     if (!guildsIds.includes(player.guild_id)) {
+      inactiveGuilds.push(player.guild_id)
       continue
     }
 
@@ -72,28 +74,35 @@ export default async function getTrackedPlayers (
     }
   }
 
-  const filteredTrackedPlayers = Object.values(uniqueTrackedPlayers).filter(
-    (player) => {
-      if (type === 'track' && player.trackChannels.length > 0) {
-        return true
+  let filteredTrackedPlayers
+
+  if (type) {
+    filteredTrackedPlayers = Object.values(uniqueTrackedPlayers).filter(
+      (player) => {
+        if (type === 'track' && player.trackChannels.length > 0) {
+          return true
+        }
+
+        if (type === 'updates' && player.updatesChannels.length > 0) {
+          return true
+        }
+
+        if (type === 'replay' && player.replayChannels.length > 0) {
+          return true
+        }
+
+        return false
       }
+    )
+  }
 
-      if (type === 'updates' && player.updatesChannels.length > 0) {
-        return true
-      }
-
-      if (type === 'replay' && player.replayChannels.length > 0) {
-        return true
-      }
-
-      return false
-    }
-  )
-
-  const count = Object.keys(uniqueTrackedPlayers).length
+  const count = Object.keys(
+    type ? filteredTrackedPlayers : uniqueTrackedPlayers
+  ).length
 
   return {
-    uniqueTrackedPlayers: filteredTrackedPlayers,
-    count
+    uniqueTrackedPlayers: type ? filteredTrackedPlayers : uniqueTrackedPlayers,
+    count,
+    inactiveGuilds
   }
 }

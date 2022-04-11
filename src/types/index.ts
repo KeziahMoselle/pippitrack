@@ -27,6 +27,7 @@ export interface DBUser {
 export interface GetTrackedPlayersData {
   uniqueTrackedPlayers: TrackedPlayer[]
   count: number
+  inactiveGuilds: string[]
 }
 
 export interface BaseDiscordCommand {

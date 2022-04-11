@@ -6,6 +6,7 @@ import { defaultPrefix } from './config'
 import prefixes from './libs/prefixes'
 import { BaseDiscordCommand } from './types'
 import MpStat from './commands/MpStat'
+import supabase from './libs/supabase'
 
 export default class Bot {
   apiKey = '' // Discord API Key
@@ -36,6 +37,7 @@ export default class Bot {
     // Add listeners here
     this.client.on('messageCreate', this.onMessage)
     this.client.on('guildCreate', this.onGuildCreate)
+    this.client.on('guildDelete', this.onGuildDelete)
     this.client.on('interactionCreate', this.onInteractionCreate)
   }
 
@@ -144,6 +146,8 @@ export default class Bot {
    * Send some basic instructions on guild join
    */
   onGuildCreate = (guild: Guild): void => {
+    console.log(`${guild.name} (${guild.id}) has been added.`)
+
     const hasPerms = guild.me.permissions.has([
       Permissions.FLAGS.SEND_MESSAGES,
       Permissions.FLAGS.MANAGE_MESSAGES,
@@ -199,6 +203,27 @@ export default class Bot {
   }
 
   /**
+   * Delete all data related to guild
+   */
+  onGuildDelete = async (guild: Guild): Promise<void> => {
+    const { data: users } = await supabase
+      .from('tracked_users')
+      .delete()
+      .match({ guild_id: guild.id })
+
+    console.log(`Deleted ${users.length} tracked users.`)
+
+    const { error } = await supabase
+      .from('guilds')
+      .delete()
+      .match({ guild_id: guild.id })
+
+    console.log(error)
+
+    console.log(`${guild.name} (${guild.id}) has been removed.`)
+  }
+
+  /**
    * Add a command to the bot's list
    *
    * @param {Object} command
@@ -234,24 +259,5 @@ export default class Bot {
     } catch (error) {
       console.error('Error while connecting to Discord :', error)
     }
-  }
-
-  parseFlaggedArgs (args: string[]) {
-    const parsedArgs = {}
-    for (let i = 0; i < args.length; i++) {
-      if (args[i].startsWith('-')) {
-        const nextArg = args[i + 1]
-        if (nextArg) {
-          if (nextArg.startsWith('-')) {
-            parsedArgs[args[i].slice(1)] = args[i]
-          } else {
-            parsedArgs[args[i].slice(1)] = args[i + 1]
-          }
-        } else {
-          parsedArgs[args[i].slice(1)] = args[i]
-        }
-      }
-    }
-    return parsedArgs
   }
 }

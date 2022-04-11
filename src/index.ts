@@ -33,6 +33,9 @@ import {
   Tracklist,
   MpStat
 } from './commands'
+import supabase from './libs/supabase'
+import getTrackedPlayers from './utils/getTrackedPlayers'
+import { Client } from 'discord.js'
 
 api.start()
 
@@ -40,11 +43,12 @@ const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
 
 const EVERY_FIVE_MINUTES = 5 * 60 * 1000
 
-bot.onReady = (client) => {
+bot.onReady = async (client: Client) => {
   console.log('Connected to Discord.')
 
   updatePresence(client)
   setInterval(() => updatePresence(client), EVERY_FIVE_MINUTES)
+  cleanGuilds()
 
   // Run services
 
@@ -86,3 +90,25 @@ process.on('SIGTERM', async () => {
   await api.close()
   process.exit()
 })
+
+async function cleanGuilds () {
+  const { inactiveGuilds } = await getTrackedPlayers(client)
+
+  for (const guildId of inactiveGuilds) {
+    const { data: users } = await supabase
+      .from('tracked_users')
+      .delete()
+      .match({ guild_id: guildId })
+
+    console.log(`Deleted ${users.length} tracked users.`)
+
+    await supabase
+      .from('guilds')
+      .delete()
+      .match({ guild_id: guildId })
+
+    console.log(`Removed guild:${guildId}.`)
+  }
+
+  console.log(`Removed ${inactiveGuilds.length} guilds.`)
+}
