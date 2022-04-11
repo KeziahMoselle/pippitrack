@@ -159,6 +159,11 @@ class OsuTrack {
 
       embed.setDescription(description)
 
+      supabase.from('updates_timestamp').upsert({
+        osu_id: user.id,
+        updated_at: new Date()
+      })
+
       return {
         status: 'update',
         embed,
@@ -167,15 +172,6 @@ class OsuTrack {
     } catch (error) {
       console.error(error)
       throw error
-    } finally {
-      const { error } = await supabase.from('updates_timestamp').upsert({
-        osu_id: user.id,
-        updated_at: new Date()
-      })
-
-      if (error) {
-        console.error(error)
-      }
     }
   }
 }

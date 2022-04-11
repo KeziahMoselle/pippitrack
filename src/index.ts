@@ -94,6 +94,8 @@ process.on('SIGTERM', async () => {
 async function cleanGuilds () {
   const { inactiveGuilds } = await getTrackedPlayers(client)
 
+  if (inactiveGuilds.length === 0) return
+
   for (const guildId of inactiveGuilds) {
     const { data: users } = await supabase
       .from('tracked_users')
