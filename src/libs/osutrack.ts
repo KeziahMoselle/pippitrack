@@ -5,15 +5,16 @@ import getEmoji from '../utils/getEmoji'
 import { User } from '../types/osu'
 import { osuApiV2 } from './osu'
 import getModeInt from '../utils/getModeInt'
+import getOsuAvatar from '../utils/getOsuAvatar'
 
 interface UpdateData {
   embed: MessageEmbed
-  status: 'first' | 'no_change' | 'update'
-  embedMessage: string
+  status: 'first' | 'no_change' | 'update' | 'error'
+  embedMessage?: string
 }
 
 class OsuTrack {
-  baseUrl = 'https://ameobea.me/osutrack/api'
+  baseUrl = 'https://osutrack-api.ameo.dev'
 
   async update ({
     osuUser,
@@ -24,7 +25,23 @@ class OsuTrack {
     id?: string
     mode?: string
   }): Promise<UpdateData> {
-    const user = osuUser || (await osuApiV2.getUser({ id }))
+    let user
+
+    try {
+      user = osuUser || (await osuApiV2.getUser({ id }))
+    } catch {
+      const embed = new MessageEmbed()
+        .setTitle(`Couldn't find user with id ${id}`)
+        .setThumbnail(getOsuAvatar(id))
+        .setDescription(`Try re linking your osu! account with \`/link\`.\nCheck if you can see your profile: https://osu.ppy.sh/users/${id}`)
+        .setColor(14504273)
+
+      return {
+        status: 'error',
+        embed
+      }
+    }
+
     const embed = new MessageEmbed()
 
     if (!user.statistics.pp) {
@@ -35,7 +52,7 @@ class OsuTrack {
       const modeInt = getModeInt(mode)
 
       const { data: difference } = await axios.post(
-        `${this.baseUrl}/get_changes.php?mode=${modeInt}&user=${user.username}`
+        `${this.baseUrl}/update?user=${user.id}&mode=${modeInt}&`
       )
 
       const { data } = await supabase
@@ -170,8 +187,14 @@ class OsuTrack {
         embedMessage
       }
     } catch (error) {
-      console.error(error)
-      throw error
+      const embed = new MessageEmbed()
+        .setTitle('There was an error with the osu!track API')
+        .setColor(14504273)
+
+      return {
+        status: 'error',
+        embed
+      }
     }
   }
 }

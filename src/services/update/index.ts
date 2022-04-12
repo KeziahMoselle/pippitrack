@@ -35,9 +35,6 @@ export default function update (client: Client): CronJob {
       let batchNumber = 0
       let updatedPlayers = 0
 
-      const updates: Update[] = []
-      const errored: Update[] = []
-
       // Update all the players
       while (uniqueTrackedPlayers.length > 0) {
         if (updatedPlayers >= maxRequestsBeforeSleep) {
@@ -58,33 +55,17 @@ export default function update (client: Client): CronJob {
         const fetches = batchOfPlayers.map((player) => updatePlayer(player))
 
         // Batch updates of players
-        let results = null
-        try {
-          results = await Promise.allSettled(fetches)
-        } catch (error) {
-          console.error('massUpdatePlayers, Promise.all error', error)
-        }
+        const results = await Promise.allSettled(fetches)
+        const updates = results
+          .filter(result => result.status === 'fulfilled')
+          // @ts-expect-error allSettled typing is weird
+          .map(result => result.value)
 
-        const hasChanges = results
-          .filter(res => res.status === 'fulfilled')
-          .map(res => res.value)
-
-        const hasErrored = results
-          .filter(res => res.status === 'rejected')
-          .map(res => res.value)
-
-        updates.push(...hasChanges)
-        errored.push(...hasErrored)
+        sendEmbeds(updates)
 
         batchNumber++
         updatedPlayers += batchOfPlayers.length
       }
-
-      if (errored.length > 0) {
-        console.error('massUpdatePlayers errored update:', errored)
-      }
-
-      await sendEmbeds(updates)
 
       console.log(
         `Update service: Total batch ${batchNumber} (${maxUsersUpdatedSimultaneously} users per batch) => ${
@@ -123,7 +104,7 @@ async function sendEmbeds (
     }
 
     if (update.status === 'no_change') {
-      console.log(`${update.player.osu_username} has no changes.`)
+      return console.log(`${update.player.osu_username} has no changes.`)
     }
 
     for (const channel of update.player.updatesChannels) {

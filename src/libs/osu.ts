@@ -62,7 +62,11 @@ class OsuApiv2 {
 
       return data
     } catch (error) {
-      console.error(url, error)
+      if (error.response.status === 404) {
+        return console.warn(`Couldn't fetch user: ${url.pathname}`)
+      }
+
+      throw error
     }
   }
 

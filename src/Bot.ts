@@ -105,7 +105,7 @@ export default class Bot {
     try {
       await command.run(interaction)
     } catch (error) {
-      console.error('Error while running command', error)
+      console.error('Error while running command', error, interaction)
       await interaction.reply({
         content: 'Sorry, There was an error. (We are probably working on a fix at this very moment)',
         ephemeral: true
