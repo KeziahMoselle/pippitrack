@@ -22,24 +22,31 @@ export default async function getUser ({
   mode,
   discordId
 }: GetUserArgs): Promise<{
-  user: User,
-  mode: 'osu' | 'taiko' | 'fruits' | 'mania' | string
+  user?: User,
+  mode?: 'osu' | 'taiko' | 'fruits' | 'mania' | string,
+  error?: Error
 }> {
-  if (username) {
-    const user = await osuApiV2.getUser({ username, mode })
+  try {
+    if (username) {
+      const user = await osuApiV2.getUser({ username, mode })
 
-    return {
-      user,
-      mode: mode || user.playmode
+      return {
+        user,
+        mode: mode || user.playmode
+      }
     }
-  }
 
-  if (id) {
-    const user = await osuApiV2.getUser({ id, mode })
+    if (id) {
+      const user = await osuApiV2.getUser({ id, mode })
 
+      return {
+        user,
+        mode: mode || user.playmode
+      }
+    }
+  } catch (error) {
     return {
-      user,
-      mode: mode || user.playmode
+      error
     }
   }
 

@@ -24,11 +24,20 @@ export default class LinkCommand implements BaseDiscordCommand {
     )
 
   async run (interaction: CommandInteraction): Promise<void> {
-    try {
-      const username = interaction.options.getString('username')
-      const mode = interaction.options.getString('mode') || 'osu'
+    const username = interaction.options.getString('username')
+    const mode = interaction.options.getString('mode') || 'osu'
 
-      const { user } = await getUser({ username, mode })
+    try {
+      const { user, error: userError } = await getUser({ username, mode })
+
+      if (userError) {
+        const embed = new MessageEmbed()
+          .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
+          .setColor(14504273)
+
+        interaction.editReply({ embeds: [embed] })
+        return
+      }
 
       const embed = new MessageEmbed()
         .setTitle(`${interaction.user.username} has been set to ${user.username}`)
@@ -57,10 +66,10 @@ export default class LinkCommand implements BaseDiscordCommand {
 
       interaction.reply({ embeds: [embed] })
       return
-    } catch (error) {
+    } catch {
       const embed = new MessageEmbed()
-        .setTitle('Error')
-        .setDescription(error.message)
+        .setTitle(`Couldn't find ${username}`)
+        .setColor(14504273)
 
       interaction.reply({ embeds: [embed] })
     }

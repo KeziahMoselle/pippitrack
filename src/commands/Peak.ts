@@ -31,14 +31,19 @@ export default class PeakCommand implements BaseDiscordCommand {
     const username = interaction.options.getString('username')
     const selectedMode = interaction.options.getString('mode')
 
-    const { user, mode } = await getUser({
+    const { user, mode, error } = await getUser({
       discordId: interaction.user.id,
       username,
       mode: selectedMode
     })
 
-    if (!user) {
-      return interaction.reply({ embeds: [notFoundEmbed] })
+    if (error) {
+      const embed = new MessageEmbed()
+        .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
+        .setColor(14504273)
+
+      interaction.editReply({ embeds: [embed] })
+      return
     }
 
     try {

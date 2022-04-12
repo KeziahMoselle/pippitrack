@@ -1,7 +1,7 @@
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
 import osuTrack from '../libs/osutrack'
-import { CommandInteraction } from 'discord.js'
+import { CommandInteraction, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import { SlashCommandBuilder } from '@discordjs/builders'
 
@@ -23,18 +23,22 @@ export default class UpdateCommand implements BaseDiscordCommand {
     )
 
   async run (interaction: CommandInteraction): Promise<void> {
-    try {
-      await interaction.deferReply()
-      const username = interaction.options.getString('username')
-      const selectedMode = interaction.options.getString('mode')
+    await interaction.deferReply()
+    const username = interaction.options.getString('username')
+    const selectedMode = interaction.options.getString('mode')
 
-      const { user, mode } = await getUser({
+    try {
+      const { user, mode, error } = await getUser({
         username,
         discordId: interaction.user.id
       })
 
-      if (!user) {
-        interaction.editReply({ embeds: [notFoundEmbed] })
+      if (error) {
+        const embed = new MessageEmbed()
+          .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
+          .setColor(14504273)
+
+        interaction.editReply({ embeds: [embed] })
         return
       }
 

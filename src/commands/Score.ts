@@ -22,13 +22,18 @@ export default class ScoreCommand implements BaseDiscordCommand {
     try {
       const username = interaction.options.getString('username')
 
-      const { user } = await getUser({
+      const { user, error } = await getUser({
         username,
         discordId: interaction.user.id
       })
 
-      if (!user) {
-        return interaction.reply({ embeds: [notFoundEmbed] })
+      if (error) {
+        const embed = new MessageEmbed()
+          .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
+          .setColor(14504273)
+
+        interaction.editReply({ embeds: [embed] })
+        return
       }
 
       let hasData = true

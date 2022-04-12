@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import { CommandInteraction, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import getModeInt from '../utils/getModeInt'
 import getUser from '../utils/getUser'
@@ -29,13 +29,18 @@ export default class OsuProfileCommand implements BaseDiscordCommand {
     const username = interaction.options.getString('username')
     const selectedMode = interaction.options.getString('mode')
 
-    const { user } = await getUser({
+    const { user, error } = await getUser({
       username,
       discordId: interaction.user.id
     })
 
-    if (!user) {
-      return interaction.reply({ embeds: [notFoundEmbed] })
+    if (error) {
+      const embed = new MessageEmbed()
+        .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
+        .setColor(14504273)
+
+      interaction.editReply({ embeds: [embed] })
+      return
     }
 
     return interaction.reply(this.IMAGE_ENDPOINT(user.id, selectedMode || user.playmode))
