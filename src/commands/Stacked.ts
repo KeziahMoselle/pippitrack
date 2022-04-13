@@ -38,6 +38,7 @@ export default class LinkCommand implements BaseDiscordCommand {
   }
 
   async run (interaction: CommandInteraction): Promise<void> {
+    await interaction.deferReply()
     const username = interaction.options.getString('username')
     const mode = interaction.options.getString('mode') || 'osu'
 
@@ -78,6 +79,10 @@ export default class LinkCommand implements BaseDiscordCommand {
         .addField('First', `${Math.round(first)}pp`, true)
         .addField('Mid', `${Math.round(mid)}pp`, true)
         .addField('Last', `${Math.round(last)}pp`, true)
+        .addField(
+          'Difference between first and last top',
+          `${Math.round(first - last)}pp`, true
+        )
         .setFooter({
           text: `${user.username} has a score of ${deviation}.`
         })
@@ -95,7 +100,7 @@ export default class LinkCommand implements BaseDiscordCommand {
         embed.setTitle(`${getEmoji(mode)} You are sooooo stacked.`)
       }
 
-      interaction.reply({
+      interaction.editReply({
         embeds: [embed]
       })
       return
@@ -104,7 +109,7 @@ export default class LinkCommand implements BaseDiscordCommand {
         .setTitle(`Couldn't find ${username}`)
         .setColor(14504273)
 
-      interaction.reply({ embeds: [embed] })
+      interaction.editReply({ embeds: [embed] })
     }
   }
 }
