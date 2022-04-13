@@ -12,6 +12,7 @@ import Configure from './Configure'
 import Score from './Score'
 import Gifted from './Gifted'
 import MpStat from './MpStat'
+import Stacked from './Stacked'
 
 export {
   Track,
@@ -27,5 +28,6 @@ export {
   Configure,
   Score,
   Gifted,
-  MpStat
+  MpStat,
+  Stacked
 }

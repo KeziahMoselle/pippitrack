@@ -31,7 +31,8 @@ import {
   Track,
   Untrack,
   Tracklist,
-  MpStat
+  MpStat,
+  Stacked
 } from './commands'
 import supabase from './libs/supabase'
 import getTrackedPlayers from './utils/getTrackedPlayers'
@@ -75,6 +76,7 @@ bot
   .addCommand(new Tracklist())
   .addCommand(new Configure())
   .addCommand(new MpStat())
+  .addCommand(new Stacked())
   .run()
 
 // Run subscribers

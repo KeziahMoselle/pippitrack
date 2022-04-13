@@ -111,8 +111,8 @@ class OsuApiv2 {
     id,
     mode = 'osu'
   }: {
-    id?: string
-    mode?: Mode
+    id?: string | number
+    mode?: Mode | string
   }): Promise<Score[]> {
     return this.fetch(`users/${id}/scores/best?mode=${mode}&limit=100`)
   }
