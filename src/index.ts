@@ -38,6 +38,11 @@ import supabase from './libs/supabase'
 import getTrackedPlayers from './utils/getTrackedPlayers'
 import { Client } from 'discord.js'
 
+const ENABLE_TOP_TRACKING = process.env.ENABLE_TOP_TRACKING === 'true'
+const ENABLE_DAILY_UPDATE = process.env.ENABLE_DAILY_UPDATE === 'true'
+const ENABLE_ORDR_TRACKING = process.env.ENABLE_ORDR_TRACKING === 'true'
+const ENABLE_BEATMAPS_TRACKING = process.env.ENABLE_BEATMAPS_TRACKING === 'true'
+
 api.start()
 
 const bot = new Bot(client, process.env.DISCORD_BOT_TOKEN)
@@ -53,12 +58,22 @@ bot.onReady = async (client: Client) => {
 
   // Run services
 
-  if (process.env.NODE_ENV === 'development') return console.log('Development mode: ignoring services.')
+  if (process.env.NODE_ENV === 'development') {
+    return console.warn('DEVELOPMENT MODE: Ignoring all services.')
+  }
 
-  top(client).start()
-  update(client).start()
-  ordr(client).start()
-  beatmaps(client).start()
+  if (ENABLE_TOP_TRACKING) {
+    top(client).start()
+  }
+  if (ENABLE_DAILY_UPDATE) {
+    update(client).start()
+  }
+  if (ENABLE_ORDR_TRACKING) {
+    ordr(client).start()
+  }
+  if (ENABLE_BEATMAPS_TRACKING) {
+    beatmaps(client).start()
+  }
 }
 
 bot
