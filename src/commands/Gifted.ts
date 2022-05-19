@@ -1,6 +1,5 @@
 import { CommandInteraction, MessageEmbed } from 'discord.js'
 import getUser from '../utils/getUser'
-import notFoundEmbed from '../utils/notFoundEmbed'
 import { BaseDiscordCommand } from '../types'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import getEmoji from '../utils/getEmoji'

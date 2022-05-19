@@ -5,7 +5,6 @@ import { BaseDiscordCommand } from '../types'
 import { RanksObject, UpdateRecordRow } from '../types/db'
 import getEmoji from '../utils/getEmoji'
 import getUser from '../utils/getUser'
-import notFoundEmbed from '../utils/notFoundEmbed'
 
 const intl = new Intl.NumberFormat('en-US')
 

@@ -3,7 +3,6 @@ import { CommandInteraction, MessageEmbed } from 'discord.js'
 import { BaseDiscordCommand } from '../types'
 import getModeInt from '../utils/getModeInt'
 import getUser from '../utils/getUser'
-import notFoundEmbed from '../utils/notFoundEmbed'
 
 export default class OsuProfileCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()

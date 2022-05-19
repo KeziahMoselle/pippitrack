@@ -1,7 +1,6 @@
 import { MessageEmbed, CommandInteraction } from 'discord.js'
 import axios from 'axios'
 import getUser from '../utils/getUser'
-import notFoundEmbed from '../utils/notFoundEmbed'
 import getRankAchievements from '../utils/getRankAchievements'
 import { BaseDiscordCommand } from '../types'
 import { SlashCommandBuilder } from '@discordjs/builders'
