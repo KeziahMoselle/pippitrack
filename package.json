@@ -34,7 +34,7 @@
     "eslint": "7.31.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-config-standard": "16.0.3",
-    "nodemon": "2.0.12",
+    "nodemon": "2.0.20",
     "prettier": "2.3.2",
     "ts-node": "10.1.0",
     "ts-standard": "10.0.0"
