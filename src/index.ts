@@ -63,15 +63,19 @@ bot.onReady = async (client: Client) => {
   }
 
   if (ENABLE_TOP_TRACKING) {
+    console.log('SERVICE: Started top tracking')
     top(client).start()
   }
   if (ENABLE_DAILY_UPDATE) {
+    console.log('SERVICE: Started daily update')
     update(client).start()
   }
   if (ENABLE_ORDR_TRACKING) {
+    console.log('SERVICE: Started o!rdr tracking')
     ordr(client).start()
   }
   if (ENABLE_BEATMAPS_TRACKING) {
+    console.log('SERVICE: Started beatmaps tracking')
     beatmaps(client).start()
   }
 }
@@ -109,6 +113,9 @@ process.on('SIGTERM', async () => {
 })
 
 async function cleanGuilds () {
+  if (process.env.NODE_ENV === 'development') {
+    return console.warn('DEVELOPMENT MODE: Skipping clean guilds.')
+  }
   const { inactiveGuilds } = await getTrackedPlayers(client)
 
   if (inactiveGuilds.length === 0) return

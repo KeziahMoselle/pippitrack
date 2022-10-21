@@ -460,6 +460,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
 
     // First time using this command in a guild
     if (error) {
+      await supabase.from<GuildRow>('guilds')
+        .insert({
+          guild_id: guild.id
+        })
+
       const embed = new MessageEmbed()
         .setTitle(`${guild.name}'s settings`)
         .addField(
