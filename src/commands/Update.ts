@@ -287,8 +287,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
       }
 
       interaction.editReply({
-        content: error.message,
-        ephemeral: true
+        content: error.message
       })
     }
   }
