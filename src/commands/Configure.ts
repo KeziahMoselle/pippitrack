@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { MessageEmbed, GuildMember, CommandInteraction, MessageActionRow, MessageSelectMenu, Guild, GuildBasedChannel } from 'discord.js'
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { defaultPrefix } from '../config'
 import supabase from '../libs/supabase'
 import { BaseDiscordCommand } from '../types'
 import { GuildColumns, GuildRow } from '../types/db'
@@ -294,8 +293,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         track_channel,
         updates_channel,
         replay_channel,
-        beatmaps_channel,
-        prefix
+        beatmaps_channel
       } = guildData
 
       const embed = new MessageEmbed()
@@ -328,7 +326,6 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           }`,
           true
         )
-        .addField('Prefix (will be deprecated)', `${prefix || defaultPrefix}`)
 
       return embed
     }

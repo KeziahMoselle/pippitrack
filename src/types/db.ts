@@ -1,3 +1,5 @@
+import { Score } from "./osu"
+
 export interface UsersRow {
   discord_id: string
   osu_id: string
@@ -53,14 +55,20 @@ export interface UpdateRecordRow {
   difference_rank: number
   difference_pp: number
   difference_accuracy: number
-  new_top_plays: string
+  accuracy: number
+  new_top_plays: Score[]
   playcount: number
+  difference_playcount: number
   rank: number
+  country_rank: number
+  difference_country_rank: number
   total_pp: number
   ranked_score: number
   total_score: number
   level: number
+  difference_level: number
   ranks: string | RanksObject
   is_score_only: boolean
   created_at: string | Date
+  mode: string
 }

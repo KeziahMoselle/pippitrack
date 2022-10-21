@@ -2,8 +2,7 @@ import { MessageEmbed, TextChannel, CommandInteraction, GuildMember } from 'disc
 import supabase from '../libs/supabase'
 import getUser from '../utils/getUser'
 import notFoundEmbed from '../utils/notFoundEmbed'
-import { defaultPrefix, maxTrackedUsersInGuild } from '../config'
-import prefixes from '../libs/prefixes'
+import { maxTrackedUsersInGuild } from '../config'
 import { GuildRow } from '../types/db'
 import { BaseDiscordCommand } from '../types'
 import { SlashCommandBuilder } from '@discordjs/builders'
@@ -99,12 +98,9 @@ export default class TrackCommand implements BaseDiscordCommand {
         !member.permissions.has('ADMINISTRATOR') &&
         !guild.admin_channel
       ) {
-        const prefix = prefixes.get(interaction.guild.id) || defaultPrefix
-
         const embed = new MessageEmbed()
           .setDescription(
-            'Sorry you need to be an administrator to use this command.\n' +
-              `Members are allowed to send track requests if the administrators allow it. (\`${prefix}config\`)`
+            'Sorry you need to be an administrator to use this command.'
           )
           .setColor(14504273)
 

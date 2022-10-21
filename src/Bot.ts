@@ -1,9 +1,6 @@
-import { Client, Collection, Guild, Interaction, Message, MessageEmbed, MessageInteraction, Permissions } from 'discord.js'
+import { Client, Collection, Guild, Interaction, MessageEmbed, MessageInteraction, Permissions } from 'discord.js'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
-import getPrefixes from './utils/getPrefixes'
-import { defaultPrefix } from './config'
-import prefixes from './libs/prefixes'
 import { BaseDiscordCommand } from './types'
 import MpStat from './commands/MpStat'
 import supabase from './libs/supabase'
@@ -28,62 +25,15 @@ export default class Bot {
     this.client.once('ready', async () => {
       if (this.onReady && typeof this.onReady === 'function') {
         this.onReady(this.client)
-        console.log(`Using ${process.env.NODE_ENV} prefix : ${defaultPrefix}`)
       }
 
       this.initSlashCommands()
     })
 
     // Add listeners here
-    this.client.on('messageCreate', this.onMessage)
     this.client.on('guildCreate', this.onGuildCreate)
     this.client.on('guildDelete', this.onGuildDelete)
     this.client.on('interactionCreate', this.onInteractionCreate)
-  }
-
-  /**
-   * Run a command if it's the bot prefix
-   *
-   * @param {module:discord.js.Message} message
-   * @memberof Bot
-   */
-  onMessage = (message: Message): void => {
-    if (
-      message.author.bot ||
-      message.channel.type === 'DM' ||
-      message.type === 'GUILD_MEMBER_JOIN'
-    ) {
-      return
-    }
-
-    const prefix = prefixes.get(message.guild.id) || defaultPrefix
-
-    if (!message.content.startsWith(prefix)) {
-      return
-    }
-
-    const commandName = message.content.split(prefix)[1]
-
-    if (
-      this.commands.has(commandName) ||
-      commandName === 'u' ||
-      commandName === 'config'
-    ) {
-      console.log(`${message.member.displayName} used ${commandName}.`)
-      const embed = new MessageEmbed()
-        .setTitle('Migrating to slash commands')
-        .setDescription(
-          'Discord is enforcing / commands, please use them instead.\n' +
-          'If you don\'t see any commands when typing "/" please kick and [reinvite the bot](https://invite.pippitrack.com/).\n\n' +
-          'If you need help [join the support server](https://discord.pippitrack.com/)\n\n' +
-          '`/configure` | `/link` | `/update` | `/score` | `/gifted` | `/help` | `/osu` | `/peak` | `/track` | `/untrack` | `/tracklist`'
-        )
-        .setColor(14504273)
-
-      message.reply({
-        embeds: [embed]
-      })
-    }
   }
 
   /**
@@ -190,7 +140,7 @@ export default class Bot {
           '**Here some instructions to get you started**\n' +
             'Administrators can configure the server by typing `/configure`.\n' +
             'Users can link their Discord to an osu! profile by typing `/link username`\n' +
-            'And you can find the documentation by typing the `/help` command !\n' +
+            'Type / to see a list of commands.\n' +
             'If you need help you can [join the support server](http://discord.pippitrack.com/) and ask for help there!'
         )
         .setFooter({
@@ -237,24 +187,12 @@ export default class Bot {
     return this
   }
 
-  fetchPrefixes = async (): Promise<void> => {
-    console.log('Fetching guilds prefixes...')
-    const guilds = await getPrefixes()
-
-    for (const guild of guilds) {
-      prefixes.set(guild.guild_id, guild.prefix)
-    }
-
-    console.log('Fetching guilds prefixes done!')
-  }
-
   /**
    * Run the bot
    *
    * @memberof Bot
    */
   run = async (): Promise<void> => {
-    await this.fetchPrefixes()
     console.log('Connecting to Discord...')
     try {
       await this.client.login(this.apiKey)
