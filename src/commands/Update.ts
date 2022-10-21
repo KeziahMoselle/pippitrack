@@ -31,6 +31,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
         .setMaxValue(4))
 
   async run (interaction: CommandInteraction): Promise<void> {
+    await interaction.deferReply()
     const username = interaction.options.getString('username')
     const selectedMode = interaction.options.getString('mode')
     const rowIndex = interaction.options.getInteger('index') || 0
@@ -49,7 +50,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
           .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
           .setColor(14504273)
 
-        interaction.reply({ embeds: [embed] })
+        interaction.editReply({ embeds: [embed] })
         return
       }
 
@@ -149,7 +150,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
         }
 
         try {
-          await interaction.reply({
+          await interaction.editReply({
             content: `Last update <t:${unixTimestamp}:R>`,
             embeds: [embed]
           })
@@ -190,7 +191,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
           }
         } catch (error) {
           console.error(error)
-          interaction.reply({
+          interaction.editReply({
             content: 'An error occured.'
           })
         }
@@ -274,7 +275,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
             true
           )
 
-        interaction.reply({
+        interaction.editReply({
           embeds: [embed]
         })
       }
@@ -282,10 +283,10 @@ export default class UpdateCommand implements BaseDiscordCommand {
       console.error(error)
 
       if (error.message === 'Cannot read property \'rank\' of undefined') {
-        interaction.reply({ embeds: [notFoundEmbed] })
+        interaction.editReply({ embeds: [notFoundEmbed] })
       }
 
-      interaction.reply({
+      interaction.editReply({
         content: error.message,
         ephemeral: true
       })
