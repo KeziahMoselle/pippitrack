@@ -69,7 +69,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
         console.error(error)
       }
 
-      const previousData = previousDataRows[rowIndex]
+      const previousData = previousDataRows?.[rowIndex]
 
       if (previousData) {
         const embed = new MessageEmbed()
@@ -270,7 +270,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
           .addField('Rank', `#${user.statistics.global_rank} (${getFlagEmoji(user.country_code)} #${user.statistics.country_rank})`, true)
           .addField(
             'Accuracy',
-            `+${user.statistics.hit_accuracy}%`,
+            `+${user.statistics.hit_accuracy.toFixed(2)}%`,
             true
           )
 
@@ -279,6 +279,8 @@ export default class UpdateCommand implements BaseDiscordCommand {
         })
       }
     } catch (error) {
+      console.error(error)
+
       if (error.message === 'Cannot read property \'rank\' of undefined') {
         interaction.reply({ embeds: [notFoundEmbed] })
       }
