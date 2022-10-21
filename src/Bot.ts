@@ -191,7 +191,7 @@ export default class Bot {
             'Administrators can configure the server by typing `/configure`.\n' +
             'Users can link their Discord to an osu! profile by typing `/link username`\n' +
             'And you can find the documentation by typing the `/help` command !\n' +
-            'If you need help you can [join the support server](http://discord.pippitrack.com/) and ask for help there !'
+            'If you need help you can [join the support server](http://discord.pippitrack.com/) and ask for help there!'
         )
         .setFooter({
           text: 'Happy tracking !'
@@ -218,7 +218,9 @@ export default class Bot {
       .delete()
       .match({ guild_id: guild.id })
 
-    console.log(error)
+    if (error) {
+      console.log(error)
+    }
 
     console.log(`${guild.name} (${guild.id}) has been removed.`)
   }
