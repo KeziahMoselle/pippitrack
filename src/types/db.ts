@@ -1,4 +1,4 @@
-import { Score } from "./osu"
+import { Score } from './osu'
 
 export interface UsersRow {
   discord_id: string
