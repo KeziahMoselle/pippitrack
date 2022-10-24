@@ -7,6 +7,7 @@ import supabase from '../libs/supabase'
 import { UpdateRecordRow } from '../types/db'
 import { osuApiV2 } from '../libs/osu'
 import getEmoji from '../utils/getEmoji'
+import { Score } from '../types/osu'
 
 export default class UpdateCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
@@ -54,6 +55,8 @@ export default class UpdateCommand implements BaseDiscordCommand {
         return
       }
 
+      const label = `/update ${user.username}:${user.playmode}:${rowIndex}`
+      console.time(label)
       // If a previous record has been found, do a difference between them
       const { data: previousDataRows, error: previousDataError } = await supabase
         .from<UpdateRecordRow>('updates_records')
@@ -77,26 +80,36 @@ export default class UpdateCommand implements BaseDiscordCommand {
         const level = Number(`${user.statistics.level.current}.${user.statistics.level.progress}`)
         const differenceRank = previousData.rank - user.statistics.global_rank
         const differenceCountryRank = previousData.country_rank - user.statistics.country_rank
-        const differenceAccuracy = previousData.accuracy - user.statistics.hit_accuracy
-        const differencePlaycount = previousData.playcount - user.statistics.play_count
-        const differencePp = previousData.total_pp - user.statistics.pp
-        const differenceLevel = previousData.level - level
+        const differenceAccuracy = user.statistics.hit_accuracy - previousData.accuracy
+        const differencePlaycount = user.statistics.play_count - previousData.playcount
+        const differencePp = user.statistics.pp - previousData.total_pp
+        const differenceLevel = level - previousData.level
+
         const unixTimestamp = Math.trunc(new Date(previousData.created_at).getTime() / 1000)
-        const newTopPlays = highscores.filter((score) => new Date(score.created_at) > new Date(previousData.created_at))
+        const newTopPlays = highscores.reduce((acc, score, personalBestIndex) => {
+          if (new Date(score.created_at) > new Date(previousData.created_at)) {
+            acc.push({
+              ...score,
+              personalBestIndex
+            })
+          }
+
+          return acc
+        }, [])
         let hasChanges = false
 
         let description = ''
 
         const newhs = newTopPlays.splice(0, 10)
-        let newHighscores = newhs.reduce((list, highscore, index) => {
+        let newHighscores = newhs.reduce((list, highscore: Score, index) => {
           hasChanges = true
           return (
             list +
             `${getEmoji(highscore.rank)} **${Math.round(
               highscore.pp
-            )}pp** (Personal best #${index + 1})\n`
+            )}pp** (Personal best [#${highscore.personalBestIndex + 1}](https://osu.ppy.sh/scores/${highscore.mode}/${highscore.id}))\n`
           )
-        }, `**New top play${newTopPlays.length > 1 ? 's' : ''} :**\n`)
+        }, `**New top play${newhs.length > 1 ? 's' : ''} :**\n`)
 
         if (newTopPlays.length > 0) {
           newHighscores += `${newTopPlays.length} more new top plays omitted. See them on [the osu! website](https://osu.ppy.sh/users/${user.id})`
@@ -111,7 +124,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
 
         if (Math.abs(differencePp) > 0) {
           hasChanges = true
-          embed.addField('PP', `${differencePp > 0 ? '+' : ''}${Number(user.statistics.pp.toFixed(2))}pp`, true)
+          embed.addField('PP', `${(user.statistics.pp - differencePp).toFixed(2)}pp → ${user.statistics.pp.toFixed(2)} \`${differencePp > 0 ? '+' : ''}${differencePp.toFixed(2)}\``, true)
         }
 
         if (Math.abs(differenceRank) > 0) {
@@ -124,19 +137,19 @@ export default class UpdateCommand implements BaseDiscordCommand {
             embed.setColor(6867286)
           }
 
-          embed.addField('Rank', `#${previousData.rank} -> #${user.statistics.global_rank} \`${differenceRank > 0 ? '+' : ''}${differenceRank}\``)
+          embed.addField('Rank', `#${previousData.rank} → #${user.statistics.global_rank} \`${differenceRank > 0 ? '+' : ''}${differenceRank}\``)
         }
 
         if (Math.abs(differenceCountryRank) > 0) {
           hasChanges = true
-          embed.addField(`${getFlagEmoji(user.country_code)} Rank`, `#${previousData.country_rank} -> #${user.statistics.country_rank} \`(${differenceCountryRank > 0 ? '+' : ''}${differenceCountryRank})\``)
+          embed.addField(`${getFlagEmoji(user.country_code)} Rank`, `#${previousData.country_rank} → #${user.statistics.country_rank} \`(${differenceCountryRank > 0 ? '+' : ''}${differenceCountryRank})\``)
         }
 
         if (Math.abs(differenceAccuracy) > 0) {
           hasChanges = true
           embed.addField(
             'Accuracy',
-            `${previousData.accuracy.toFixed(2)}% -> ${user.statistics.hit_accuracy.toFixed(2)}% \`${differenceAccuracy > 0 ? '+' : ''}${differenceAccuracy.toFixed(2)}%\``
+            `${previousData.accuracy.toFixed(2)}% → ${user.statistics.hit_accuracy.toFixed(2)}% \`${differenceAccuracy > 0 ? '+' : ''}${differenceAccuracy.toFixed(3)}%\``
           )
         }
 
@@ -153,6 +166,21 @@ export default class UpdateCommand implements BaseDiscordCommand {
           await interaction.editReply({
             content: `Last update <t:${unixTimestamp}:R>`,
             embeds: [embed]
+          })
+          console.timeEnd(label)
+
+          console.log(`${interaction.user.username}${interaction.user.discriminator} used /updated.`, {
+            username: username || user.username,
+            selectedMode: selectedMode || user.playmode,
+            rowIndex,
+            previousDataDate: previousData?.created_at
+          }, {
+            differenceRank,
+            differenceCountryRank,
+            differencePp,
+            differencePlaycount,
+            differenceAccuracy,
+            differenceLevel
           })
 
           const { error } = await supabase
@@ -263,7 +291,7 @@ export default class UpdateCommand implements BaseDiscordCommand {
 
         // This player hasn't been tracked
         embed
-          .setTitle('First update!')
+          .setTitle(`${getEmoji(mode)} First update!`)
           .setThumbnail(user.avatar_url)
           .setColor(6867286)
           .addField('Playcount', `+${user.statistics.play_count}`, true)
@@ -275,9 +303,16 @@ export default class UpdateCommand implements BaseDiscordCommand {
             true
           )
 
-        interaction.editReply({
+        await interaction.editReply({
           embeds: [embed]
         })
+        console.log(`${interaction.user.username}${interaction.user.discriminator} used /updated.`, {
+          username: username || user.username,
+          selectedMode: selectedMode || user.playmode,
+          rowIndex,
+          previousDataDate: previousData?.created_at
+        })
+        console.timeEnd(label)
       }
     } catch (error) {
       console.error(error)
