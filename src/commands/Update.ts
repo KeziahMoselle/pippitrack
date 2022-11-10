@@ -8,6 +8,8 @@ import { UpdateRecordRow } from '../types/db'
 import { osuApiV2 } from '../libs/osu'
 import getEmoji from '../utils/getEmoji'
 import { Score } from '../types/osu'
+import getFlagEmoji from '../utils/getFlagEmoji'
+import { update } from '../libs/update'
 
 export default class UpdateCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
@@ -38,300 +40,40 @@ export default class UpdateCommand implements BaseDiscordCommand {
     const rowIndex = interaction.options.getInteger('index') || 0
 
     try {
-      const { user, mode, error } = await getUser({
+      const { embed, type, previousData } = await update({
         username,
-        discordId: interaction.user.id,
-        mode: selectedMode
+        selectedMode,
+        rowIndex,
+        interaction
       })
 
-      const highscores = await osuApiV2.getUserBestScores({ id: user.id, mode })
+      const unixTimestamp = Math.trunc(new Date(previousData?.created_at ?? 0).getTime() / 1000)
 
-      if (error) {
-        const embed = new MessageEmbed()
-          .setDescription(`Couldn't find \`${username}\`.\nTry with a different username or re link your account with \`/link\`.`)
-          .setColor(14504273)
+      await interaction.editReply({
+        content: type === 'update'
+          ? `Last update <t:${unixTimestamp}:R>`
+          : undefined,
+        embeds: [embed]
+      })
 
-        interaction.editReply({ embeds: [embed] })
-        return
-      }
-
-      const label = `/update ${user.username}:${user.playmode}:${rowIndex}`
-      console.time(label)
-      // If a previous record has been found, do a difference between them
-      const { data: previousDataRows, error: previousDataError } = await supabase
-        .from<UpdateRecordRow>('updates_records')
-        .select('*')
-        .eq('osu_id', user.id)
-        .eq('mode', mode)
-        .eq('is_score_only', false)
-        .limit(5)
-        .order('id', {
-          ascending: false
-        })
-
-      if (previousDataError) {
-        console.error(error)
-      }
-
-      const previousData = previousDataRows?.[rowIndex]
-
-      if (previousData) {
-        const embed = new MessageEmbed()
-        const level = Number(`${user.statistics.level.current}.${user.statistics.level.progress}`)
-        const differenceRank = previousData.rank - user.statistics.global_rank
-        const differenceCountryRank = previousData.country_rank - user.statistics.country_rank
-        const differenceAccuracy = user.statistics.hit_accuracy - previousData.accuracy
-        const differencePlaycount = user.statistics.play_count - previousData.playcount
-        const differencePp = user.statistics.pp - previousData.total_pp
-        const differenceLevel = level - previousData.level
-
-        const unixTimestamp = Math.trunc(new Date(previousData.created_at).getTime() / 1000)
-        const newTopPlays = highscores.reduce((acc, score, personalBestIndex) => {
-          if (new Date(score.created_at) > new Date(previousData.created_at)) {
-            acc.push({
-              ...score,
-              personalBestIndex
-            })
-          }
-
-          return acc
-        }, [])
-        let hasChanges = false
-
-        let description = ''
-
-        const newhs = newTopPlays.splice(0, 10)
-        let newHighscores = newhs.reduce((list, highscore: Score, index) => {
-          hasChanges = true
-          return (
-            list +
-            `${getEmoji(highscore.rank)} **${Math.round(
-              highscore.pp
-            )}pp** (Personal best [#${highscore.personalBestIndex + 1}](https://osu.ppy.sh/scores/${highscore.mode}/${highscore.id}))\n`
-          )
-        }, `**New top play${newhs.length > 1 ? 's' : ''} :**\n`)
-
-        if (newTopPlays.length > 0) {
-          newHighscores += `${newTopPlays.length} more new top plays omitted. See them on [the osu! website](https://osu.ppy.sh/users/${user.id})`
-        }
-
-        description += newHighscores
-
-        if (differencePlaycount > 0) {
-          hasChanges = true
-          embed.addField('Playcount', `+${differencePlaycount}`, true)
-        }
-
-        if (Math.abs(differencePp) > 0) {
-          hasChanges = true
-          embed.addField('PP', `${(user.statistics.pp - differencePp).toFixed(2)}pp → ${user.statistics.pp.toFixed(2)} \`${differencePp > 0 ? '+' : ''}${differencePp.toFixed(2)}\``, true)
-        }
-
-        if (Math.abs(differenceRank) > 0) {
-          hasChanges = true
-          // User losing ranks
-          if (differenceRank < 0) {
-            embed.setColor(14504273)
-          } else {
-            // User gaining ranks
-            embed.setColor(6867286)
-          }
-
-          embed.addField('Rank', `#${previousData.rank} → #${user.statistics.global_rank} \`${differenceRank > 0 ? '+' : ''}${differenceRank}\``)
-        }
-
-        if (Math.abs(differenceCountryRank) > 0) {
-          hasChanges = true
-          embed.addField(`${getFlagEmoji(user.country_code)} Rank`, `#${previousData.country_rank} → #${user.statistics.country_rank} \`(${differenceCountryRank > 0 ? '+' : ''}${differenceCountryRank})\``)
-        }
-
-        if (Math.abs(differenceAccuracy) > 0) {
-          hasChanges = true
-          embed.addField(
-            'Accuracy',
-            `${previousData.accuracy.toFixed(2)}% → ${user.statistics.hit_accuracy.toFixed(2)}% \`${differenceAccuracy > 0 ? '+' : ''}${differenceAccuracy.toFixed(3)}%\``
-          )
-        }
-
-        if (hasChanges) {
-          embed
-            .setTitle(`${getEmoji(mode)} Changes since last update for ${user.username}`)
-            .setThumbnail(user.avatar_url)
-            .setDescription(description)
-        } else {
-          embed.setDescription(`${getEmoji(mode)} No significant changes for ${user.username}`)
-        }
-
-        try {
-          await interaction.editReply({
-            content: `Last update <t:${unixTimestamp}:R>`,
-            embeds: [embed]
-          })
-          console.timeEnd(label)
-
-          console.log(`${interaction.user.username}${interaction.user.discriminator} used /updated.`, {
-            username: username || user.username,
-            selectedMode: selectedMode || user.playmode,
-            rowIndex,
-            previousDataDate: previousData?.created_at
-          }, {
-            differenceRank,
-            differenceCountryRank,
-            differencePp,
-            differencePlaycount,
-            differenceAccuracy,
-            differenceLevel
-          })
-
-          const { error } = await supabase
-            .from<UpdateRecordRow>('updates_records')
-            .insert({
-              osu_id: user.id.toString(),
-              mode,
-              playcount: user.statistics.play_count,
-              rank: user.statistics.global_rank,
-              country_rank: user.statistics.country_rank,
-              accuracy: user.statistics.hit_accuracy,
-              new_top_plays: [...newhs, ...newTopPlays],
-              total_pp: user.statistics.pp,
-              total_score: user.statistics.total_score,
-              ranked_score: user.statistics.ranked_score,
-              level,
-              ranks: {
-                SSH: user.statistics.grade_counts.ssh,
-                SS: user.statistics.grade_counts.ss,
-                SH: user.statistics.grade_counts.sh,
-                S: user.statistics.grade_counts.s,
-                A: user.statistics.grade_counts.a
-              },
-              difference_rank: differenceRank,
-              difference_pp: differencePp,
-              difference_accuracy: differenceAccuracy,
-              difference_country_rank: differenceCountryRank,
-              difference_level: differenceLevel,
-              difference_playcount: differencePlaycount,
-              is_score_only: false,
-              created_at: new Date()
-            })
-
-          if (error) {
-            console.error(error)
-          }
-        } catch (error) {
-          console.error(error)
-          interaction.editReply({
-            content: 'An error occured.'
-          })
-        }
-        return
-      }
-
-      // First update, save everything
-      if (!previousData) {
-        const level = Number(`${user.statistics.level.current}.${user.statistics.level.progress}`)
-
-        const { error } = await supabase
-          .from<UpdateRecordRow>('updates_records')
-          .insert({
-            osu_id: user.id.toString(),
-            mode,
-            playcount: user.statistics.play_count,
-            rank: user.statistics.global_rank,
-            country_rank: user.statistics.country_rank,
-            accuracy: user.statistics.hit_accuracy,
-            new_top_plays: highscores,
-            total_pp: user.statistics.pp,
-            total_score: user.statistics.total_score,
-            ranked_score: user.statistics.ranked_score,
-            level,
-            ranks: {
-              SSH: user.statistics.grade_counts.ssh,
-              SS: user.statistics.grade_counts.ss,
-              SH: user.statistics.grade_counts.sh,
-              S: user.statistics.grade_counts.s,
-              A: user.statistics.grade_counts.a
-            },
-            difference_rank: 0,
-            difference_pp: 0,
-            difference_accuracy: 0,
-            difference_country_rank: 0,
-            difference_level: 0,
-            difference_playcount: 0,
-            is_score_only: false,
-            created_at: new Date()
-          })
-
-        if (error) {
-          console.error(error)
-        }
-
-        const embed = new MessageEmbed()
-
-        let description = ''
-
-        const newhs = highscores.splice(0, 10)
-        let newHighscores = newhs.reduce((list, highscore, index) => {
-          return (
-            list +
-            `${getEmoji(highscore.rank)} **${Math.round(
-              highscore.pp
-            )}pp** (Personal best #${index + 1})\n`
-          )
-        }, `**New top play${highscores.length > 1 ? 's' : ''} :**\n`)
-
-        if (highscores.length > 0) {
-          newHighscores += `${highscores.length} more new top plays omitted. See them on [the osu! website](https://osu.ppy.sh/users/${user.id})`
-        }
-
-        description += newHighscores
-
-        if (description) {
-          embed.setDescription(description)
-        }
-
-        // This player hasn't been tracked
-        embed
-          .setTitle(`${getEmoji(mode)} First update!`)
-          .setThumbnail(user.avatar_url)
-          .setColor(6867286)
-          .addField('Playcount', `+${user.statistics.play_count}`, true)
-          .addField('PP', `+${Number(user.statistics.pp.toFixed(2))}pp`, true)
-          .addField('Rank', `#${user.statistics.global_rank} (${getFlagEmoji(user.country_code)} #${user.statistics.country_rank})`, true)
-          .addField(
-            'Accuracy',
-            `+${user.statistics.hit_accuracy.toFixed(2)}%`,
-            true
-          )
-
-        await interaction.editReply({
-          embeds: [embed]
-        })
-        console.log(`${interaction.user.username}${interaction.user.discriminator} used /updated.`, {
-          username: username || user.username,
-          selectedMode: selectedMode || user.playmode,
-          rowIndex,
-          previousDataDate: previousData?.created_at
-        })
-        console.timeEnd(label)
-      }
+      console.log(`${interaction.user.username}#${interaction.user.discriminator} used /update.`, {
+        username,
+        selectedMode,
+        rowIndex
+      })
     } catch (error) {
-      console.error(error)
+      console.error(`[ERROR] ${interaction.user.username}#${interaction.user.discriminator} used /update.`, {
+        username,
+        selectedMode,
+        rowIndex
+      }, error)
 
-      if (error.message === 'Cannot read property \'rank\' of undefined') {
-        interaction.editReply({ embeds: [notFoundEmbed] })
-      }
+      const embed = new MessageEmbed()
+        .setDescription(error.message)
 
-      interaction.editReply({
-        content: error.message
+      await interaction.editReply({
+        embeds: [embed]
       })
     }
   }
-}
-
-function getFlagEmoji (countryCode) {
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt())
-  return String.fromCodePoint(...codePoints)
 }

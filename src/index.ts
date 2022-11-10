@@ -39,7 +39,7 @@ import getTrackedPlayers from './utils/getTrackedPlayers'
 import { Client } from 'discord.js'
 
 const ENABLE_TOP_TRACKING = process.env.ENABLE_TOP_TRACKING === 'true'
-const ENABLE_DAILY_UPDATE = process.env.ENABLE_DAILY_UPDATE === 'true'
+const ENABLE_WEEKLY_UPDATE = process.env.ENABLE_WEEKLY_UPDATE === 'true'
 const ENABLE_ORDR_TRACKING = process.env.ENABLE_ORDR_TRACKING === 'true'
 const ENABLE_BEATMAPS_TRACKING = process.env.ENABLE_BEATMAPS_TRACKING === 'true'
 
@@ -66,7 +66,7 @@ bot.onReady = async (client: Client) => {
     console.log('SERVICE: Started top tracking')
     top(client).start()
   }
-  if (ENABLE_DAILY_UPDATE) {
+  if (ENABLE_WEEKLY_UPDATE) {
     console.log('SERVICE: Started daily update')
     update(client).start()
   }

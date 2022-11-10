@@ -1,5 +1,4 @@
 import { CronJob } from 'cron'
-import osuTrack from '../../libs/osutrack'
 import getTrackedPlayers from '../../utils/getTrackedPlayers'
 import wait from '../../utils/wait'
 import {
@@ -8,12 +7,14 @@ import {
 } from '../../config'
 import { Client, MessageEmbed } from 'discord.js'
 import { TrackedPlayer } from '../../types'
+import { update } from '../../libs/update'
 
+// const EVERY_WEEK = '0 0 0 * * 6'
 const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
-const THIRTY_SECONDS = 30 * 1000
+const FIVE_SECONDS = 5 * 1000
 
-export default function update (client: Client): CronJob {
-  console.log('Service started : update players every day')
+export default function updateService (client: Client): CronJob {
+  console.log('Service started : update players every week')
 
   const job = new CronJob({
     cronTime: EVERY_DAY_AT_MIDNIGHT,
@@ -39,7 +40,7 @@ export default function update (client: Client): CronJob {
       while (uniqueTrackedPlayers.length > 0) {
         if (updatedPlayers >= maxRequestsBeforeSleep) {
           // wait to avoid too many requests
-          await wait(THIRTY_SECONDS)
+          await wait(FIVE_SECONDS)
           updatedPlayers = 0
         }
 
@@ -83,15 +84,15 @@ export default function update (client: Client): CronJob {
 }
 
 async function updatePlayer (player: TrackedPlayer) {
-  const { status, embed } = await osuTrack.update({
+  const { type, embed } = await update({
     id: player.osu_id,
-    mode: player.osu_mode
+    selectedMode: player.osu_mode
   })
 
   return {
     player,
     embed,
-    status
+    type
   }
 }
 
@@ -103,7 +104,7 @@ async function sendEmbeds (
       continue
     }
 
-    if (update.status === 'no_change') {
+    if (update.type === 'no_change') {
       return console.log(`${update.player.osu_username} has no changes.`)
     }
 
@@ -126,5 +127,5 @@ async function sendEmbeds (
 interface Update {
   player: TrackedPlayer
   embed: MessageEmbed
-  status: 'first' | 'no_change' | 'update'
+  type: 'first' | 'no_change' | 'update'
 }
