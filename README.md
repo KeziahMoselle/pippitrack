@@ -40,7 +40,7 @@ After inviting the bot to your server, you need to configure it.
 
 ![configure](.github/config.gif)
 
-Track a user (top plays, daily updates and replays)
+Track a user (top plays, weekly updates and replays)
 You can track up to 100 players.
 
 ```

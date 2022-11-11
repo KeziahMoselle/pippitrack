@@ -32,7 +32,7 @@ async function getTrackChannels (guildId: string, client: Client) {
     guild.track_channel
   ) as TextChannel
 
-  // Get updates channel for daily osu!track updates
+  // Get updates channel for weekly profile updates
   const updatesChannel: TextChannel = discordGuild.channels.cache.get(
     guild.updates_channel
   ) as TextChannel

@@ -9,15 +9,14 @@ import { Client, MessageEmbed } from 'discord.js'
 import { TrackedPlayer } from '../../types'
 import { update } from '../../libs/update'
 
-// const EVERY_WEEK = '0 0 0 * * 6'
-const EVERY_DAY_AT_MIDNIGHT = '0 0 0 * * *'
+const EVERY_WEEK = '0 0 0 * * 6'
 const FIVE_SECONDS = 5 * 1000
 
 export default function updateService (client: Client): CronJob {
   console.log('Service started : update players every week')
 
   const job = new CronJob({
-    cronTime: EVERY_DAY_AT_MIDNIGHT,
+    cronTime: EVERY_WEEK,
     onTick: massUpdatePlayers,
     timeZone: 'Europe/Paris',
     runOnInit: process.env.NODE_ENV === 'development'

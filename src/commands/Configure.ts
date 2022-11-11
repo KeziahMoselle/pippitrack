@@ -7,10 +7,10 @@ import { GuildColumns, GuildRow } from '../types/db'
 
 const CHOICES = [
   {
-    label: 'Daily osu!track updates',
+    label: 'Weekly profile updates',
     value: 'enable_updates',
     emoji: '🆕',
-    description: 'Set a channel for daily updates'
+    description: 'Set a channel for weekly updates'
   },
   {
     label: 'Send new ranked beatmaps',
@@ -179,7 +179,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
             )
 
             response.setDescription(
-              `Daily updates will now be sent to ${channel.toString()}`
+              `Weekly updates will now be sent to ${channel.toString()}`
             )
           }
 
@@ -190,7 +190,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
               null,
               interaction.guildId
             )
-            response.setDescription('Daily updates are now deactivated')
+            response.setDescription('Weekly updates are now deactivated')
             response.setColor(14504273)
           }
         }
@@ -266,7 +266,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setTitle(`${guild.name}'s settings`)
         .addField(
-          'Daily Updates',
+          'Weekly Updates',
           '❌ No channel set.',
           true
         )
@@ -299,7 +299,7 @@ export default class ConfigureCommand implements BaseDiscordCommand {
       const embed = new MessageEmbed()
         .setTitle(`${guild.name}'s settings`)
         .addField(
-          'Daily Updates',
+          'Weekly Updates',
           `${updates_channel ? '✅' : '❌'} ${
             updates_channel ? `<#${updates_channel}>` : 'No channel set.'
           }`,

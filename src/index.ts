@@ -67,7 +67,7 @@ bot.onReady = async (client: Client) => {
     top(client).start()
   }
   if (ENABLE_WEEKLY_UPDATE) {
-    console.log('SERVICE: Started daily update')
+    console.log('SERVICE: Started weekly update')
     update(client).start()
   }
   if (ENABLE_ORDR_TRACKING) {

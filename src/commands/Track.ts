@@ -12,7 +12,7 @@ import updatePlayerState from '../services/top/updatePlayerState'
 export default class TrackCommand implements BaseDiscordCommand {
   data = new SlashCommandBuilder()
     .setName('track')
-    .setDescription('Allows you to track top plays and replays. Also enable daily updates of your profile.')
+    .setDescription('Allows you to track top plays and replays. Also enable weekly updates of your profile.')
     .addStringOption((option) =>
       option.setName('username')
         .setDescription('Your osu! username')
