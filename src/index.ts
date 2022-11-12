@@ -13,6 +13,7 @@ import ordr from './services/ordr'
 import update from './services/update'
 import top from './services/top'
 import beatmaps from './services/beatmaps'
+import news from './services/news'
 
 // Subscribers
 import trackedUsers from './subscribers/trackedUsers'
@@ -42,6 +43,7 @@ const ENABLE_TOP_TRACKING = process.env.ENABLE_TOP_TRACKING === 'true'
 const ENABLE_WEEKLY_UPDATE = process.env.ENABLE_WEEKLY_UPDATE === 'true'
 const ENABLE_ORDR_TRACKING = process.env.ENABLE_ORDR_TRACKING === 'true'
 const ENABLE_BEATMAPS_TRACKING = process.env.ENABLE_BEATMAPS_TRACKING === 'true'
+const ENABLE_NEWS_TRACKING = process.env.ENABLE_NEWS_TRACKING === 'true'
 
 api.start()
 
@@ -57,7 +59,6 @@ bot.onReady = async (client: Client) => {
   cleanGuilds()
 
   // Run services
-
   if (process.env.NODE_ENV === 'development') {
     return console.warn('DEVELOPMENT MODE: Ignoring all services.')
   }
@@ -77,6 +78,10 @@ bot.onReady = async (client: Client) => {
   if (ENABLE_BEATMAPS_TRACKING) {
     console.log('SERVICE: Started beatmaps tracking')
     beatmaps(client).start()
+  }
+  if (ENABLE_NEWS_TRACKING) {
+    console.log('SERVICE: Started news tracking')
+    news(client).start()
   }
 }
 

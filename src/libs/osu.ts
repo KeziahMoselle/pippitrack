@@ -1,6 +1,6 @@
 import axios from 'axios'
 import osuClient from 'node-osu'
-import { Score, Mode, User } from '../types/osu'
+import { Score, Mode, User, News } from '../types/osu'
 
 export const osu = new osuClient.Api(process.env.OSU_API_KEY, {
   completeScores: true,
@@ -119,6 +119,22 @@ class OsuApiv2 {
 
   async getBeatmap ({ id }: { id: number }) {
     return this.fetch(`beatmaps/${id}`)
+  }
+
+  async getNews ({
+    limit = 3,
+    year,
+    cursor
+  }: {
+    limit?: number
+    year?: number
+    cursor?: string
+  }): Promise<News> {
+    return this.fetch('news', {
+      limit,
+      year,
+      cursor
+    })
   }
 }
 

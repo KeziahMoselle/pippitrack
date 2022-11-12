@@ -19,6 +19,12 @@ const CHOICES = [
     description: 'Set a channel to track new ranked beatmaps'
   },
   {
+    label: 'Send osu! news',
+    value: 'enable_news_track',
+    emoji: '🗞️',
+    description: 'Set a channel to track osu! news'
+  },
+  {
     label: 'Top plays tracking',
     value: 'enable_track',
     emoji: '👀',
@@ -170,6 +176,27 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           }
         }
 
+        if (choice.value === 'enable_news_track') {
+          if (channel) {
+            await this.updateGuildSetting(
+              'news_channel',
+              channel.id,
+              interaction.guildId
+            )
+
+            response.setDescription(
+              `osu! news will now be sent to ${channel.toString()}`
+            )
+          }
+
+          // Else deactivate tracking
+          if (!channel) {
+            await this.updateGuildSetting('news_channel', null, interaction.guildId)
+            response.setDescription('osu! news tracking is now deactivated')
+            response.setColor(14504273)
+          }
+        }
+
         if (choice.value === 'enable_updates') {
           if (channel) {
             await this.updateGuildSetting(
@@ -276,6 +303,11 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           true
         )
         .addField(
+          'Track osu! News',
+          '❌ No channel set.',
+          true
+        )
+        .addField(
           'Track Top Plays',
           '❌ No channel set.',
           true
@@ -293,7 +325,8 @@ export default class ConfigureCommand implements BaseDiscordCommand {
         track_channel,
         updates_channel,
         replay_channel,
-        beatmaps_channel
+        beatmaps_channel,
+        news_channel,
       } = guildData
 
       const embed = new MessageEmbed()
@@ -309,6 +342,13 @@ export default class ConfigureCommand implements BaseDiscordCommand {
           'Track Beatmaps',
           `${beatmaps_channel ? '✅' : '❌'} ${
             beatmaps_channel ? `<#${beatmaps_channel}>` : 'No channel set.'
+          }`,
+          true
+        )
+        .addField(
+          'Track osu! News',
+          `${news_channel ? '✅' : '❌'} ${
+            news_channel ? `<#${news_channel}>` : 'No channel set.'
           }`,
           true
         )

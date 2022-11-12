@@ -1,100 +1,100 @@
-export type Mode = 'osu' | 'fruits' | 'mania' | 'taiko'
+export type Mode = "osu" | "fruits" | "mania" | "taiko";
 
-export type Rank = 'xh' | 'x' | 's' | 'sh' | 'a' | 'c' | 'b' | 'f' | 'd'
+export type Rank = "xh" | "x" | "s" | "sh" | "a" | "c" | "b" | "f" | "d";
 
 export interface Score {
-  id: number
-  user_id: number
-  accuracy: number
-  mods: string[]
-  score: number
-  max_combo: number
-  passed: boolean
-  perfect: boolean
-  personalBestIndex?: number
+  id: number;
+  user_id: number;
+  accuracy: number;
+  mods: string[];
+  score: number;
+  max_combo: number;
+  passed: boolean;
+  perfect: boolean;
+  personalBestIndex?: number;
   statistics: {
-    count_50: number
-    count_100: number
-    count_300: number
-    count_geki: number
-    count_katu: number
-    count_miss: number
-  }
-  rank: Rank
-  created_at: string
-  best_id: number
-  pp: number
-  mode: Mode
-  mode_int: number
-  replay: boolean
+    count_50: number;
+    count_100: number;
+    count_300: number;
+    count_geki: number;
+    count_katu: number;
+    count_miss: number;
+  };
+  rank: Rank;
+  created_at: string;
+  best_id: number;
+  pp: number;
+  mode: Mode;
+  mode_int: number;
+  replay: boolean;
   beatmap: {
-    beatmapset_id: number
-    difficulty_rating: number
-    id: number
-    mode: Mode
-    status: string
-    total_length: number
-    user_id: number
-    version: string
-    accuracy: number
-    ar: number
-    bpm: number
-    convert: boolean
-    count_circles: number
-    count_sliders: number
-    count_spinners: number
-    cs: number
-    deleted_at: null
-    drain: number
-    hit_length: number
-    is_scoreable: boolean
-    last_updated: string
-    mode_int: number
-    passcount: number
-    playcount: number
-    ranked: number
-    url: string
-    checksum: string
-  }
+    beatmapset_id: number;
+    difficulty_rating: number;
+    id: number;
+    mode: Mode;
+    status: string;
+    total_length: number;
+    user_id: number;
+    version: string;
+    accuracy: number;
+    ar: number;
+    bpm: number;
+    convert: boolean;
+    count_circles: number;
+    count_sliders: number;
+    count_spinners: number;
+    cs: number;
+    deleted_at: null;
+    drain: number;
+    hit_length: number;
+    is_scoreable: boolean;
+    last_updated: string;
+    mode_int: number;
+    passcount: number;
+    playcount: number;
+    ranked: number;
+    url: string;
+    checksum: string;
+  };
   beatmapset: {
-    artist: string
-    artist_unicode: string
+    artist: string;
+    artist_unicode: string;
     covers: {
-      cover: string
-      card: string
-      list: string
-      slimcover: string
-    }
-    creator: string
-    favourite_count: number
-    hype: null
-    id: number
-    nsfw: boolean
-    play_count: number
-    preview_url: string
-    source: string
-    status: string
-    title: string
-    title_unicode: string
-    user_id: number
-    video: boolean
-  }
-  weight: { percentage: number; pp: number }
+      cover: string;
+      card: string;
+      list: string;
+      slimcover: string;
+    };
+    creator: string;
+    favourite_count: number;
+    hype: null;
+    id: number;
+    nsfw: boolean;
+    play_count: number;
+    preview_url: string;
+    source: string;
+    status: string;
+    title: string;
+    title_unicode: string;
+    user_id: number;
+    video: boolean;
+  };
+  weight: { percentage: number; pp: number };
   user: {
-    avatar_url: string
-    country_code: string
-    default_group: string
-    id: number
-    is_active: boolean
-    is_bot: boolean
-    is_deleted: boolean
-    is_online: boolean
-    is_supporter: boolean
-    last_visit: string
-    pm_friends_only: boolean
-    profile_colour: null
-    username: string
-  }
+    avatar_url: string;
+    country_code: string;
+    default_group: string;
+    id: number;
+    is_active: boolean;
+    is_bot: boolean;
+    is_deleted: boolean;
+    is_online: boolean;
+    is_supporter: boolean;
+    last_visit: string;
+    pm_friends_only: boolean;
+    profile_colour: null;
+    username: string;
+  };
 }
 
 export interface User {
@@ -228,4 +228,31 @@ export interface Level {
 export interface UserAchievement {
   achieved_at: Date;
   achievement_id: number;
+}
+
+export interface Post {
+  author: string;
+  edit_url: string;
+  first_image: string;
+  id: number;
+  published_at: string;
+  slug: string;
+  title: string;
+  updated_at: string;
+  preview: string;
+}
+
+export interface News {
+  cursor: string;
+  news_posts: Post[];
+  news_sidebar: {
+    current_year: 2022;
+    news_posts: Post[];
+    years: number[];
+  };
+  search: {
+    limit: number;
+    sort: string;
+    year: number;
+  };
 }

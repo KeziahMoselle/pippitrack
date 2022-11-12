@@ -29,6 +29,7 @@ export interface GuildRow {
   replay_channel: string
   admin_channel: string
   beatmaps_channel: string
+  news_channel: string
   prefix: string
 }
 
@@ -40,6 +41,7 @@ export type GuildColumns =
   | 'admin_channel'
   | 'beatmaps_channel'
   | 'prefix'
+  | 'news_channel'
 
 export interface RanksObject {
   SSH: number
