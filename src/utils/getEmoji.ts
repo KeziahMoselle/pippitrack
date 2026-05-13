@@ -1,61 +1,61 @@
-import client from '../libs/client'
-import { Rank } from '../types/osu'
+import client from "../libs/client";
+import { Rank } from "../types/osu";
 
 const RANK_EMOJIS = {
-  ssh: '<:rank_ssh:864503329996668968>',
-  xh: '<:rank_ssh:864503329996668968>',
-  ss: '<:rank_ss:864503330448474142>',
-  x: '<:rank_ss:864503330448474142>',
-  s: '<:rank_s:864503422987010049>',
-  sh: '<:rank_sh:864503423311675412>',
-  a: '<:rank_a:864503471612362843>',
-  c: '<:rank_c:864628617740025877>',
-  b: '<:rank_b:864628978605096990>',
-  d: '<:rank_d:871723113111502908>',
-  f: '<:rank_f:864629121354432563>',
-  bpm: '<:bpm:949375789332324432>',
-  total_length: '<:total_length:949375789462343740>',
-  count_circles: '<:count_circles:949375789604962405>',
-  count_sliders: '<:count_sliders:949375789630099478>',
-  diff_green: '<:green:949378988718043166>',
-  diff_orange: '<:orange:949378988940333136>',
-  diff_blue: '<:blue:949378988739010630>',
-  diff_black: '<:black:949378988684476416>',
-  osu: '<:osu:949398794502549514>',
-  mania: '<:mania:949398794460606474>',
-  taiko: '<:taiko:949398794846474281>',
-  fruits: '<:fruits:949398794590646272>'
-}
+  ssh: "<:rank_ss:1504157073032613969>",
+  xh: "<:rank_ss:1504157073032613969>",
+  ss: "<:rank_ss:1504157073032613969>",
+  x: "<:rank_ss:1504157073032613969>",
+  s: "<:rank_s:1504157397101576242>",
+  sh: "<:rank_sh:1504157006041452584>",
+  a: "<:rank_a:1504157465330323516>",
+  c: "<:rank_c:1504157183519232070>",
+  b: "<:rank_b:1504157360623452230>",
+  d: "<:rank_d:1504156918204072007>",
+  f: "",
+  bpm: "<:bpm:1504157231078310079>",
+  total_length: "<:total_length:1504157247289168002>",
+  count_circles: "<:count_circles:1504159864878923776>",
+  count_sliders: "<:count_sliders:1504159883786850436>",
+  diff_green: "<:green:1504157508715937862>",
+  diff_orange: "<:orange:1504157524268421280>",
+  diff_blue: "<:blue:1504157321394130995>",
+  diff_black: "<:black:1504157275080622081>",
+  osu: "<:std:1504157486670675988>",
+  mania: "<:mania:1504157305145397269>",
+  taiko: "<:taiko:1504157291094609981>",
+  fruits: "<:fruits:1504157212652732577>",
+};
 
 type Emojis =
-  'bpm' |
-  'total_length' |
-  'count_circles' |
-  'count_sliders' |
-  'diff_green' |
-  'diff_orange' |
-  'diff_blue' |
-  'diff_black' |
-  'osu' |
-  'mania' |
-  'taiko' |
-  'fruits'
+  | "bpm"
+  | "total_length"
+  | "count_circles"
+  | "count_sliders"
+  | "diff_green"
+  | "diff_orange"
+  | "diff_blue"
+  | "diff_black"
+  | "osu"
+  | "mania"
+  | "taiko"
+  | "fruits";
 
-export default function getEmoji (rank: Rank | Emojis | string): string {
-  const rankLetter = rank.toLowerCase()
+export default function getEmoji(rank: Rank | Emojis | string): string {
+  const rankLetter = rank.toLowerCase();
 
   if (RANK_EMOJIS[rankLetter]) {
-    return RANK_EMOJIS[rankLetter]
+    return RANK_EMOJIS[rankLetter];
   }
 
   const emoji = client.emojis.cache.find(
     (emoji) => emoji.name === `rank_${rankLetter}`
-  )
+  );
 
   if (emoji) {
-    return emoji.toString()
+    return emoji.toString();
   }
 
-  console.error(`${rankLetter} emoji does not exist.`)
-  return ''
+  console.error(`${rankLetter} emoji does not exist.`);
+  return "";
 }
