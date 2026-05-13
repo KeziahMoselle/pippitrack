@@ -6,13 +6,11 @@
 
 A Discord bot that allows you to track osu! things. It has some useful commands too.
 
-## [Invite PippiTrack to your server](https://invite.pippitrack.com/)
+## [Invite PippiTrack to your server](https://discord.com/oauth2/authorize?client_id=1501692488044249228)
 
 ## How do I report a bug or request a feature ?
 
-- [Join the PippiTrack Discord server](https://discord.pippitrack.com/)
 - [Create an issue](https://github.com/KeziahMoselle/pippi-track/issues/new) on this repository.
-- Contact me on Discord (**Keziah#6631**)
 
 ## How do I use PippiTrack ?
 
