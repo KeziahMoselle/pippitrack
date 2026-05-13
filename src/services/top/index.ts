@@ -1,78 +1,82 @@
-import { CronJob } from 'cron'
-import getTrackedPlayers from '../../utils/getTrackedPlayers'
-import { Client } from 'discord.js'
-import getNewTopPlays from './getNewTopPlays'
-import updatePlayerState from './updatePlayerState'
-import wait from '../../utils/wait'
-import getEmbed from './getEmbed'
-import { osuApiV2 } from '../../libs/osu'
+import { CronJob } from "cron";
+import getTrackedPlayers from "../../utils/getTrackedPlayers";
+import { Client } from "discord.js";
+import getNewTopPlays from "./getNewTopPlays";
+import updatePlayerState from "./updatePlayerState";
+import wait from "../../utils/wait";
+import getEmbed from "./getEmbed";
+import { osuApiV2 } from "../../libs/osu";
 
-const EVERY_30_MINUTES = '*/30 * * * *'
+const EVERY_5_MINUTES = "*/5 * * * *";
 
-export default function update (client: Client): CronJob {
-  console.log('Service started : top plays')
+export default function update(client: Client): CronJob {
+  console.log("Service started : top plays");
 
   const job = new CronJob({
-    cronTime: EVERY_30_MINUTES,
+    cronTime: EVERY_5_MINUTES,
     onTick: diffTopPlays,
-    timeZone: 'Europe/Paris',
-    runOnInit: process.env.NODE_ENV === 'development'
-  })
+    timeZone: "Europe/Paris",
+    runOnInit: process.env.NODE_ENV === "development",
+  });
 
-  async function diffTopPlays () {
+  async function diffTopPlays() {
     try {
-      console.time('diffTopPlays')
+      console.time("diffTopPlays");
 
-      const trackedPlayers = await getTrackedPlayers(client, 'track')
+      const trackedPlayers = await getTrackedPlayers(client, "track");
 
       console.log(
         `Top plays tracking service: ${trackedPlayers.uniqueTrackedPlayers.length} players to compare.`
-      )
+      );
 
       for (const player of trackedPlayers.uniqueTrackedPlayers) {
         // Get the new top plays from a player
-        const newScores = await osuApiV2.getUserBestScores({
-          id: player.osu_id,
-          mode: player.osu_mode
-        }).catch((error) => {
-          console.error('diffTopPlays, getUserBestScores error', error)
-        })
+        const newScores = await osuApiV2
+          .getUserBestScores({
+            id: player.osu_id,
+            mode: player.osu_mode,
+          })
+          .catch((error) => {
+            console.error("diffTopPlays, getUserBestScores error", error);
+          });
 
         if (!newScores) {
-          continue
+          continue;
         }
 
-        const newPlays = await getNewTopPlays(player, newScores)
+        const newPlays = await getNewTopPlays(player, newScores);
 
         if (newPlays.length === 0) {
-          continue
+          continue;
         }
 
         // If there is new plays send them to the channel
         for (const play of newPlays) {
-          const embed = await getEmbed({ play, player })
+          const embed = await getEmbed({ play, player });
 
           // Send the embed for each tracked channel linked to this player
           for (const channel of player.trackChannels) {
-            channel.send({ embeds: [embed] }).catch((err) => console.error(err))
+            channel
+              .send({ embeds: [embed] })
+              .catch((err) => console.error(err));
 
             console.log(
               `Sent new top play from ${player.osu_username} to #${channel.name}`
-            )
+            );
 
             // Update the state of the player because we just checked its profile
-            updatePlayerState(player)
+            updatePlayerState(player);
           }
         }
 
-        await wait(2000)
+        await wait(2000);
       }
     } catch (error) {
-      console.error('diffTopPlays', error)
+      console.error("diffTopPlays", error);
     } finally {
-      console.timeEnd('diffTopPlays')
+      console.timeEnd("diffTopPlays");
     }
   }
 
-  return job
+  return job;
 }
